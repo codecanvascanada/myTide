@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steveston 스마트 조석 예보</title>
+    <title>Steveston 조석 예보 (빨간 점 표시)</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
@@ -11,67 +11,68 @@
 
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; width: 95%; max-width: 1000px; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; margin-bottom: 0.5rem; }
-        .date-display { text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 1.5rem; }
-        .loading { text-align: center; font-weight: bold; color: #007bff; }
-        canvas { width: 100% !important; height: 500px !important; } /* 높이를 조금 키웠습니다 */
+        .card { background: white; width: 95%; max-width: 1000px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 5px; }
+        .date-display { text-align: center; color: #666; font-size: 1rem; margin-bottom: 20px; }
+        .loading { text-align: center; font-weight: bold; color: #007bff; margin-top: 50px;}
+        canvas { width: 100% !important; height: 500px !important; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🌊 Steveston (07607) 상세 조석 예보</h2>
-    <div id="dateDisplay" class="date-display">날짜 정보를 불러오는 중...</div>
-    <div id="loading" class="loading">데이터 통신 중...</div>
+    <h2>🌊 Steveston (07607) 물때표</h2>
+    <div id="dateDisplay" class="date-display">날짜 확인 중...</div>
+    <div id="loading" class="loading">데이터를 가져오는 중입니다...</div>
     <canvas id="tideChart"></canvas>
 </div>
 
 <script>
-    // Chart.js에 데이터라벨 플러그인 등록
+    // 플러그인 등록
     Chart.register(ChartDataLabels);
 
     const today = new Date();
-    const startTime = new Date(today.setHours(0,0,0,0)).toISOString();
-    const endTime = new Date(today.setHours(23,59,59,999)).toISOString();
+    // 로컬 시간 기준 오늘 00:00 ~ 23:59 설정
+    const startTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0).toISOString();
+    const endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString();
     
-    document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+    document.getElementById('dateDisplay').innerText = today.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 
     const STATION_CODE = '07607';
-    
+
     async function fetchTideData() {
         try {
+            // 1. 관측소 ID 조회
             const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${STATION_CODE}`);
             const stationData = await stationResp.json();
-            
-            if (stationData.length === 0) throw new Error("관측소를 찾을 수 없습니다.");
             const stationId = stationData[0].id;
 
+            // 2. 데이터 조회 (wlp: 예측 데이터)
             const dataUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
             const dataResp = await fetch(dataUrl);
             const tideData = await dataResp.json();
 
-            // 데이터 가공 및 Peak/Trough 판별 로직
+            // 3. 고점(High) / 저점(Low) 판별 로직
             const plotData = tideData.map((item, index, array) => {
-                let pointType = 'normal'; // 기본값
+                let pointType = ''; 
 
-                // 배열 범위 체크 및 고점/저점 알고리즘 (Local Maxima/Minima)
                 if (index > 0 && index < array.length - 1) {
                     const prev = array[index - 1].value;
                     const curr = item.value;
                     const next = array[index + 1].value;
 
+                    // 주변보다 높으면 고점, 낮으면 저점
                     if (curr > prev && curr > next) {
-                        pointType = 'high'; // 고점
+                        pointType = 'high'; 
                     } else if (curr < prev && curr < next) {
-                        pointType = 'low'; // 저점
+                        pointType = 'low'; 
                     }
                 }
 
                 return {
                     x: item.eventDate,
                     y: item.value,
-                    type: pointType // 차트 설정에서 사용하기 위해 타입 저장
+                    type: pointType // 차트 설정에서 사용
                 };
             });
 
@@ -79,7 +80,8 @@
 
         } catch (error) {
             console.error(error);
-            document.getElementById('loading').innerText = "데이터 로드 실패";
+            document.getElementById('loading').innerText = "데이터 로드 실패 (새로고침 해주세요)";
+            document.getElementById('loading').style.color = "red";
         }
     }
 
@@ -93,26 +95,25 @@
                 datasets: [{
                     label: '조위 (m)',
                     data: data,
-                    borderColor: '#0077be',
-                    backgroundColor: 'rgba(0, 119, 190, 0.1)',
+                    borderColor: '#4facfe', // 그래프 선 색상 (밝은 파랑)
+                    backgroundColor: 'rgba(79, 172, 254, 0.1)', // 채우기 색상
                     borderWidth: 2,
-                    pointRadius: (ctx) => {
-                        // 고점/저점인 경우에만 점을 찍음
-                        const type = ctx.raw?.type;
-                        return (type === 'high' || type === 'low') ? 5 : 0;
-                    },
-                    pointBackgroundColor: (ctx) => {
-                        return ctx.raw?.type === 'high' ? '#ff3b30' : '#007aff'; // 고점 빨강, 저점 파랑
-                    },
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4, // 부드러운 곡선
+                    
+                    // 점 설정 (기본적으로는 숨기고, type이 있을 때만 표시)
+                    pointRadius: (ctx) => (ctx.raw?.type ? 6 : 0), // 정점은 크기 6, 나머지는 0
+                    pointBackgroundColor: 'red', // 요청하신 "빨간 점"
+                    pointBorderColor: 'white',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 layout: {
-                    padding: { top: 30, right: 20, left: 20, bottom: 20 } // 라벨 잘림 방지 여백
+                    padding: { top: 40, bottom: 20, left: 10, right: 10 } // 글씨 잘림 방지
                 },
                 scales: {
                     x: {
@@ -121,29 +122,31 @@
                         grid: { display: false }
                     },
                     y: {
-                        title: { display: true, text: '높이 (m)' }
+                        title: { display: true, text: '물 높이 (m)' },
+                        suggestedMax: 4.5 // 그래프 상단 여유 공간 확보
                     }
                 },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { enabled: true },
+                    tooltip: { enabled: true }, // 마우스 오버시 툴팁 유지
                     
-                    // [핵심] 데이터 라벨 플러그인 설정
+                    // [텍스트 표시 설정]
                     datalabels: {
-                        align: (ctx) => ctx.dataset.data[ctx.dataIndex].type === 'high' ? 'top' : 'bottom',
-                        anchor: (ctx) => ctx.dataset.data[ctx.dataIndex].type === 'high' ? 'end' : 'start',
-                        offset: 4,
-                        color: '#333',
-                        font: { weight: 'bold', size: 11 },
-                        formatter: (value, ctx) => {
-                            // 고점(high)이나 저점(low)일 때만 텍스트 표시
-                            if (value.type === 'high' || value.type === 'low') {
-                                const date = new Date(value.x);
-                                const timeStr = date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
-                                const label = value.type === 'high' ? '만조' : '간조';
-                                return `${label}\n${value.y.toFixed(2)}m\n${timeStr}`;
-                            }
-                            return null; // 나머지는 숨김
+                        display: (ctx) => ctx.dataset.data[ctx.dataIndex].type !== '', // type이 있는 경우에만 표시
+                        align: (ctx) => ctx.dataset.data[ctx.dataIndex].type === 'high' ? 'top' : 'bottom', // 고점은 위, 저점은 아래
+                        offset: 8, // 점과의 거리
+                        color: '#333', // 글자색 (검정) - 빨간점과 대비되어 잘 보임
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)', // 글자 배경 (그래프 선과 겹칠 때 가독성 확보)
+                        borderRadius: 4,
+                        font: { weight: 'bold', size: 12 },
+                        formatter: (value) => {
+                            const date = new Date(value.x);
+                            const timeStr = date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                            // 예: 14:30 \n 3.5m
+                            return `${timeStr}\n${value.y.toFixed(2)}m`;
+                        },
+                        listeners: {
+                            // 클릭 등의 이벤트 필요 시 추가 가능
                         }
                     }
                 }
