@@ -35,7 +35,7 @@
         .nav-btn:active { background-color: #0077be; color: white; }
         .date-display { font-size: 1rem; font-weight: 600; color: #333; text-align: center; flex-grow: 1; }
 
-        /* Dynamic Info Box */
+        /* Info Box */
         .info-box { 
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             border: none; color: #0d47a1; 
@@ -48,7 +48,6 @@
         
         .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); }
         
-        /* Graph height adjusted, padding handled in chart config */
         canvas { width: 100% !important; height: 280px !important; touch-action: none; } 
     </style>
 </head>
@@ -119,6 +118,20 @@
             console.error("Weather load failed", e);
             hourlyWeatherData = [];
         }
+    }
+
+    // [Logic Change] Group Weather codes to simplify display
+    // e.g., Slight Rain (61) and Heavy Rain (65) are both "Rain"
+    function getWeatherCategory(code) {
+        if (code === 0) return 'clear';
+        if (code >= 1 && code <= 3) return 'cloud';
+        if (code >= 45 && code <= 48) return 'fog';
+        if (code >= 51 && code <= 67) return 'rain'; // Drizzle & Rain
+        if (code >= 71 && code <= 77) return 'snow';
+        if (code >= 80 && code <= 82) return 'rain'; // Showers
+        if (code >= 85 && code <= 86) return 'snow';
+        if (code >= 95) return 'storm';
+        return 'unknown';
     }
 
     function getWeatherIcon(code) {
@@ -235,7 +248,7 @@
         }
     }
 
-    // [UPDATED] Weather Icons Plugin: Smart diff logic & position below axis
+    // [UPDATED] Smart Weather Icons Plugin
     const weatherIconPlugin = {
         id: 'weatherIcons',
         afterDraw: (chart) => {
@@ -249,27 +262,27 @@
             ctx.textAlign = 'center';
             ctx.font = '16px Arial';
             
-            let previousCode = null;
+            let previousCategory = null; // Tracks category (rain, cloud) not raw code
 
-            // Loop through all 24 hours
             for (let i = 0; i < 24; i++) {
                 if (!hourlyWeatherData[i]) continue;
                 
                 const currentCode = hourlyWeatherData[i].code;
+                const currentCategory = getWeatherCategory(currentCode); // Grouping Logic
 
-                // Draw ONLY if code changed from previous hour (or it's the start)
-                if (previousCode === null || currentCode !== previousCode) {
+                // Draw if category changes (e.g., Rain -> Sun)
+                if (previousCategory === null || currentCategory !== previousCategory) {
+                    
                     const d = new Date(currentDate);
                     d.setHours(i, 0, 0, 0);
                     const xPos = xAxis.getPixelForValue(d.getTime());
                     
                     if (xPos >= xAxis.left && xPos <= xAxis.right) {
                         const icon = getWeatherIcon(currentCode);
-                        // Draw below the axis bottom. Adjust '+ 25' to control vertical spacing
-                        ctx.fillText(icon, xPos, yAxis.bottom + 25); 
+                        // [FIXED] Position: yAxis.bottom + 40 to clear numbers
+                        ctx.fillText(icon, xPos, yAxis.bottom + 40); 
                     }
-                    // Update previous code for next iteration comparison
-                    previousCode = currentCode;
+                    previousCategory = currentCategory;
                 }
             }
             ctx.restore();
@@ -326,9 +339,9 @@
             plugins: [verticalLinePlugin, weatherIconPlugin],
             options: {
                 responsive: true, maintainAspectRatio: false,
-                // [UPDATED] Add padding to bottom for weather icons
+                // [FIXED] Padding bottom increased to 50 for icons
                 layout: {
-                    padding: { bottom: 30 }
+                    padding: { bottom: 50 }
                 },
                 interaction: { mode: 'index', intersect: false },
                 scales: {
