@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Tide & Weather</title>
+    <title>Easy Tides</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
@@ -13,6 +13,16 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; }
         .card { background: white; width: 100%; max-width: 800px; padding: 20px 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; }
         
+        /* [추가] 앱 제목 스타일 */
+        .app-title {
+            text-align: center;
+            margin: 0 0 15px 0;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0d47a1; /* 깊은 바다색 */
+            letter-spacing: -0.5px;
+        }
+
         /* Search Box */
         .search-container { position: relative; width: 100%; margin: 0 auto 10px auto; z-index: 100; }
         .search-input {
@@ -54,6 +64,8 @@
 <body>
 
 <div class="card">
+    <h1 class="app-title">Easy Tides</h1>
+
     <div class="search-container">
         <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
         <ul id="suggestions" class="suggestions-list"><li class="suggestion-item" style="justify-content: center; color: #999;">Loading...</li></ul>
@@ -246,7 +258,7 @@
         }
     }
 
-    // [UPDATED] Weather Icons Plugin
+    // Weather Icons Plugin
     const weatherIconPlugin = {
         id: 'weatherIcons',
         afterDraw: (chart) => {
@@ -258,7 +270,7 @@
             
             ctx.save();
             ctx.textAlign = 'center';
-            // [수정] 폰트 크기 10px로 축소
+            // 폰트 크기 10px로 유지
             ctx.font = '10px Arial';
             
             let previousCategory = null; 
@@ -277,7 +289,7 @@
                     
                     if (xPos >= xAxis.left && xPos <= xAxis.right) {
                         const icon = getWeatherIcon(currentCode);
-                        // [수정] 위치를 +50px로 내려서 숫자와 겹침 방지
+                        // [위치 조정] yAxis.bottom + 50
                         ctx.fillText(icon, xPos, yAxis.bottom + 50); 
                     }
                     previousCategory = currentCategory;
@@ -337,7 +349,7 @@
             plugins: [verticalLinePlugin, weatherIconPlugin],
             options: {
                 responsive: true, maintainAspectRatio: false,
-                // [수정] 아래쪽 여백을 넉넉히(60px) 주어 잘림 방지
+                // 하단 여백 유지
                 layout: {
                     padding: { bottom: 60 }
                 },
