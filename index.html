@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My Tide App</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -10,15 +10,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; width: 95%; max-width: 1000px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; }
+        .card { background: white; width: 100%; max-width: 800px; padding: 20px 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; }
         
         /* Search Box */
-        .search-container { position: relative; max-width: 400px; margin: 0 auto 20px auto; }
+        .search-container { position: relative; width: 100%; margin: 0 auto 15px auto; z-index: 100; }
         .search-input {
             width: 100%;
-            padding: 12px 15px;
-            font-size: 1.1rem;
+            padding: 12px 40px 12px 15px; /* right padding for icon */
+            font-size: 1rem;
             border: 1px solid #ddd;
             border-radius: 8px;
             outline: none;
@@ -26,9 +26,9 @@
             transition: border-color 0.2s;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: 95% center;
+            background-position: right 15px center;
         }
-        .search-input:focus { border-color: #0077be; box-shadow: 0 0 0 3px rgba(0,119,190,0.1); }
+        .search-input:focus { border-color: #0077be; }
         
         /* Autocomplete List */
         .suggestions-list {
@@ -45,7 +45,7 @@
             list-style: none;
             padding: 0;
             margin: 5px 0 0 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             display: none; 
         }
         .suggestion-item {
@@ -55,31 +55,32 @@
             font-size: 0.95rem;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         .suggestion-item:last-child { border-bottom: none; }
-        .suggestion-item:hover { background-color: #f0f8ff; color: #0077be; }
-        .suggestion-code { color: #888; font-size: 0.85em; }
+        .suggestion-item:active { background-color: #f0f8ff; color: #0077be; } /* 모바일 터치감 개선 */
+        .suggestion-code { color: #999; font-size: 0.85em; }
 
         /* Controls & Display */
-        .date-controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .nav-btn { background-color: #fff; border: 1px solid #ddd; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 1.1rem; color: #555; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .nav-btn:hover { background-color: #0077be; color: white; border-color: #0077be; }
-        .date-display { font-size: 1.1rem; font-weight: 600; color: #333; min-width: 220px; text-align: center; }
+        .date-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 5px; border-radius: 10px; }
+        .nav-btn { background-color: #fff; border: 1px solid #eee; border-radius: 8px; width: 44px; height: 44px; cursor: pointer; font-size: 1.2rem; color: #0077be; display: flex; align-items: center; justify-content: center; transition: all 0.1s; -webkit-tap-highlight-color: transparent; }
+        .nav-btn:active { background-color: #0077be; color: white; }
+        .date-display { font-size: 1rem; font-weight: 600; color: #333; text-align: center; flex-grow: 1; }
 
-        .info-box { background-color: #eef6fc; border: 1px solid #d0e7f9; color: #0d47a1; padding: 12px; text-align: center; border-radius: 10px; margin-bottom: 10px; font-weight: bold; min-height: 1.5em; }
-        .loading { text-align: center; font-weight: bold; color: #007bff; margin-top: 50px; }
-        canvas { width: 100% !important; height: 500px !important; }
+        .info-box { background-color: #eef6fc; border: none; color: #0d47a1; padding: 10px; text-align: center; border-radius: 8px; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; min-height: 1.4em; display: flex; align-items: center; justify-content: center; }
+        .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        
+        /* [수정됨] 그래프 높이 축소 (모바일 한 화면에 맞춤) */
+        canvas { width: 100% !important; height: 350px !important; touch-action: none; } 
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2 style="text-align:center; color:#333; margin-top:0;">🌊 Tide Chart</h2>
-    
     <div class="search-container">
         <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
         <ul id="suggestions" class="suggestions-list">
-            <li class="suggestion-item" style="cursor: default; color: #999;">Loading stations...</li>
+            <li class="suggestion-item" style="cursor: default; color: #999; justify-content: center;">Loading stations...</li>
         </ul>
     </div>
     
@@ -90,7 +91,7 @@
     </div>
 
     <div id="currentInfo" class="info-box">Loading...</div>
-    <div id="loading" class="loading">Initializing...</div>
+    <div id="loading" class="loading" style="display: none;"></div>
     <canvas id="tideChart"></canvas>
 </div>
 
@@ -99,50 +100,34 @@
 
     let currentDate = new Date(); 
     let myChart = null; 
-    let allStations = []; // Cache for station list
+    let allStations = []; 
     
-    // --- 1. Persistence Logic (Load saved station) ---
-    // Check localStorage. If empty, default to Steveston (07607)
     let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
     let currentStationName = localStorage.getItem('tide_station_name') || 'Steveston';
 
-    // Start App
     initApp();
 
     function initApp() {
         updateDateDisplay();
-        
-        // Show current station name in search box immediately
         document.getElementById('stationSearch').value = currentStationName;
-        
-        // Load Chart
         fetchTideData();
     }
 
-    // --- 2. Lazy Loading Logic (Load list only on focus) ---
     async function prepareStationList() {
         const list = document.getElementById('suggestions');
-        
-        // If already loaded, just show search results
         if (allStations.length > 0) {
             filterStations();
             return;
         }
-
-        // First time focus: Show loading
         list.style.display = 'block';
-        
         try {
             const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
             allStations = await resp.json();
-            
-            // Clear "Loading..." text and ready to filter
             list.innerHTML = '';
-            filterStations(); // Refresh list based on current input
-            
+            filterStations(); 
         } catch (e) {
             console.error("Failed to load station list", e);
-            list.innerHTML = '<li class="suggestion-item">Error loading list</li>';
+            list.innerHTML = '<li class="suggestion-item" style="justify-content: center;">Error loading list</li>';
         }
     }
 
@@ -152,14 +137,11 @@
         const query = input.value.toLowerCase();
 
         list.innerHTML = '';
-        
-        // If list not loaded yet, do nothing (prepareStationList handles it)
         if (allStations.length === 0) return;
 
-        // Filter: match name or code
         const matches = allStations
             .filter(s => s.officialName.toLowerCase().includes(query) || s.code.includes(query))
-            .slice(0, 10); // Limit to 10 results for performance
+            .slice(0, 10);
 
         if (matches.length > 0) {
             list.style.display = 'block';
@@ -171,10 +153,10 @@
                 list.appendChild(li);
             });
         } else {
-            // No matches
              const li = document.createElement('li');
              li.className = 'suggestion-item';
              li.style.color = '#999';
+             li.style.justifyContent = 'center';
              li.innerText = 'No locations found';
              list.appendChild(li);
              list.style.display = 'block';
@@ -184,27 +166,20 @@
     function selectStation(station) {
         currentStationCode = station.code;
         currentStationName = station.officialName;
-        
-        // --- 3. Save to Local Storage ---
         localStorage.setItem('tide_station_code', currentStationCode);
         localStorage.setItem('tide_station_name', currentStationName);
         
-        // UI Update
         document.getElementById('stationSearch').value = currentStationName;
         document.getElementById('suggestions').style.display = 'none';
-        
-        // Refresh Chart
         fetchTideData();
     }
 
-    // Hide suggestions when clicking outside
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.search-container')) {
             document.getElementById('suggestions').style.display = 'none';
         }
     });
 
-    // --- Chart & Data Logic (Same as before) ---
     function changeDate(offset) {
         currentDate.setDate(currentDate.getDate() + offset);
         updateDateDisplay();
@@ -212,7 +187,7 @@
     }
 
     function updateDateDisplay() {
-        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+        const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }; // 모바일용 짧은 날짜 포맷
         document.getElementById('dateDisplay').innerText = currentDate.toLocaleDateString('en-CA', options);
     }
 
@@ -239,7 +214,7 @@
 
     async function fetchTideData() {
         document.getElementById('loading').style.display = 'block';
-        document.getElementById('currentInfo').innerHTML = `Loading ${currentStationName}...`;
+        document.getElementById('currentInfo').innerHTML = `Loading...`;
         
         if (myChart) {
             myChart.destroy();
@@ -249,15 +224,11 @@
         const endTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59).toISOString();
 
         try {
-            // Find ID logic
             let stationId = '';
-            
-            // Check cache first
             const found = allStations.find(s => s.code === currentStationCode);
             if (found) {
                 stationId = found.id;
             } else {
-                // If stations are not loaded yet (initial load), fetch specific station info
                 const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
                 const stationData = await stationResp.json();
                 if(stationData.length > 0) stationId = stationData[0].id;
@@ -274,13 +245,13 @@
             const lineData = curveData.map(item => ({ x: item.eventDate, y: item.value }));
             const pointData = hiloData.map(item => ({ x: item.eventDate, y: item.value }));
 
-            document.getElementById('currentInfo').innerHTML = "Hover over chart for details";
+            document.getElementById('currentInfo').innerHTML = "Tap chart for details"; // 모바일 문구 변경
             renderChart(lineData, pointData);
 
         } catch (error) {
             console.error(error);
-            document.getElementById('loading').innerText = "Data Unavailable";
-            document.getElementById('currentInfo').innerHTML = "⚠️ Failed to load data";
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('currentInfo').innerHTML = "⚠️ Data Unavailable";
         }
     }
 
@@ -311,15 +282,15 @@
                         data: pointData,
                         type: 'scatter',
                         backgroundColor: 'red',
-                        pointRadius: 6,
+                        pointRadius: 5, // 모바일에서 점 크기 약간 축소
                         datalabels: {
                             display: true,
                             align: (ctx) => ctx.dataset.data[ctx.dataIndex].y > 2.5 ? 'top' : 'bottom',
                             color: '#333',
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                             borderRadius: 4,
-                            padding: 4,
-                            font: { weight: 'bold', size: 12 },
+                            padding: 3, // 패딩 축소
+                            font: { weight: 'bold', size: 11 }, // 폰트 사이즈 축소
                             formatter: (value) => {
                                 const date = new Date(value.x);
                                 return `${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}\n${value.y.toFixed(2)}m`;
@@ -340,10 +311,13 @@
                     x: {
                         type: 'time',
                         time: { unit: 'hour', displayFormats: { hour: 'HH:mm' } },
-                        grid: { display: false }
+                        grid: { display: false },
+                        ticks: { maxRotation: 0, autoSkip: true, font: { size: 11 } } // X축 라벨 겹침 방지
                     },
                     y: {
-                        title: { display: true, text: 'Height (m)' }
+                        // [수정됨] Y축 타이틀(Height m) 삭제됨
+                        title: { display: false },
+                        ticks: { font: { size: 11 } }
                     }
                 },
                 plugins: {
@@ -351,6 +325,8 @@
                     tooltip: {
                         enabled: true,
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: { size: 13 },
+                        bodyFont: { size: 13 },
                         callbacks: {
                             title: (tooltipItems) => {
                                 const date = new Date(tooltipItems[0].raw.x);
@@ -360,7 +336,8 @@
                                 const val = tooltipItem.raw.y.toFixed(2);
                                 const time = new Date(tooltipItem.raw.x).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                                 
-                                infoBox.innerHTML = `📍 ${currentStationName} | ⏱️ ${time} | 💧 ${val} m`;
+                                // 모바일 화면에 맞게 정보 표시줄 간소화 (장소 이름 제거)
+                                infoBox.innerHTML = `⏱️ ${time} | 💧 ${val} m`;
                                 return `${val} m`;
                             }
                         }
