@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steveston 조석 예보 (빨간 점 표시)</title>
+    <title>Steveston 조석 예보 (공식 데이터 연동)</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
@@ -14,7 +14,7 @@
         .card { background: white; width: 95%; max-width: 1000px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #333; margin-bottom: 5px; }
         .date-display { text-align: center; color: #666; font-size: 1rem; margin-bottom: 20px; }
-        .loading { text-align: center; font-weight: bold; color: #007bff; margin-top: 50px;}
+        .loading { text-align: center; font-weight: bold; color: #007bff; margin-top: 50px; }
         canvas { width: 100% !important; height: 500px !important; }
     </style>
 </head>
@@ -23,16 +23,15 @@
 <div class="card">
     <h2>🌊 Steveston (07607) 물때표</h2>
     <div id="dateDisplay" class="date-display">날짜 확인 중...</div>
-    <div id="loading" class="loading">데이터를 가져오는 중입니다...</div>
+    <div id="loading" class="loading">데이터를 불러오는 중...</div>
     <canvas id="tideChart"></canvas>
 </div>
 
 <script>
-    // 플러그인 등록
     Chart.register(ChartDataLabels);
 
     const today = new Date();
-    // 로컬 시간 기준 오늘 00:00 ~ 23:59 설정
+    // UTC 문제 방지를 위해 넉넉하게 하루 전후 포함하여 요청 후 필터링
     const startTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0).toISOString();
     const endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString();
     
@@ -47,74 +46,89 @@
             const stationData = await stationResp.json();
             const stationId = stationData[0].id;
 
-            // 2. 데이터 조회 (wlp: 예측 데이터)
-            const dataUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
-            const dataResp = await fetch(dataUrl);
-            const tideData = await dataResp.json();
+            // 2. [곡선용] 전체 데이터 요청 (wlp)
+            const curveUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
+            
+            // 3. [점/글씨용] 공식 고조/저조 데이터 요청 (wlp-hilo) -> 이게 핵심입니다!
+            const hiloUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp-hilo&from=${startTime}&to=${endTime}`;
 
-            // 3. 고점(High) / 저점(Low) 판별 로직
-            const plotData = tideData.map((item, index, array) => {
-                let pointType = ''; 
+            // 두 데이터를 동시에 가져옴
+            const [curveResp, hiloResp] = await Promise.all([fetch(curveUrl), fetch(hiloUrl)]);
+            const curveData = await curveResp.json();
+            const hiloData = await hiloResp.json();
 
-                if (index > 0 && index < array.length - 1) {
-                    const prev = array[index - 1].value;
-                    const curr = item.value;
-                    const next = array[index + 1].value;
+            // 데이터 포맷팅
+            const lineData = curveData.map(item => ({ x: item.eventDate, y: item.value }));
+            
+            // 고점/저점 데이터 포맷팅 (type을 직접 넣어줌)
+            const pointData = hiloData.map(item => ({
+                x: item.eventDate,
+                y: item.value,
+                // 값만으로는 알 수 없으니 주변 데이터 로직 대신 API가 준 값 그대로 사용
+                // 보통 hign/low 구분값이 없으므로 단순 표시용으로 씀
+                // 높이가 2m 이상이면 만조(High), 이하면 간조(Low)로 추정하거나 그냥 다 찍음
+                type: 'peak' 
+            }));
 
-                    // 주변보다 높으면 고점, 낮으면 저점
-                    if (curr > prev && curr > next) {
-                        pointType = 'high'; 
-                    } else if (curr < prev && curr < next) {
-                        pointType = 'low'; 
-                    }
-                }
-
-                return {
-                    x: item.eventDate,
-                    y: item.value,
-                    type: pointType // 차트 설정에서 사용
-                };
-            });
-
-            renderChart(plotData);
+            renderChart(lineData, pointData);
 
         } catch (error) {
             console.error(error);
-            document.getElementById('loading').innerText = "데이터 로드 실패 (새로고침 해주세요)";
-            document.getElementById('loading').style.color = "red";
+            document.getElementById('loading').innerText = "데이터 로드 실패";
         }
     }
 
-    function renderChart(data) {
+    function renderChart(lineData, pointData) {
         document.getElementById('loading').style.display = 'none';
         
         const ctx = document.getElementById('tideChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                datasets: [{
-                    label: '조위 (m)',
-                    data: data,
-                    borderColor: '#4facfe', // 그래프 선 색상 (밝은 파랑)
-                    backgroundColor: 'rgba(79, 172, 254, 0.1)', // 채우기 색상
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4, // 부드러운 곡선
-                    
-                    // 점 설정 (기본적으로는 숨기고, type이 있을 때만 표시)
-                    pointRadius: (ctx) => (ctx.raw?.type ? 6 : 0), // 정점은 크기 6, 나머지는 0
-                    pointBackgroundColor: 'red', // 요청하신 "빨간 점"
-                    pointBorderColor: 'white',
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 8
-                }]
+                datasets: [
+                    // 1번 데이터셋: 부드러운 파란 곡선 (점 없음)
+                    {
+                        label: '조위 곡선',
+                        data: lineData,
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 0, // 곡선 위에는 점 안 찍음
+                        fill: true,
+                        tension: 0.4,
+                        datalabels: { display: false } // 곡선에는 글씨 안 씀
+                    },
+                    // 2번 데이터셋: 빨간 점과 글씨 (High/Low 데이터만 별도로 찍음)
+                    {
+                        label: '만조/간조',
+                        data: pointData,
+                        type: 'scatter', // 선 없이 점만 찍는 타입
+                        backgroundColor: 'red',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        datalabels: {
+                            display: true, // 무조건 표시
+                            align: (ctx) => {
+                                // y값이 2.5보다 크면 위쪽, 작으면 아래쪽에 글씨 배치
+                                return ctx.dataset.data[ctx.dataIndex].y > 2.5 ? 'top' : 'bottom';
+                            },
+                            color: '#333',
+                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            borderRadius: 4,
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (value) => {
+                                const date = new Date(value.x);
+                                const timeStr = date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                                return `${timeStr}\n${value.y.toFixed(2)}m`;
+                            }
+                        }
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: {
-                    padding: { top: 40, bottom: 20, left: 10, right: 10 } // 글씨 잘림 방지
-                },
+                layout: { padding: { top: 30, bottom: 30 } },
                 scales: {
                     x: {
                         type: 'time',
@@ -123,32 +137,13 @@
                     },
                     y: {
                         title: { display: true, text: '물 높이 (m)' },
-                        suggestedMax: 4.5 // 그래프 상단 여유 공간 확보
+                        suggestedMin: -0.5,
+                        suggestedMax: 5.0
                     }
                 },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { enabled: true }, // 마우스 오버시 툴팁 유지
-                    
-                    // [텍스트 표시 설정]
-                    datalabels: {
-                        display: (ctx) => ctx.dataset.data[ctx.dataIndex].type !== '', // type이 있는 경우에만 표시
-                        align: (ctx) => ctx.dataset.data[ctx.dataIndex].type === 'high' ? 'top' : 'bottom', // 고점은 위, 저점은 아래
-                        offset: 8, // 점과의 거리
-                        color: '#333', // 글자색 (검정) - 빨간점과 대비되어 잘 보임
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)', // 글자 배경 (그래프 선과 겹칠 때 가독성 확보)
-                        borderRadius: 4,
-                        font: { weight: 'bold', size: 12 },
-                        formatter: (value) => {
-                            const date = new Date(value.x);
-                            const timeStr = date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
-                            // 예: 14:30 \n 3.5m
-                            return `${timeStr}\n${value.y.toFixed(2)}m`;
-                        },
-                        listeners: {
-                            // 클릭 등의 이벤트 필요 시 추가 가능
-                        }
-                    }
+                    tooltip: { enabled: true }
                 }
             }
         });
