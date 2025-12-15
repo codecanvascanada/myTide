@@ -35,7 +35,7 @@
         .nav-btn:active { background-color: #0077be; color: white; }
         .date-display { font-size: 1rem; font-weight: 600; color: #333; text-align: center; flex-grow: 1; }
 
-        /* Dynamic Info Box */
+        /* Info Box */
         .info-box { 
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             border: none; color: #0d47a1; 
@@ -48,7 +48,6 @@
         
         .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); }
         
-        /* [수정됨] 그래프 높이 축소: 350px -> 250px */
         canvas { width: 100% !important; height: 250px !important; touch-action: none; } 
     </style>
 </head>
@@ -80,7 +79,6 @@
     let currentDate = new Date(); 
     let myChart = null; 
     let allStations = []; 
-    // Store hourly weather data globally
     let hourlyWeatherData = []; 
     
     let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
@@ -94,7 +92,6 @@
         fetchTideData(); 
     }
 
-    // --- Weather Logic (Hourly) ---
     async function fetchWeatherData(lat, lon, dateObj) {
         try {
             const year = dateObj.getFullYear();
@@ -102,16 +99,14 @@
             const day = String(dateObj.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
 
-            // Request HOURLY data
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,wind_speed_10m,weather_code&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
             
             const resp = await fetch(url);
             const data = await resp.json();
             
             if (data.hourly) {
-                // Map the arrays into a usable object array
                 hourlyWeatherData = data.hourly.time.map((t, i) => ({
-                    time: t, // ISO string
+                    time: t, 
                     temp: data.hourly.temperature_2m[i],
                     wind: data.hourly.wind_speed_10m[i],
                     code: data.hourly.weather_code[i]
@@ -136,7 +131,6 @@
         return '☁️';
     }
 
-    // --- Standard App Functions ---
     async function prepareStationList() {
         const list = document.getElementById('suggestions');
         if (allStations.length > 0) { filterStations(); return; }
@@ -196,7 +190,6 @@
         document.getElementById('dateDisplay').innerText = currentDate.toLocaleDateString('en-CA', options);
     }
 
-    // --- Main Fetcher ---
     async function fetchTideData() {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('currentInfo').innerHTML = `Loading ${currentStationName}...`;
@@ -217,12 +210,10 @@
                 else throw new Error("Station not found");
             }
 
-            // 1. Fetch Hourly Weather (Parallel)
             if (stationObj.latitude && stationObj.longitude) {
                 await fetchWeatherData(stationObj.latitude, stationObj.longitude, currentDate);
             }
 
-            // 2. Fetch Tide Data
             const curveUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
             const hiloUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp-hilo&from=${startTime}&to=${endTime}`;
 
@@ -243,9 +234,6 @@
         }
     }
 
-    // --- Chart Plugins ---
-
-    // 1. Weather Icons on X-Axis Plugin
     const weatherIconPlugin = {
         id: 'weatherIcons',
         afterDraw: (chart) => {
@@ -259,23 +247,15 @@
             ctx.textAlign = 'center';
             ctx.font = '16px Arial';
             
-            // Draw icon every 3 hours (Index 0, 3, 6...)
-            // 24 hours total
             for (let i = 0; i < 24; i += 3) {
                 if (!hourlyWeatherData[i]) continue;
                 
-                // Convert hour to X pixel
-                // The Chart uses specific date objects for X. We need to match that.
-                // Construct date object for this hour
                 const d = new Date(currentDate);
                 d.setHours(i, 0, 0, 0);
-                
                 const xPos = xAxis.getPixelForValue(d.getTime());
                 
-                // Only draw if inside chart area
                 if (xPos >= xAxis.left && xPos <= xAxis.right) {
                     const icon = getWeatherIcon(hourlyWeatherData[i].code);
-                    // Draw at bottom of chart
                     ctx.fillText(icon, xPos, yAxis.bottom - 10); 
                 }
             }
@@ -283,7 +263,6 @@
         }
     };
 
-    // 2. Vertical Line + Info Update
     const verticalLinePlugin = {
         id: 'verticalLine',
         afterDraw: (chart) => {
@@ -336,15 +315,26 @@
                 responsive: true, maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 scales: {
-                    x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'HH:mm' } }, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, font: { size: 11 } } },
+                    x: { 
+                        type: 'time', 
+                        time: { 
+                            unit: 'hour', 
+                            displayFormats: { hour: 'H' } // [변경됨] 시간을 숫자로만 표기 (0, 1, 2...)
+                        }, 
+                        grid: { display: false }, 
+                        ticks: { 
+                            maxRotation: 0, 
+                            autoSkip: true, 
+                            font: { size: 12 } 
+                        } 
+                    },
                     y: { title: { display: false }, ticks: { font: { size: 11 } } }
                 },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        enabled: false, // Disable default tooltip to use Custom Info Box exclusively
+                        enabled: false, 
                         external: (context) => {
-                            // Custom logic to update the top info box
                             const tooltipModel = context.tooltip;
                             if (tooltipModel.opacity === 0) return;
 
@@ -356,15 +346,13 @@
                             const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
                             const hour = date.getHours();
 
-                            // Find matching weather for this hour
-                            let weatherStr = "No Data";
+                            let weatherStr = "";
                             if (hourlyWeatherData[hour]) {
                                 const w = hourlyWeatherData[hour];
                                 const icon = getWeatherIcon(w.code);
                                 weatherStr = `<span class="info-item">${icon} ${w.temp}°C</span> <span class="info-item">🌬️ ${w.wind} km/h</span>`;
                             }
 
-                            // Update Dashboard
                             infoBox.innerHTML = `
                                 <span class="info-item">⏱️ ${timeStr}</span>
                                 <span class="info-item">💧 ${tideVal}m</span>
