@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steveston 실시간 조석 예보</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; width: 90%; max-width: 900px; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 0.5rem; }
+        .date-display { text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 1.5rem; }
+        .loading { text-align: center; font-weight: bold; color: #007bff; }
+        canvas { width: 100% !important; height: 400px !important; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🌊 Steveston (07607) 조석 그래프</h2>
+    <div id="dateDisplay" class="date-display">날짜 정보를 불러오는 중...</div>
+    <div id="loading" class="loading">데이터 통신 중...</div>
+    <canvas id="tideChart"></canvas>
+</div>
+
+<script>
+    // 1. 날짜 설정 (오늘 시작 ~ 오늘 끝)
+    const today = new Date();
+    const startTime = new Date(today.setHours(0,0,0,0)).toISOString();
+    const endTime = new Date(today.setHours(23,59,59,999)).toISOString();
+    
+    // 화면에 오늘 날짜 표시
+    document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+
+    // 2. API 설정
+    // Steveston 관측소 코드: 07607 -> 내부 ID 조회를 위해 먼저 검색하거나, ID를 알면 바로 호출 가능
+    // Steveston(07607)의 고유 ID는 보통 고정되어 있으나, 안전하게 코드로 검색 로직을 포함할 수 있습니다.
+    // 여기서는 API 구조상 07607 코드를 이용해 데이터를 조회합니다.
+    
+    // 캐나다 DFO 공식 API 엔드포인트
+    const STATION_CODE = '07607';
+    
+    async function fetchTideData() {
+        try {
+            // A. 스테이션 ID 찾기
+            const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${STATION_CODE}`);
+            const stationData = await stationResp.json();
+            
+            if (stationData.length === 0) throw new Error("관측소를 찾을 수 없습니다.");
+            const stationId = stationData[0].id; // 내부 UUID 추출
+
+            // B. 해당 스테이션의 오늘 날짜 예보 데이터(wlp: Water Level Prediction) 가져오기
+            const dataUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
+            const dataResp = await fetch(dataUrl);
+            const tideData = await dataResp.json();
+
+            // C. 데이터 가공 (Chart.js 포맷으로 변환)
+            const plotData = tideData.map(item => ({
+                x: item.eventDate, // ISO String (자동으로 로컬 시간대 변환됨)
+                y: item.value      // 높이 (m)
+            }));
+
+            renderChart(plotData);
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById('loading').innerText = "데이터를 불러오는데 실패했습니다. (콘솔 확인 필요)";
+            document.getElementById('loading').style.color = "red";
+        }
+    }
+
+    function renderChart(data) {
+        document.getElementById('loading').style.display = 'none';
+        
+        const ctx = document.getElementById('tideChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: '예상 조위 (m)',
+                    data: data,
+                    borderColor: '#0077be',
+                    backgroundColor: 'rgba(0, 119, 190, 0.2)',
+                    borderWidth: 2,
+                    pointRadius: 0, // 점 숨김 (매끄러운 선)
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4 // 곡선
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'time', // 시간 축 설정
+                        time: {
+                            unit: 'hour',
+                            displayFormats: { hour: 'HH:mm' },
+                            tooltipFormat: 'HH:mm'
+                        },
+                        title: { display: true, text: '시간' }
+                    },
+                    y: {
+                        title: { display: true, text: '높이 (미터)' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `높이: ${context.parsed.y}m`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    fetchTideData();
+</script>
+
+</body>
+</html>
