@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steveston 조석 예보 (공식 데이터 연동)</title>
+    <title>Steveston 인터랙티브 조석 예보</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
@@ -14,6 +14,18 @@
         .card { background: white; width: 95%; max-width: 1000px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #333; margin-bottom: 5px; }
         .date-display { text-align: center; color: #666; font-size: 1rem; margin-bottom: 20px; }
+        .info-box {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            color: #0d47a1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+            min-height: 1.5em; /* 높이 확보 */
+        }
         .loading { text-align: center; font-weight: bold; color: #007bff; margin-top: 50px; }
         canvas { width: 100% !important; height: 500px !important; }
     </style>
@@ -21,8 +33,11 @@
 <body>
 
 <div class="card">
-    <h2>🌊 Steveston (07607) 물때표</h2>
+    <h2>🌊 Steveston (07607) 상세 조석표</h2>
     <div id="dateDisplay" class="date-display">날짜 확인 중...</div>
+    
+    <div id="currentInfo" class="info-box">그래프 위에 마우스를 올려보세요</div>
+
     <div id="loading" class="loading">데이터를 불러오는 중...</div>
     <canvas id="tideChart"></canvas>
 </div>
@@ -31,44 +46,53 @@
     Chart.register(ChartDataLabels);
 
     const today = new Date();
-    // UTC 문제 방지를 위해 넉넉하게 하루 전후 포함하여 요청 후 필터링
     const startTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0).toISOString();
     const endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString();
     
     document.getElementById('dateDisplay').innerText = today.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 
+    // [커스텀 플러그인] 마우스 위치에 세로선(Crosshair) 그리기
+    const verticalLinePlugin = {
+        id: 'verticalLine',
+        afterDraw: (chart) => {
+            // 활성화된(마우스가 올라간) 요소가 있으면 실행
+            if (chart.tooltip?._active?.length) {
+                const ctx = chart.ctx;
+                const x = chart.tooltip._active[0].element.x;
+                const topY = chart.scales.y.top;
+                const bottomY = chart.scales.y.bottom;
+
+                // 선 그리기
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(x, topY);
+                ctx.lineTo(x, bottomY);
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = '#ff5722'; // 주황색 가이드라인
+                ctx.setLineDash([5, 5]); // 점선 효과
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+    };
+
     const STATION_CODE = '07607';
 
     async function fetchTideData() {
         try {
-            // 1. 관측소 ID 조회
             const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${STATION_CODE}`);
             const stationData = await stationResp.json();
             const stationId = stationData[0].id;
 
-            // 2. [곡선용] 전체 데이터 요청 (wlp)
             const curveUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
-            
-            // 3. [점/글씨용] 공식 고조/저조 데이터 요청 (wlp-hilo) -> 이게 핵심입니다!
             const hiloUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp-hilo&from=${startTime}&to=${endTime}`;
 
-            // 두 데이터를 동시에 가져옴
             const [curveResp, hiloResp] = await Promise.all([fetch(curveUrl), fetch(hiloUrl)]);
             const curveData = await curveResp.json();
             const hiloData = await hiloResp.json();
 
-            // 데이터 포맷팅
             const lineData = curveData.map(item => ({ x: item.eventDate, y: item.value }));
-            
-            // 고점/저점 데이터 포맷팅 (type을 직접 넣어줌)
-            const pointData = hiloData.map(item => ({
-                x: item.eventDate,
-                y: item.value,
-                // 값만으로는 알 수 없으니 주변 데이터 로직 대신 API가 준 값 그대로 사용
-                // 보통 hign/low 구분값이 없으므로 단순 표시용으로 씀
-                // 높이가 2m 이상이면 만조(High), 이하면 간조(Low)로 추정하거나 그냥 다 찍음
-                type: 'peak' 
-            }));
+            const pointData = hiloData.map(item => ({ x: item.eventDate, y: item.value }));
 
             renderChart(lineData, pointData);
 
@@ -82,53 +106,53 @@
         document.getElementById('loading').style.display = 'none';
         
         const ctx = document.getElementById('tideChart').getContext('2d');
+        const infoBox = document.getElementById('currentInfo');
+
         new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: [
-                    // 1번 데이터셋: 부드러운 파란 곡선 (점 없음)
                     {
                         label: '조위 곡선',
                         data: lineData,
                         borderColor: '#4facfe',
                         backgroundColor: 'rgba(79, 172, 254, 0.1)',
                         borderWidth: 2,
-                        pointRadius: 0, // 곡선 위에는 점 안 찍음
+                        pointRadius: 0, 
+                        hitRadius: 20, // 마우스 감지 범위 넓힘
                         fill: true,
                         tension: 0.4,
-                        datalabels: { display: false } // 곡선에는 글씨 안 씀
+                        datalabels: { display: false }
                     },
-                    // 2번 데이터셋: 빨간 점과 글씨 (High/Low 데이터만 별도로 찍음)
                     {
                         label: '만조/간조',
                         data: pointData,
-                        type: 'scatter', // 선 없이 점만 찍는 타입
+                        type: 'scatter',
                         backgroundColor: 'red',
                         pointRadius: 6,
-                        pointHoverRadius: 8,
                         datalabels: {
-                            display: true, // 무조건 표시
-                            align: (ctx) => {
-                                // y값이 2.5보다 크면 위쪽, 작으면 아래쪽에 글씨 배치
-                                return ctx.dataset.data[ctx.dataIndex].y > 2.5 ? 'top' : 'bottom';
-                            },
+                            display: true,
+                            align: (ctx) => ctx.dataset.data[ctx.dataIndex].y > 2.5 ? 'top' : 'bottom',
                             color: '#333',
                             backgroundColor: 'rgba(255, 255, 255, 0.8)',
                             borderRadius: 4,
                             font: { weight: 'bold', size: 12 },
                             formatter: (value) => {
                                 const date = new Date(value.x);
-                                const timeStr = date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
-                                return `${timeStr}\n${value.y.toFixed(2)}m`;
+                                return `${date.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', hour12:false})}\n${value.y.toFixed(2)}m`;
                             }
                         }
                     }
                 ]
             },
+            plugins: [verticalLinePlugin], // 커스텀 플러그인 등록
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: { padding: { top: 30, bottom: 30 } },
+                interaction: {
+                    mode: 'index', // X축 기준 같은 위치의 데이터 모두 표시
+                    intersect: false // 선에 정확히 마우스를 안 대도 근처면 반응
+                },
                 scales: {
                     x: {
                         type: 'time',
@@ -136,14 +160,41 @@
                         grid: { display: false }
                     },
                     y: {
-                        title: { display: true, text: '물 높이 (m)' },
-                        suggestedMin: -0.5,
-                        suggestedMax: 5.0
+                        title: { display: true, text: '물 높이 (m)' }
                     }
                 },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { enabled: true }
+                    tooltip: {
+                        enabled: true, // 기본 툴팁 켜기
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 14, weight: 'bold' },
+                        displayColors: false,
+                        callbacks: {
+                            title: (tooltipItems) => {
+                                // 툴팁 상단 날짜 포맷
+                                const date = new Date(tooltipItems[0].raw.x);
+                                return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                            },
+                            label: (tooltipItem) => {
+                                // 툴팁 내용 포맷 및 상단 박스 업데이트
+                                const val = tooltipItem.raw.y.toFixed(2);
+                                const time = new Date(tooltipItem.raw.x).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                                
+                                // [기능 추가] 상단 정보 박스에 실시간 출력
+                                infoBox.innerHTML = `⏱️ 시간: ${time}  |  💧 높이: ${val} m`;
+                                
+                                return `${val} m`;
+                            }
+                        }
+                    }
+                },
+                // 마우스가 그래프 밖으로 나갔을 때 상단 박스 초기화
+                onHover: (event, chartElement) => {
+                    if (chartElement.length === 0) {
+                        // infoBox.innerHTML = "그래프 위에 마우스를 올려보세요";
+                    }
                 }
             }
         });
