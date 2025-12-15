@@ -17,7 +17,6 @@
             text-align: center; margin: 0 0 15px 0; font-size: 1.8rem; font-weight: 800; color: #0d47a1; letter-spacing: -0.5px;
         }
 
-        /* Search Box */
         .search-container { position: relative; width: 100%; margin: 0 auto 10px auto; z-index: 100; }
         .search-input {
             width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; transition: border-color 0.2s;
@@ -26,20 +25,17 @@
         }
         .search-input:focus { border-color: #0077be; }
         
-        /* Suggestions */
         .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 250px; overflow-y: auto; z-index: 1000; list-style: none; padding: 0; margin: 5px 0 0 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none; }
         .suggestion-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:active { background-color: #f0f8ff; color: #0077be; }
         .suggestion-code { color: #999; font-size: 0.85em; }
 
-        /* Controls */
         .date-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 5px; border-radius: 10px; }
         .nav-btn { background-color: #fff; border: 1px solid #eee; border-radius: 8px; width: 44px; height: 44px; cursor: pointer; font-size: 1.2rem; color: #0077be; display: flex; align-items: center; justify-content: center; transition: all 0.1s; -webkit-tap-highlight-color: transparent; }
         .nav-btn:active { background-color: #0077be; color: white; }
         .date-display { font-size: 1rem; font-weight: 600; color: #333; text-align: center; flex-grow: 1; }
 
-        /* Info Box */
         .info-box { 
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             border: none; color: #0d47a1; 
@@ -252,28 +248,102 @@
         }
     }
 
-    // [UPDATED] Current Time Line Plugin (Thin, Solid, No Label)
-    const currentTimeLinePlugin = {
-        id: 'currentTimeLine',
+    // [UPDATED] Current Time Marker with Blue Dot & Label
+    const currentTimePlugin = {
+        id: 'currentTime',
         afterDraw: (chart) => {
             const now = new Date();
             const ctx = chart.ctx;
             const xAxis = chart.scales.x;
             const yAxis = chart.scales.y;
-
             const xPos = xAxis.getPixelForValue(now.getTime());
 
+            // Check if current time is within chart range
             if (xPos >= xAxis.left && xPos <= xAxis.right) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(xPos, yAxis.top);
-                ctx.lineTo(xPos, yAxis.bottom);
-                ctx.lineWidth = 1; // [수정] 얇은 선 (1px)
-                ctx.strokeStyle = '#2196F3';
-                ctx.setLineDash([]); // [수정] 실선으로 변경
-                ctx.stroke();
-                // 라벨 삭제됨
-                ctx.restore();
+                // 1. Calculate Current Tide Level (Linear Interpolation)
+                const dataset = chart.data.datasets[0].data; // Tide curve data
+                let yValue = null;
+                const nowTime = now.getTime();
+
+                // Find two points surrounding 'now'
+                for (let i = 0; i < dataset.length - 1; i++) {
+                    const p1 = dataset[i];
+                    const p2 = dataset[i+1];
+                    const t1 = new Date(p1.x).getTime();
+                    const t2 = new Date(p2.x).getTime();
+
+                    if (nowTime >= t1 && nowTime <= t2) {
+                        // Interpolate Y
+                        const ratio = (nowTime - t1) / (t2 - t1);
+                        yValue = p1.y + (p2.y - p1.y) * ratio;
+                        break;
+                    }
+                }
+
+                if (yValue !== null) {
+                    const yPos = yAxis.getPixelForValue(yValue);
+
+                    // 2. Draw Thin Solid Blue Line
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(xPos, yAxis.top);
+                    ctx.lineTo(xPos, yAxis.bottom);
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = '#2196F3';
+                    ctx.setLineDash([]);
+                    ctx.stroke();
+
+                    // 3. Draw Blue Dot at Intersection
+                    ctx.beginPath();
+                    ctx.arc(xPos, yPos, 4, 0, 2 * Math.PI); // Radius 4
+                    ctx.fillStyle = '#2196F3';
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // 4. Draw Label (Like the red dots)
+                    // Text Content
+                    const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+                    const heightStr = yValue.toFixed(2) + 'm';
+                    const text = timeStr; // Draw time on top line, height on bottom line not supported easily in fillText without calculation
+
+                    // Label Settings
+                    const padding = 4;
+                    const borderRadius = 4;
+                    const fontSize = 11;
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    
+                    // Measure text for box size
+                    const textWidth1 = ctx.measureText(timeStr).width;
+                    const textWidth2 = ctx.measureText(heightStr).width;
+                    const boxWidth = Math.max(textWidth1, textWidth2) + (padding * 2);
+                    const boxHeight = (fontSize * 2) + (padding * 2) + 2; // 2 lines
+                    
+                    // Box Position (Determine whether to show above or below)
+                    // Default above, unless too close to top
+                    let boxY = yPos - boxHeight - 8; 
+                    if (boxY < yAxis.top) boxY = yPos + 8; // Flip to bottom if top clipped
+
+                    const boxX = xPos - (boxWidth / 2);
+
+                    // Draw Box Shadow/Background
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    
+                    // Round Rect Helper
+                    ctx.beginPath();
+                    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
+                    ctx.fill();
+                    
+                    // Draw Text (Blue color for current time)
+                    ctx.fillStyle = '#0d47a1'; 
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(timeStr, xPos, boxY + padding);
+                    ctx.fillText(heightStr, xPos, boxY + padding + fontSize + 2);
+
+                    ctx.restore();
+                }
             }
         }
     };
@@ -363,7 +433,7 @@
                     }
                 ]
             },
-            plugins: [verticalLinePlugin, weatherIconPlugin, currentTimeLinePlugin],
+            plugins: [verticalLinePlugin, weatherIconPlugin, currentTimePlugin],
             options: {
                 responsive: true, maintainAspectRatio: false,
                 layout: {
