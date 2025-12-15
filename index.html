@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BC Tide Tables</title>
+    <title>My Tide App</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
@@ -11,64 +11,62 @@
 
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; width: 95%; max-width: 1000px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .card { background: white; width: 95%; max-width: 1000px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
         
-        /* Header */
-        .header-container { text-align: center; margin-bottom: 20px; }
-        h2 { margin: 0 0 10px 0; color: #333; font-size: 1.5rem; }
-        
-        /* Dropdown */
-        select {
-            padding: 8px 12px;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            outline: none;
-            font-weight: bold;
-            color: #444;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        select:hover { border-color: #0077be; }
-
-        /* Date Controls */
-        .date-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .nav-btn {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            cursor: pointer;
+        /* Search Box */
+        .search-container { position: relative; max-width: 400px; margin: 0 auto 20px auto; }
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
             font-size: 1.1rem;
-            color: #555;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            box-sizing: border-box; 
+            transition: border-color 0.2s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 95% center;
         }
+        .search-input:focus { border-color: #0077be; box-shadow: 0 0 0 3px rgba(0,119,190,0.1); }
+        
+        /* Autocomplete List */
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: none; 
+        }
+        .suggestion-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background-color: #f0f8ff; color: #0077be; }
+        .suggestion-code { color: #888; font-size: 0.85em; }
+
+        /* Controls & Display */
+        .date-controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .nav-btn { background-color: #fff; border: 1px solid #ddd; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 1.1rem; color: #555; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .nav-btn:hover { background-color: #0077be; color: white; border-color: #0077be; }
         .date-display { font-size: 1.1rem; font-weight: 600; color: #333; min-width: 220px; text-align: center; }
 
-        /* Info Box */
-        .info-box {
-            background-color: #eef6fc;
-            border: 1px solid #d0e7f9;
-            color: #0d47a1;
-            padding: 12px;
-            text-align: center;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            font-weight: bold;
-            font-size: 1.1em;
-            min-height: 1.5em; 
-        }
+        .info-box { background-color: #eef6fc; border: 1px solid #d0e7f9; color: #0d47a1; padding: 12px; text-align: center; border-radius: 10px; margin-bottom: 10px; font-weight: bold; min-height: 1.5em; }
         .loading { text-align: center; font-weight: bold; color: #007bff; margin-top: 50px; }
         canvas { width: 100% !important; height: 500px !important; }
     </style>
@@ -76,18 +74,13 @@
 <body>
 
 <div class="card">
-    <div class="header-container">
-        <select id="stationSelect" onchange="changeStation()">
-            <option value="07607" selected>📍 Steveston</option>
-            <option value="07590">📍 Sand Heads</option>
-            <option value="07654">📍 New Westminster</option>
-            <option value="07795">📍 Point Atkinson (West Van)</option>
-            <option value="07735">📍 Vancouver (Harbour)</option>
-            <option value="07120">📍 Victoria (Harbour)</option>
-            <option value="07905">📍 Nanaimo</option>
-            <option value="07535">📍 Tsawwassen</option>
-            <option value="07490">📍 White Rock</option>
-        </select>
+    <h2 style="text-align:center; color:#333; margin-top:0;">🌊 Tide Chart</h2>
+    
+    <div class="search-container">
+        <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
+        <ul id="suggestions" class="suggestions-list">
+            <li class="suggestion-item" style="cursor: default; color: #999;">Loading stations...</li>
+        </ul>
     </div>
     
     <div class="date-controls">
@@ -96,9 +89,8 @@
         <button class="nav-btn" onclick="changeDate(1)">▶</button>
     </div>
 
-    <div id="currentInfo" class="info-box">Hover over the chart to see details</div>
-
-    <div id="loading" class="loading">Loading data...</div>
+    <div id="currentInfo" class="info-box">Loading...</div>
+    <div id="loading" class="loading">Initializing...</div>
     <canvas id="tideChart"></canvas>
 </div>
 
@@ -107,20 +99,112 @@
 
     let currentDate = new Date(); 
     let myChart = null; 
-    let currentStationCode = '07607'; 
-    let currentStationName = 'Steveston';
+    let allStations = []; // Cache for station list
+    
+    // --- 1. Persistence Logic (Load saved station) ---
+    // Check localStorage. If empty, default to Steveston (07607)
+    let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
+    let currentStationName = localStorage.getItem('tide_station_name') || 'Steveston';
 
-    // Initialize
-    updateDateDisplay();
-    fetchTideData();
+    // Start App
+    initApp();
 
-    function changeStation() {
-        const select = document.getElementById('stationSelect');
-        currentStationCode = select.value;
-        currentStationName = select.options[select.selectedIndex].text.replace('📍 ', '');
+    function initApp() {
+        updateDateDisplay();
+        
+        // Show current station name in search box immediately
+        document.getElementById('stationSearch').value = currentStationName;
+        
+        // Load Chart
         fetchTideData();
     }
 
+    // --- 2. Lazy Loading Logic (Load list only on focus) ---
+    async function prepareStationList() {
+        const list = document.getElementById('suggestions');
+        
+        // If already loaded, just show search results
+        if (allStations.length > 0) {
+            filterStations();
+            return;
+        }
+
+        // First time focus: Show loading
+        list.style.display = 'block';
+        
+        try {
+            const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
+            allStations = await resp.json();
+            
+            // Clear "Loading..." text and ready to filter
+            list.innerHTML = '';
+            filterStations(); // Refresh list based on current input
+            
+        } catch (e) {
+            console.error("Failed to load station list", e);
+            list.innerHTML = '<li class="suggestion-item">Error loading list</li>';
+        }
+    }
+
+    function filterStations() {
+        const input = document.getElementById('stationSearch');
+        const list = document.getElementById('suggestions');
+        const query = input.value.toLowerCase();
+
+        list.innerHTML = '';
+        
+        // If list not loaded yet, do nothing (prepareStationList handles it)
+        if (allStations.length === 0) return;
+
+        // Filter: match name or code
+        const matches = allStations
+            .filter(s => s.officialName.toLowerCase().includes(query) || s.code.includes(query))
+            .slice(0, 10); // Limit to 10 results for performance
+
+        if (matches.length > 0) {
+            list.style.display = 'block';
+            matches.forEach(s => {
+                const li = document.createElement('li');
+                li.className = 'suggestion-item';
+                li.innerHTML = `<span>${s.officialName}</span> <span class="suggestion-code">${s.code}</span>`;
+                li.onclick = () => selectStation(s);
+                list.appendChild(li);
+            });
+        } else {
+            // No matches
+             const li = document.createElement('li');
+             li.className = 'suggestion-item';
+             li.style.color = '#999';
+             li.innerText = 'No locations found';
+             list.appendChild(li);
+             list.style.display = 'block';
+        }
+    }
+
+    function selectStation(station) {
+        currentStationCode = station.code;
+        currentStationName = station.officialName;
+        
+        // --- 3. Save to Local Storage ---
+        localStorage.setItem('tide_station_code', currentStationCode);
+        localStorage.setItem('tide_station_name', currentStationName);
+        
+        // UI Update
+        document.getElementById('stationSearch').value = currentStationName;
+        document.getElementById('suggestions').style.display = 'none';
+        
+        // Refresh Chart
+        fetchTideData();
+    }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.search-container')) {
+            document.getElementById('suggestions').style.display = 'none';
+        }
+    });
+
+    // --- Chart & Data Logic (Same as before) ---
     function changeDate(offset) {
         currentDate.setDate(currentDate.getDate() + offset);
         updateDateDisplay();
@@ -128,7 +212,6 @@
     }
 
     function updateDateDisplay() {
-        // English Date Format
         const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
         document.getElementById('dateDisplay').innerText = currentDate.toLocaleDateString('en-CA', options);
     }
@@ -156,7 +239,7 @@
 
     async function fetchTideData() {
         document.getElementById('loading').style.display = 'block';
-        document.getElementById('currentInfo').innerHTML = `Loading data for ${currentStationName}...`;
+        document.getElementById('currentInfo').innerHTML = `Loading ${currentStationName}...`;
         
         if (myChart) {
             myChart.destroy();
@@ -166,13 +249,20 @@
         const endTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59).toISOString();
 
         try {
-            const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
-            const stationData = await stationResp.json();
+            // Find ID logic
+            let stationId = '';
             
-            if (!stationData || stationData.length === 0) {
-                throw new Error("Station not found.");
+            // Check cache first
+            const found = allStations.find(s => s.code === currentStationCode);
+            if (found) {
+                stationId = found.id;
+            } else {
+                // If stations are not loaded yet (initial load), fetch specific station info
+                const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
+                const stationData = await stationResp.json();
+                if(stationData.length > 0) stationId = stationData[0].id;
+                else throw new Error("Station ID not found");
             }
-            const stationId = stationData[0].id;
 
             const curveUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
             const hiloUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp-hilo&from=${startTime}&to=${endTime}`;
@@ -184,13 +274,13 @@
             const lineData = curveData.map(item => ({ x: item.eventDate, y: item.value }));
             const pointData = hiloData.map(item => ({ x: item.eventDate, y: item.value }));
 
-            document.getElementById('currentInfo').innerHTML = "Hover over the chart to see details";
+            document.getElementById('currentInfo').innerHTML = "Hover over chart for details";
             renderChart(lineData, pointData);
 
         } catch (error) {
             console.error(error);
-            document.getElementById('loading').innerText = "Data Load Failed: " + error.message;
-            document.getElementById('currentInfo').innerHTML = "⚠️ Connection Error";
+            document.getElementById('loading').innerText = "Data Unavailable";
+            document.getElementById('currentInfo').innerHTML = "⚠️ Failed to load data";
         }
     }
 
@@ -232,7 +322,6 @@
                             font: { weight: 'bold', size: 12 },
                             formatter: (value) => {
                                 const date = new Date(value.x);
-                                // English time format (12-hour AM/PM or 24h as preferred, using 24h for clarity in charts)
                                 return `${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}\n${value.y.toFixed(2)}m`;
                             }
                         }
@@ -271,7 +360,6 @@
                                 const val = tooltipItem.raw.y.toFixed(2);
                                 const time = new Date(tooltipItem.raw.x).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                                 
-                                // English Status Bar
                                 infoBox.innerHTML = `📍 ${currentStationName} | ⏱️ ${time} | 💧 ${val} m`;
                                 return `${val} m`;
                             }
@@ -285,4 +373,3 @@
 
 </body>
 </html>
-```
