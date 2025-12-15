@@ -29,26 +29,25 @@
         .suggestion-item:active { background-color: #f0f8ff; color: #0077be; }
         .suggestion-code { color: #999; font-size: 0.85em; }
 
+        /* Weather Panel (Daily Summary) */
+        .weather-panel {
+            display: flex; justify-content: space-around; align-items: center;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 12px; padding: 12px; margin-bottom: 15px;
+            color: #0d47a1; font-weight: 600; font-size: 0.95rem;
+        }
+        .weather-item { display: flex; align-items: center; gap: 6px; }
+        .weather-icon { font-size: 1.5rem; }
+        .weather-label { font-size: 0.75em; opacity: 0.8; margin-right: 4px; }
+
         /* Controls */
         .date-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 5px; border-radius: 10px; }
         .nav-btn { background-color: #fff; border: 1px solid #eee; border-radius: 8px; width: 44px; height: 44px; cursor: pointer; font-size: 1.2rem; color: #0077be; display: flex; align-items: center; justify-content: center; transition: all 0.1s; -webkit-tap-highlight-color: transparent; }
         .nav-btn:active { background-color: #0077be; color: white; }
         .date-display { font-size: 1rem; font-weight: 600; color: #333; text-align: center; flex-grow: 1; }
 
-        /* Dynamic Info Box */
-        .info-box { 
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border: none; color: #0d47a1; 
-            padding: 12px; text-align: center; border-radius: 12px; 
-            margin-bottom: 15px; font-weight: 600; font-size: 0.95rem; 
-            min-height: 1.4em; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .info-item { display: inline-flex; align-items: center; gap: 4px; }
-        
         .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); }
         
-        /* [수정됨] 그래프 높이 축소: 350px -> 250px */
         canvas { width: 100% !important; height: 250px !important; touch-action: none; } 
     </style>
 </head>
@@ -60,8 +59,14 @@
         <ul id="suggestions" class="suggestions-list"><li class="suggestion-item" style="justify-content: center; color: #999;">Loading...</li></ul>
     </div>
     
-    <div id="currentInfo" class="info-box">
-        Touch graph for details
+    <div id="weatherPanel" class="weather-panel">
+        <div class="weather-item">
+            <span id="wxIcon" class="weather-icon">☁️</span> 
+            <div><span class="weather-label">High</span><span id="wxTemp">--°C</span></div>
+        </div>
+        <div class="weather-item">
+            <div><span class="weather-label">Max Wind</span><span id="wxWind">-- km/h</span></div>
+        </div>
     </div>
 
     <div class="date-controls">
@@ -80,7 +85,6 @@
     let currentDate = new Date(); 
     let myChart = null; 
     let allStations = []; 
-    // Store hourly weather data globally
     let hourlyWeatherData = []; 
     
     let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
@@ -94,7 +98,7 @@
         fetchTideData(); 
     }
 
-    // --- Weather Logic (Hourly) ---
+    // --- Weather Logic ---
     async function fetchWeatherData(lat, lon, dateObj) {
         try {
             const year = dateObj.getFullYear();
@@ -102,16 +106,23 @@
             const day = String(dateObj.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
 
-            // Request HOURLY data
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,wind_speed_10m,weather_code&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
+            // Get Daily Summary AND Hourly Data
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,wind_speed_10m_max&hourly=temperature_2m,wind_speed_10m,weather_code&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
             
             const resp = await fetch(url);
             const data = await resp.json();
             
+            // 1. Update Daily Summary Box
+            if (data.daily) {
+                document.getElementById('wxTemp').innerText = `${data.daily.temperature_2m_max[0]}°C`;
+                document.getElementById('wxWind').innerText = `${data.daily.wind_speed_10m_max[0]} km/h`;
+                document.getElementById('wxIcon').innerText = getWeatherIcon(data.daily.weather_code[0]);
+            }
+
+            // 2. Store Hourly Data for Tooltip
             if (data.hourly) {
-                // Map the arrays into a usable object array
                 hourlyWeatherData = data.hourly.time.map((t, i) => ({
-                    time: t, // ISO string
+                    time: t,
                     temp: data.hourly.temperature_2m[i],
                     wind: data.hourly.wind_speed_10m[i],
                     code: data.hourly.weather_code[i]
@@ -136,7 +147,7 @@
         return '☁️';
     }
 
-    // --- Standard App Functions ---
+    // --- App Logic ---
     async function prepareStationList() {
         const list = document.getElementById('suggestions');
         if (allStations.length > 0) { filterStations(); return; }
@@ -196,10 +207,8 @@
         document.getElementById('dateDisplay').innerText = currentDate.toLocaleDateString('en-CA', options);
     }
 
-    // --- Main Fetcher ---
     async function fetchTideData() {
         document.getElementById('loading').style.display = 'block';
-        document.getElementById('currentInfo').innerHTML = `Loading ${currentStationName}...`;
         
         if (myChart) myChart.destroy();
 
@@ -217,12 +226,10 @@
                 else throw new Error("Station not found");
             }
 
-            // 1. Fetch Hourly Weather (Parallel)
             if (stationObj.latitude && stationObj.longitude) {
                 await fetchWeatherData(stationObj.latitude, stationObj.longitude, currentDate);
             }
 
-            // 2. Fetch Tide Data
             const curveUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
             const hiloUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp-hilo&from=${startTime}&to=${endTime}`;
 
@@ -233,49 +240,28 @@
             const lineData = curveData.map(item => ({ x: item.eventDate, y: item.value }));
             const pointData = hiloData.map(item => ({ x: item.eventDate, y: item.value }));
 
-            document.getElementById('currentInfo').innerHTML = "Tap/Hover chart for details";
             renderChart(lineData, pointData);
 
         } catch (error) {
             console.error(error);
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('currentInfo').innerHTML = "⚠️ Data Unavailable";
         }
     }
 
-    // --- Chart Plugins ---
-
-    // 1. Weather Icons on X-Axis Plugin
     const weatherIconPlugin = {
         id: 'weatherIcons',
         afterDraw: (chart) => {
             if (hourlyWeatherData.length === 0) return;
-            
             const ctx = chart.ctx;
             const xAxis = chart.scales.x;
             const yAxis = chart.scales.y;
-            
-            ctx.save();
-            ctx.textAlign = 'center';
-            ctx.font = '16px Arial';
-            
-            // Draw icon every 3 hours (Index 0, 3, 6...)
-            // 24 hours total
+            ctx.save(); ctx.textAlign = 'center'; ctx.font = '16px Arial';
             for (let i = 0; i < 24; i += 3) {
                 if (!hourlyWeatherData[i]) continue;
-                
-                // Convert hour to X pixel
-                // The Chart uses specific date objects for X. We need to match that.
-                // Construct date object for this hour
-                const d = new Date(currentDate);
-                d.setHours(i, 0, 0, 0);
-                
+                const d = new Date(currentDate); d.setHours(i, 0, 0, 0);
                 const xPos = xAxis.getPixelForValue(d.getTime());
-                
-                // Only draw if inside chart area
                 if (xPos >= xAxis.left && xPos <= xAxis.right) {
                     const icon = getWeatherIcon(hourlyWeatherData[i].code);
-                    // Draw at bottom of chart
                     ctx.fillText(icon, xPos, yAxis.bottom - 10); 
                 }
             }
@@ -283,7 +269,6 @@
         }
     };
 
-    // 2. Vertical Line + Info Update
     const verticalLinePlugin = {
         id: 'verticalLine',
         afterDraw: (chart) => {
@@ -292,8 +277,7 @@
                 const x = chart.tooltip._active[0].element.x;
                 const topY = chart.scales.y.top;
                 const bottomY = chart.scales.y.bottom;
-                ctx.save();
-                ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x, bottomY);
+                ctx.save(); ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x, bottomY);
                 ctx.lineWidth = 1.5; ctx.strokeStyle = '#ff5722'; ctx.setLineDash([5, 5]);
                 ctx.stroke(); ctx.restore();
             }
@@ -303,14 +287,13 @@
     function renderChart(lineData, pointData) {
         document.getElementById('loading').style.display = 'none';
         const ctx = document.getElementById('tideChart').getContext('2d');
-        const infoBox = document.getElementById('currentInfo');
 
         myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: [
                     {
-                        label: 'Tide Level', data: lineData,
+                        label: 'Tide', data: lineData,
                         borderColor: '#4facfe', backgroundColor: 'rgba(79, 172, 254, 0.1)',
                         borderWidth: 2, pointRadius: 0, hitRadius: 20, fill: true, tension: 0.4,
                         datalabels: { display: false }
@@ -342,34 +325,32 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        enabled: false, // Disable default tooltip to use Custom Info Box exclusively
-                        external: (context) => {
-                            // Custom logic to update the top info box
-                            const tooltipModel = context.tooltip;
-                            if (tooltipModel.opacity === 0) return;
+                        enabled: true, // [복구] 말풍선 켜기
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)', // 흰색 배경
+                        titleColor: '#333', bodyColor: '#333',
+                        borderColor: '#ddd', borderWidth: 1,
+                        padding: 10, cornerRadius: 8,
+                        displayColors: false, // 색상 박스 숨김
+                        callbacks: {
+                            title: (tooltipItems) => {
+                                const date = new Date(tooltipItems[0].raw.x);
+                                return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                            },
+                            label: (tooltipItem) => {
+                                // 1. Tide Info
+                                const val = tooltipItem.raw.y.toFixed(2);
+                                let label = `💧 Tide: ${val} m`;
 
-                            const dataPoint = tooltipModel.dataPoints[0];
-                            const timeMs = dataPoint.parsed.x;
-                            const tideVal = dataPoint.parsed.y.toFixed(2);
-                            
-                            const date = new Date(timeMs);
-                            const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                            const hour = date.getHours();
-
-                            // Find matching weather for this hour
-                            let weatherStr = "No Data";
-                            if (hourlyWeatherData[hour]) {
-                                const w = hourlyWeatherData[hour];
-                                const icon = getWeatherIcon(w.code);
-                                weatherStr = `<span class="info-item">${icon} ${w.temp}°C</span> <span class="info-item">🌬️ ${w.wind} km/h</span>`;
+                                // 2. Weather Info (Find hourly data)
+                                const date = new Date(tooltipItem.raw.x);
+                                const hour = date.getHours();
+                                if (hourlyWeatherData[hour]) {
+                                    const w = hourlyWeatherData[hour];
+                                    const icon = getWeatherIcon(w.code);
+                                    label += `\n${icon} Temp: ${w.temp}°C\n🌬️ Wind: ${w.wind} km/h`;
+                                }
+                                return label;
                             }
-
-                            // Update Dashboard
-                            infoBox.innerHTML = `
-                                <span class="info-item">⏱️ ${timeStr}</span>
-                                <span class="info-item">💧 ${tideVal}m</span>
-                                ${weatherStr}
-                            `;
                         }
                     }
                 }
