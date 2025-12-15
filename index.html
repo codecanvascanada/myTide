@@ -3,70 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steveston 실시간 조석 예보</title>
+    <title>Steveston 스마트 조석 예보</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; width: 90%; max-width: 900px; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card { background: white; width: 95%; max-width: 1000px; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #333; margin-bottom: 0.5rem; }
         .date-display { text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 1.5rem; }
         .loading { text-align: center; font-weight: bold; color: #007bff; }
-        canvas { width: 100% !important; height: 400px !important; }
+        canvas { width: 100% !important; height: 500px !important; } /* 높이를 조금 키웠습니다 */
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🌊 Steveston (07607) 조석 그래프</h2>
+    <h2>🌊 Steveston (07607) 상세 조석 예보</h2>
     <div id="dateDisplay" class="date-display">날짜 정보를 불러오는 중...</div>
     <div id="loading" class="loading">데이터 통신 중...</div>
     <canvas id="tideChart"></canvas>
 </div>
 
 <script>
-    // 1. 날짜 설정 (오늘 시작 ~ 오늘 끝)
+    // Chart.js에 데이터라벨 플러그인 등록
+    Chart.register(ChartDataLabels);
+
     const today = new Date();
     const startTime = new Date(today.setHours(0,0,0,0)).toISOString();
     const endTime = new Date(today.setHours(23,59,59,999)).toISOString();
     
-    // 화면에 오늘 날짜 표시
     document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 
-    // 2. API 설정
-    // Steveston 관측소 코드: 07607 -> 내부 ID 조회를 위해 먼저 검색하거나, ID를 알면 바로 호출 가능
-    // Steveston(07607)의 고유 ID는 보통 고정되어 있으나, 안전하게 코드로 검색 로직을 포함할 수 있습니다.
-    // 여기서는 API 구조상 07607 코드를 이용해 데이터를 조회합니다.
-    
-    // 캐나다 DFO 공식 API 엔드포인트
     const STATION_CODE = '07607';
     
     async function fetchTideData() {
         try {
-            // A. 스테이션 ID 찾기
             const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${STATION_CODE}`);
             const stationData = await stationResp.json();
             
             if (stationData.length === 0) throw new Error("관측소를 찾을 수 없습니다.");
-            const stationId = stationData[0].id; // 내부 UUID 추출
+            const stationId = stationData[0].id;
 
-            // B. 해당 스테이션의 오늘 날짜 예보 데이터(wlp: Water Level Prediction) 가져오기
             const dataUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
             const dataResp = await fetch(dataUrl);
             const tideData = await dataResp.json();
 
-            // C. 데이터 가공 (Chart.js 포맷으로 변환)
-            const plotData = tideData.map(item => ({
-                x: item.eventDate, // ISO String (자동으로 로컬 시간대 변환됨)
-                y: item.value      // 높이 (m)
-            }));
+            // 데이터 가공 및 Peak/Trough 판별 로직
+            const plotData = tideData.map((item, index, array) => {
+                let pointType = 'normal'; // 기본값
+
+                // 배열 범위 체크 및 고점/저점 알고리즘 (Local Maxima/Minima)
+                if (index > 0 && index < array.length - 1) {
+                    const prev = array[index - 1].value;
+                    const curr = item.value;
+                    const next = array[index + 1].value;
+
+                    if (curr > prev && curr > next) {
+                        pointType = 'high'; // 고점
+                    } else if (curr < prev && curr < next) {
+                        pointType = 'low'; // 저점
+                    }
+                }
+
+                return {
+                    x: item.eventDate,
+                    y: item.value,
+                    type: pointType // 차트 설정에서 사용하기 위해 타입 저장
+                };
+            });
 
             renderChart(plotData);
 
         } catch (error) {
             console.error(error);
-            document.getElementById('loading').innerText = "데이터를 불러오는데 실패했습니다. (콘솔 확인 필요)";
-            document.getElementById('loading').style.color = "red";
+            document.getElementById('loading').innerText = "데이터 로드 실패";
         }
     }
 
@@ -78,40 +91,59 @@
             type: 'line',
             data: {
                 datasets: [{
-                    label: '예상 조위 (m)',
+                    label: '조위 (m)',
                     data: data,
                     borderColor: '#0077be',
-                    backgroundColor: 'rgba(0, 119, 190, 0.2)',
+                    backgroundColor: 'rgba(0, 119, 190, 0.1)',
                     borderWidth: 2,
-                    pointRadius: 0, // 점 숨김 (매끄러운 선)
-                    pointHoverRadius: 6,
+                    pointRadius: (ctx) => {
+                        // 고점/저점인 경우에만 점을 찍음
+                        const type = ctx.raw?.type;
+                        return (type === 'high' || type === 'low') ? 5 : 0;
+                    },
+                    pointBackgroundColor: (ctx) => {
+                        return ctx.raw?.type === 'high' ? '#ff3b30' : '#007aff'; // 고점 빨강, 저점 파랑
+                    },
                     fill: true,
-                    tension: 0.4 // 곡선
+                    tension: 0.4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: { top: 30, right: 20, left: 20, bottom: 20 } // 라벨 잘림 방지 여백
+                },
                 scales: {
                     x: {
-                        type: 'time', // 시간 축 설정
-                        time: {
-                            unit: 'hour',
-                            displayFormats: { hour: 'HH:mm' },
-                            tooltipFormat: 'HH:mm'
-                        },
-                        title: { display: true, text: '시간' }
+                        type: 'time',
+                        time: { unit: 'hour', displayFormats: { hour: 'HH:mm' } },
+                        grid: { display: false }
                     },
                     y: {
-                        title: { display: true, text: '높이 (미터)' }
+                        title: { display: true, text: '높이 (m)' }
                     }
                 },
                 plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `높이: ${context.parsed.y}m`;
+                    legend: { display: false },
+                    tooltip: { enabled: true },
+                    
+                    // [핵심] 데이터 라벨 플러그인 설정
+                    datalabels: {
+                        align: (ctx) => ctx.dataset.data[ctx.dataIndex].type === 'high' ? 'top' : 'bottom',
+                        anchor: (ctx) => ctx.dataset.data[ctx.dataIndex].type === 'high' ? 'end' : 'start',
+                        offset: 4,
+                        color: '#333',
+                        font: { weight: 'bold', size: 11 },
+                        formatter: (value, ctx) => {
+                            // 고점(high)이나 저점(low)일 때만 텍스트 표시
+                            if (value.type === 'high' || value.type === 'low') {
+                                const date = new Date(value.x);
+                                const timeStr = date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                                const label = value.type === 'high' ? '만조' : '간조';
+                                return `${label}\n${value.y.toFixed(2)}m\n${timeStr}`;
                             }
+                            return null; // 나머지는 숨김
                         }
                     }
                 }
