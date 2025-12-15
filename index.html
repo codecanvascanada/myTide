@@ -1,9 +1,26 @@
+**The list was manually selected by me** based on your location (Steveston, Richmond).
+
+I curated the list to include:
+
+1.  **Steveston (07607):** Your home base.
+2.  **Sand Heads (07590):** Crucial for entering/exiting the Fraser River (mouth of the river).
+3.  **New Westminster:** Upriver reference.
+4.  **Vancouver/Point Atkinson:** Key references for English Bay and Howe Sound.
+5.  **Nanaimo/Victoria:** Common yachting destinations across the Strait of Georgia.
+
+It is **not** automatically detecting your GPS location. It is a hardcoded list I provided for your convenience.
+
+Here is the **fully Anglicized version** of the code. I have translated the interface, date formats, and labels into English.
+
+### 🌊 Tide Chart (English Version)
+
+```html
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BC주 통합 조석 예보</title>
+    <title>BC Tide Tables</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
@@ -13,11 +30,11 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: white; width: 95%; max-width: 1000px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
-        /* 헤더 영역 (제목 + 관측소 선택) */
+        /* Header */
         .header-container { text-align: center; margin-bottom: 20px; }
         h2 { margin: 0 0 10px 0; color: #333; font-size: 1.5rem; }
         
-        /* 관측소 선택 드롭다운 스타일 */
+        /* Dropdown */
         select {
             padding: 8px 12px;
             font-size: 1rem;
@@ -32,7 +49,7 @@
         }
         select:hover { border-color: #0077be; }
 
-        /* 날짜 네비게이션 */
+        /* Date Controls */
         .date-controls {
             display: flex;
             justify-content: center;
@@ -54,9 +71,9 @@
             display: flex; align-items: center; justify-content: center;
         }
         .nav-btn:hover { background-color: #0077be; color: white; border-color: #0077be; }
-        .date-display { font-size: 1.1rem; font-weight: 600; color: #333; min-width: 180px; text-align: center; }
+        .date-display { font-size: 1.1rem; font-weight: 600; color: #333; min-width: 220px; text-align: center; }
 
-        /* 정보 박스 */
+        /* Info Box */
         .info-box {
             background-color: #eef6fc;
             border: 1px solid #d0e7f9;
@@ -78,15 +95,15 @@
 <div class="card">
     <div class="header-container">
         <select id="stationSelect" onchange="changeStation()">
-            <option value="07607" selected>📍 Steveston (스티브스톤)</option>
-            <option value="07590">📍 Sand Heads (샌드 헤즈)</option>
-            <option value="07654">📍 New Westminster (뉴 웨스트민스터)</option>
-            <option value="07795">📍 Point Atkinson (웨스트 밴쿠버)</option>
-            <option value="07735">📍 Vancouver (밴쿠버 항구)</option>
-            <option value="07120">📍 Victoria (빅토리아)</option>
-            <option value="07905">📍 Nanaimo (나나이모)</option>
-            <option value="07535">📍 Tsawwassen (트와슨)</option>
-            <option value="07490">📍 White Rock (화이트 락)</option>
+            <option value="07607" selected>📍 Steveston</option>
+            <option value="07590">📍 Sand Heads</option>
+            <option value="07654">📍 New Westminster</option>
+            <option value="07795">📍 Point Atkinson (West Van)</option>
+            <option value="07735">📍 Vancouver (Harbour)</option>
+            <option value="07120">📍 Victoria (Harbour)</option>
+            <option value="07905">📍 Nanaimo</option>
+            <option value="07535">📍 Tsawwassen</option>
+            <option value="07490">📍 White Rock</option>
         </select>
     </div>
     
@@ -96,36 +113,31 @@
         <button class="nav-btn" onclick="changeDate(1)">▶</button>
     </div>
 
-    <div id="currentInfo" class="info-box">그래프 위에 마우스를 올려보세요</div>
+    <div id="currentInfo" class="info-box">Hover over the chart to see details</div>
 
-    <div id="loading" class="loading">데이터를 불러오는 중...</div>
+    <div id="loading" class="loading">Loading data...</div>
     <canvas id="tideChart"></canvas>
 </div>
 
 <script>
     Chart.register(ChartDataLabels);
 
-    // 전역 변수
     let currentDate = new Date(); 
     let myChart = null; 
-    let currentStationCode = '07607'; // 기본값: Steveston
+    let currentStationCode = '07607'; 
     let currentStationName = 'Steveston';
 
-    // 초기 실행
+    // Initialize
     updateDateDisplay();
     fetchTideData();
 
-    // 1. 관측소 변경 함수
     function changeStation() {
         const select = document.getElementById('stationSelect');
         currentStationCode = select.value;
-        currentStationName = select.options[select.selectedIndex].text;
-        
-        // 데이터 다시 로드
+        currentStationName = select.options[select.selectedIndex].text.replace('📍 ', '');
         fetchTideData();
     }
 
-    // 2. 날짜 변경 함수
     function changeDate(offset) {
         currentDate.setDate(currentDate.getDate() + offset);
         updateDateDisplay();
@@ -133,11 +145,11 @@
     }
 
     function updateDateDisplay() {
+        // English Date Format
         const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-        document.getElementById('dateDisplay').innerText = currentDate.toLocaleDateString('ko-KR', options);
+        document.getElementById('dateDisplay').innerText = currentDate.toLocaleDateString('en-CA', options);
     }
 
-    // 3. 커스텀 플러그인: 세로 가이드라인 (Crosshair)
     const verticalLinePlugin = {
         id: 'verticalLine',
         afterDraw: (chart) => {
@@ -161,7 +173,7 @@
 
     async function fetchTideData() {
         document.getElementById('loading').style.display = 'block';
-        document.getElementById('currentInfo').innerHTML = `${currentStationName} 데이터 로딩 중...`;
+        document.getElementById('currentInfo').innerHTML = `Loading data for ${currentStationName}...`;
         
         if (myChart) {
             myChart.destroy();
@@ -171,16 +183,14 @@
         const endTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59).toISOString();
 
         try {
-            // A. 선택된 관측소 코드(currentStationCode)로 ID 조회
             const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
             const stationData = await stationResp.json();
             
             if (!stationData || stationData.length === 0) {
-                throw new Error("관측소 정보를 찾을 수 없습니다.");
+                throw new Error("Station not found.");
             }
             const stationId = stationData[0].id;
 
-            // B. 데이터 요청 (곡선용 wlp, 고저점용 wlp-hilo)
             const curveUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
             const hiloUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp-hilo&from=${startTime}&to=${endTime}`;
 
@@ -191,13 +201,13 @@
             const lineData = curveData.map(item => ({ x: item.eventDate, y: item.value }));
             const pointData = hiloData.map(item => ({ x: item.eventDate, y: item.value }));
 
-            document.getElementById('currentInfo').innerHTML = "그래프 위에 마우스를 올려보세요";
+            document.getElementById('currentInfo').innerHTML = "Hover over the chart to see details";
             renderChart(lineData, pointData);
 
         } catch (error) {
             console.error(error);
-            document.getElementById('loading').innerText = "데이터 로드 실패: " + error.message;
-            document.getElementById('currentInfo').innerHTML = "⚠️ 데이터 통신 오류";
+            document.getElementById('loading').innerText = "Data Load Failed: " + error.message;
+            document.getElementById('currentInfo').innerHTML = "⚠️ Connection Error";
         }
     }
 
@@ -212,7 +222,7 @@
             data: {
                 datasets: [
                     {
-                        label: '조위 곡선',
+                        label: 'Tide Level',
                         data: lineData,
                         borderColor: '#4facfe',
                         backgroundColor: 'rgba(79, 172, 254, 0.1)',
@@ -224,7 +234,7 @@
                         datalabels: { display: false }
                     },
                     {
-                        label: '만조/간조',
+                        label: 'High/Low',
                         data: pointData,
                         type: 'scatter',
                         backgroundColor: 'red',
@@ -239,7 +249,8 @@
                             font: { weight: 'bold', size: 12 },
                             formatter: (value) => {
                                 const date = new Date(value.x);
-                                return `${date.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', hour12:false})}\n${value.y.toFixed(2)}m`;
+                                // English time format (12-hour AM/PM or 24h as preferred, using 24h for clarity in charts)
+                                return `${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}\n${value.y.toFixed(2)}m`;
                             }
                         }
                     }
@@ -260,7 +271,7 @@
                         grid: { display: false }
                     },
                     y: {
-                        title: { display: true, text: '물 높이 (m)' }
+                        title: { display: true, text: 'Height (m)' }
                     }
                 },
                 plugins: {
@@ -271,13 +282,13 @@
                         callbacks: {
                             title: (tooltipItems) => {
                                 const date = new Date(tooltipItems[0].raw.x);
-                                return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                                return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                             },
                             label: (tooltipItem) => {
                                 const val = tooltipItem.raw.y.toFixed(2);
-                                const time = new Date(tooltipItem.raw.x).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                                const time = new Date(tooltipItem.raw.x).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                                 
-                                // 상단 정보 박스 업데이트 (날짜 + 장소 + 시간 + 높이)
+                                // English Status Bar
                                 infoBox.innerHTML = `📍 ${currentStationName} | ⏱️ ${time} | 💧 ${val} m`;
                                 return `${val} m`;
                             }
@@ -291,3 +302,4 @@
 
 </body>
 </html>
+```
