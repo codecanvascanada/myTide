@@ -16,133 +16,35 @@
         html { scroll-behavior: smooth; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; overflow-x: hidden; }
 
-        /* --- [NEW] 상단 헤더 (Portal Style) --- */
-        .top-header {
-            background: white;
-            padding: 15px 20px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            position: sticky;
-            top: 0;
-            z-index: 4000;
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            flex-wrap: wrap; /* 모바일 대응 */
-        }
-
-        /* 1. 사이트 제목 */
-        .site-logo {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: #0077be;
-            letter-spacing: -0.5px;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        /* 2. 포털형 검색창 컨테이너 */
-        .header-search-wrapper {
-            flex-grow: 1;
-            max-width: 600px;
-            position: relative;
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-            border: 2px solid #0077be; /* 브랜드 컬러 테두리 */
-            border-radius: 30px; /* 둥근 모서리 */
-            overflow: hidden;
-            background: #fff;
-            transition: box-shadow 0.2s;
-        }
-        .search-box:focus-within {
-            box-shadow: 0 4px 12px rgba(0, 119, 190, 0.2);
-        }
-
-        .search-input {
-            flex-grow: 1;
-            border: none;
-            padding: 12px 20px;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .search-btn {
-            background: #0077be;
-            border: none;
-            color: white;
-            padding: 12px 25px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-        .search-btn:hover { background: #005c91; }
-
-        /* 자동완성 리스트 */
-        .suggestions-list {
-            position: absolute;
-            top: 100%;
-            left: 10px; right: 10px;
-            background: white;
-            border: 1px solid #ddd;
-            border-top: none;
-            border-radius: 0 0 12px 12px;
-            display: none;
-            z-index: 5000;
-            list-style: none;
-            padding: 0; margin: 5px 0 0 0;
-            max-height: 300px;
-            overflow-y: auto;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .suggestion-item { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 0.95rem; }
-        .suggestion-item:hover { background: #f0f8ff; color: #0077be; }
-
-        /* 3. 모바일 메뉴 버튼 */
-        .hamburger-btn {
-            display: none; /* PC 숨김 */
-            font-size: 1.8rem;
-            background: none;
-            border: none;
-            color: #333;
-            cursor: pointer;
-            margin-left: auto; /* 오른쪽 끝으로 */
-        }
-
-        /* --- 레이아웃 --- */
-        .app-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 240px; /* 콘텐츠 | 사이드바 */
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .sidebar { position: sticky; top: 100px; height: fit-content; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        /* --- 레이아웃 & 공통 --- */
+        .app-wrapper { display: grid; grid-template-columns: 1fr 240px; gap: 20px; max-width: 1200px; margin: 0 auto; padding: 20px; box-sizing: border-box; min-height: 100vh; }
         .content-area { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
-        .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; scroll-margin-top: 100px; }
-        
+        .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; }
         .section-title { font-size: 1.1rem; font-weight: 800; color: #333; margin-bottom: 15px; border-left: 5px solid #0077be; padding-left: 10px; }
 
-        /* 네비게이션 스타일 */
-        .nav-menu { display: flex; flex-direction: column; gap: 8px; }
-        .nav-link { display: flex; align-items: center; gap: 10px; padding: 12px; color: #555; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; }
+        /* 모바일 헤더 */
+        .mobile-header { display: none; background: white; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 2000; }
+        .mobile-brand { font-size: 1.2rem; font-weight: 900; color: #0077be; }
+        .hamburger-btn { font-size: 1.5rem; border: none; background: none; cursor: pointer; }
+
+        /* 사이드바 */
+        .sidebar { position: sticky; top: 20px; height: fit-content; background: white; border-radius: 16px; padding: 20px; z-index: 3000; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .brand-title { font-size: 1.5rem; font-weight: 900; color: #0077be; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
+        .nav-link { display: flex; align-items: center; gap: 10px; padding: 12px; color: #555; text-decoration: none; border-radius: 8px; font-weight: 600; margin-bottom: 5px; transition: 0.2s; }
         .nav-link:hover { background-color: #e3f2fd; color: #0077be; }
         .close-btn { display: none; text-align: right; font-size: 1.5rem; cursor: pointer; margin-bottom: 10px; }
 
-        /* 기타 UI 요소 */
+        /* --- 컴포넌트 스타일 --- */
+        .search-container { position: relative; margin-bottom: 15px; }
+        .search-input { width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; display: none; z-index: 999; list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
+        .suggestion-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .suggestion-item:hover { background: #f0f8ff; }
+
         .date-controls { display: flex; justify-content: space-between; background: #f8f9fa; padding: 8px; border-radius: 10px; margin-bottom: 15px; }
         .nav-btn { background: white; border: 1px solid #ddd; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; }
         .date-display { flex-grow: 1; text-align: center; line-height: 40px; font-weight: bold; }
+
         .info-box { background: #e3f2fd; color: #0d47a1; padding: 10px; text-align: center; border-radius: 8px; margin-bottom: 15px; font-weight: bold; font-size: 0.95rem; }
         
         .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; border-radius: 16px; }
@@ -157,7 +59,6 @@
         .map-view { display: none; height: 400px; width: 100%; border-radius: 12px; overflow: hidden; }
         .map-view.active { display: block; }
         #map, #windyFrame { width: 100%; height: 100%; border: none; }
-        .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 5px; cursor: pointer; }
 
         /* 날씨 & 예보 */
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -166,46 +67,38 @@
         .scroll-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
         .daily-card { min-width: 100px; background: #f8f9fa; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #eee; }
 
-        /* 주간 테이블 */
+        /* [수정됨] 주간 타이드 테이블 스타일 */
         .weekly-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         .weekly-table th { text-align: left; padding: 10px 8px; border-bottom: 2px solid #333; background: #f8f9fa; color: #555; }
         .weekly-table td { padding: 12px 8px; border-bottom: 1px solid #eee; }
+        
+        /* [NEW] 날짜 구분선 (굵은 회색) */
         .day-separator td { border-bottom: 3px solid #cfd8dc !important; } 
-        .lowest-low { background-color: #e3f2fd; font-weight: 800; color: #0d47a1; }
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        .tag-high { background: #e3f2fd; color: #1565c0; } .tag-low { background: #fff3e0; color: #ef6c00; }
 
-        /* 반응형 (모바일) */
+        /* [NEW] 하루 중 가장 낮은 타이드 (진하게 강조) */
+        .lowest-low { background-color: #e3f2fd; font-weight: 800; color: #0d47a1; }
+        .lowest-low .tag { background-color: #1976d2; color: white; }
+
+        .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .tag-high { background: #e3f2fd; color: #1565c0; }
+        .tag-low { background: #fff3e0; color: #ef6c00; }
+
         .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2500; }
         
         @media (max-width: 850px) {
-            .app-wrapper { display: block; padding: 10px; }
-            .sidebar { position: fixed; top: 0; right: -280px; width: 260px; height: 100vh; transition: right 0.3s; border-radius: 0; top: 0 !important;}
+            .mobile-header { display: flex; } .app-wrapper { display: block; padding: 10px; }
+            .sidebar { position: fixed; top: 0; right: -280px; width: 260px; height: 100vh; transition: right 0.3s; border-radius: 0; }
             .sidebar.active { right: 0; } .menu-overlay.active { display: block; } .close-btn { display: block; }
-            
-            /* 모바일 헤더 레이아웃 변경 */
-            .top-header { justify-content: space-between; padding: 10px 15px; gap: 15px; }
-            .header-search-wrapper { order: 3; width: 100%; max-width: 100%; } /* 검색창을 아래로 내림 */
-            .hamburger-btn { display: block; } /* 햄버거 보이기 */
         }
+        .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<header class="top-header">
-    <div class="site-logo" onclick="location.reload()">🌊 Easy Tides</div>
-
-    <div class="header-search-wrapper">
-        <div class="search-box">
-            <input type="text" id="stationSearch" class="search-input" placeholder="Search location (e.g. Vancouver)..." onfocus="showSuggestions()" oninput="filterStations()">
-            <button class="search-btn">🔍</button>
-        </div>
-        <ul id="suggestions" class="suggestions-list"></ul>
-    </div>
-
+<header class="mobile-header">
+    <div class="mobile-brand">🌊 Easy Tides Pro</div>
     <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
 </header>
-
 <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 
 <div class="app-wrapper">
@@ -213,7 +106,10 @@
         
         <div id="section-tide" class="card">
             <div class="section-title">Tide Graph</div>
-            
+            <div class="search-container">
+                <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="showSuggestions()" oninput="filterStations()">
+                <ul id="suggestions" class="suggestions-list"></ul>
+            </div>
             <div id="currentInfo" class="info-box">Touch graph for details</div>
             <div class="date-controls">
                 <button class="nav-btn" onclick="changeDate(-1)">◀</button>
@@ -269,7 +165,7 @@
 
     <nav class="sidebar" id="sidebarMenu">
         <div class="close-btn" onclick="toggleMenu()">✕</div>
-        <div class="brand-title">Menu</div>
+        <div class="brand-title">🌊 Easy Tides</div>
         <div class="nav-menu">
             <a href="#section-tide" class="nav-link" onclick="toggleMenu()">📈 Tide Graph</a>
             <a href="#section-map" class="nav-link" onclick="toggleMenu()">🗺️ Maps</a>
@@ -338,6 +234,7 @@
             const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0,0,0).toISOString();
             const end = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23,59,59).toISOString();
 
+            // 주간 예보 가져오기
             fetchWeekly(sObj.id);
 
             const [resCurve, resHilo] = await Promise.all([
@@ -379,6 +276,7 @@
                 if(x >= chart.scales.x.left && x <= chart.scales.x.right) {
                     const ctx = chart.ctx;
                     ctx.save();
+                    
                     ctx.beginPath(); ctx.moveTo(x, yAxis.top); ctx.lineTo(x, yAxis.bottom);
                     ctx.lineWidth = 1.5; ctx.strokeStyle = '#2196F3'; ctx.stroke();
 
@@ -494,7 +392,7 @@
         });
     }
 
-    // --- 4. Weekly Tide (With Separator & Low Highlight) ---
+    // --- 4. [수정됨] Weekly Tide (Grouping Logic) ---
     async function fetchWeekly(sid) {
         try {
             const s = new Date(); const e = new Date(); e.setDate(e.getDate()+6);
@@ -502,18 +400,20 @@
             const res = await fetch(url);
             const data = await res.json();
             
-            // Group by Date
+            // 1. 날짜별 그룹핑
             const groups = {};
             data.forEach(d => {
-                const dateKey = new Date(d.eventDate).toDateString();
+                const dateKey = new Date(d.eventDate).toDateString(); // "Fri Oct 20 2023"
                 if(!groups[dateKey]) groups[dateKey] = [];
                 groups[dateKey].push(d);
             });
 
             let html = "";
+            
             Object.keys(groups).forEach(key => {
                 const events = groups[key];
-                // Find lowest value in this day
+                // 2. 해당 날짜의 최저조위 찾기 (Lowest Low)
+                // 보통 조석은 2.0 미만이면 Low로 보지만, 정확히 하려면 값을 비교
                 let minVal = 999;
                 events.forEach(ev => { if(ev.value < minVal) minVal = ev.value; });
 
@@ -522,10 +422,11 @@
                     const type = d.value > 3 ? "High" : "Low";
                     const cls = d.value > 3 ? "tag-high" : "tag-low";
                     
+                    // 3. Lowest Low인지 확인
                     const isLowest = (d.value === minVal);
                     const rowClass = isLowest ? "lowest-low" : "";
                     
-                    // Separator for last item of day
+                    // 4. 날짜의 마지막 데이터인지 확인 (구분선용)
                     const isLastOfDay = (index === events.length - 1);
                     const borderClass = isLastOfDay ? "day-separator" : "";
 
@@ -546,7 +447,7 @@
         }
     }
 
-    // --- Weather ---
+    // --- Weather & Others ---
     async function fetchWeather(lat, lon) {
         try {
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum&timezone=auto&forecast_days=14`;
