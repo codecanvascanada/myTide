@@ -22,12 +22,12 @@
             margin: 0; 
             padding: 0;
             color: #333;
-            overflow-x: hidden; /* 슬라이드 메뉴 스크롤 방지 */
+            overflow-x: hidden; 
         }
 
-        /* --- [1] 모바일 헤더 (PC에선 숨김) --- */
+        /* --- 모바일 헤더 --- */
         .mobile-header {
-            display: none; /* 기본 숨김 */
+            display: none; 
             background: white;
             padding: 15px 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -40,10 +40,10 @@
         .mobile-brand { font-size: 1.2rem; font-weight: 800; color: #0d47a1; }
         .hamburger-btn { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #333; padding: 0; }
 
-        /* --- [2] 전체 레이아웃 (PC: 콘텐츠 | 메뉴) --- */
+        /* --- 전체 레이아웃 (PC: 콘텐츠 | 메뉴) --- */
         .app-wrapper {
             display: grid;
-            grid-template-columns: 1fr 240px; /* 왼쪽 콘텐츠, 오른쪽 메뉴 240px */
+            grid-template-columns: 1fr 240px; 
             gap: 20px;
             max-width: 1200px;
             margin: 0 auto;
@@ -52,7 +52,7 @@
             min-height: 100vh;
         }
 
-        /* --- [3] 사이드바 스타일 --- */
+        /* --- 사이드바 스타일 --- */
         .sidebar {
             position: sticky;
             top: 20px;
@@ -64,7 +64,6 @@
             z-index: 3000;
         }
 
-        /* 모바일 닫기 버튼 (PC 숨김) */
         .close-btn { display: none; text-align: right; margin-bottom: 20px; font-size: 1.5rem; cursor: pointer; color: #666; }
 
         .brand-title {
@@ -85,45 +84,69 @@
         }
         .nav-link:hover { background-color: #e3f2fd; color: #0d47a1; }
 
-        /* --- [4] 콘텐츠 영역 --- */
+        /* --- 콘텐츠 영역 --- */
         .content-area { display: flex; flex-direction: column; gap: 20px; width: 100%; min-width: 0; }
         .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); box-sizing: border-box; scroll-margin-top: 80px; }
 
-        /* --- [5] 모바일 오버레이 (배경 어둡게) --- */
+        /* --- [NEW] 14일 예보 가로 스크롤 스타일 --- */
+        .forecast-scroll-container {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 15px; /* 스크롤바 공간 확보 */
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 #f1f5f9;
+        }
+        /* 웹킷 브라우저 스크롤바 스타일링 */
+        .forecast-scroll-container::-webkit-scrollbar { height: 8px; }
+        .forecast-scroll-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .forecast-scroll-container::-webkit-scrollbar-thumb { background-color: #cbd5e0; border-radius: 4px; }
+
+        .daily-weather-card {
+            min-width: 110px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dw-date { font-weight: 700; color: #333; font-size: 0.9rem; margin-bottom: 5px; }
+        .dw-day { color: #666; font-size: 0.8rem; margin-bottom: 8px; }
+        .dw-icon { font-size: 2rem; margin: 5px 0; }
+        .dw-temp { font-size: 0.95rem; font-weight: 600; color: #333; margin: 5px 0; }
+        .dw-temp span { color: #666; font-weight: 400; font-size: 0.85rem; }
+        .dw-detail { font-size: 0.75rem; color: #555; margin-top: 5px; display: flex; align-items: center; gap: 3px; justify-content: center; }
+
+        /* --- 모바일 오버레이 --- */
         .menu-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 2500;
             backdrop-filter: blur(2px);
         }
 
-        /* --- [6] 반응형 (모바일 뷰) --- */
+        /* --- 반응형 --- */
         @media (max-width: 850px) {
-            .mobile-header { display: flex; } /* 헤더 보이기 */
-            
-            .app-wrapper {
-                display: block; /* 그리드 해제 */
-                padding: 10px;
-            }
-
+            .mobile-header { display: flex; }
+            .app-wrapper { display: block; padding: 10px; }
             .sidebar {
-                position: fixed;
-                top: 0; right: -280px; /* 화면 밖으로 숨김 */
-                width: 260px; height: 100vh;
+                position: fixed; top: 0; right: -280px; width: 260px; height: 100vh;
                 transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                border-radius: 0;
-                box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+                border-radius: 0; box-shadow: -5px 0 15px rgba(0,0,0,0.1);
             }
-            
-            .sidebar.active { right: 0; /* 슬라이드 인 */ }
+            .sidebar.active { right: 0; }
             .menu-overlay.active { display: block; }
-            .brand-title { display: none; /* 사이드바 안 로고 숨김 (헤더에 있으니) */ }
-            .close-btn { display: block; /* 닫기 버튼 표시 */ }
+            .brand-title { display: none; }
+            .close-btn { display: block; }
             .content-area { padding-bottom: 30px; }
         }
 
-        /* 기존 컴포넌트 스타일 유지 */
-        .app-title { display: none; } /* PC에서도 사이드바 로고가 있으므로 메인 타이틀은 숨기거나 작게 처리 */
-        @media (max-width: 850px) { .app-title { display: none; } } /* 모바일은 헤더 사용 */
+        /* 공통 컴포넌트 */
+        .app-title { display: none; } 
+        @media (max-width: 850px) { .app-title { display: none; } }
 
         .search-container { position: relative; width: 100%; margin: 0 auto 15px auto; z-index: 1000; }
         .search-input { width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 15px center; }
@@ -165,9 +188,7 @@
 
 <header class="mobile-header">
     <div class="mobile-brand">🌊 Easy Tides</div>
-    <button class="hamburger-btn" onclick="toggleMenu()">
-        ☰
-    </button>
+    <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
 </header>
 
 <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
@@ -177,7 +198,9 @@
     <main class="content-area">
         
         <div id="section-tide" class="card">
-            <h1 class="app-title" style="text-align: left; display:block; margin-top:0;">Easy Tides</h1> <div class="search-container">
+            <h1 class="app-title" style="text-align: left; display:block; margin-top:0;">Easy Tides</h1> 
+
+            <div class="search-container">
                 <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
                 <ul id="suggestions" class="suggestions-list"><li class="suggestion-item" style="justify-content: center; color: #999;">Loading...</li></ul>
             </div>
@@ -204,8 +227,15 @@
             </div>
         </div>
 
+        <div id="section-weather-forecast" class="card">
+            <div class="section-title">14-Day Weather Forecast</div>
+            <div class="forecast-scroll-container" id="longRangeWeatherContainer">
+                <div style="width:100%; text-align:center; color:#999; padding:20px;">Loading forecast...</div>
+            </div>
+        </div>
+
         <div id="section-weather" class="card">
-            <div class="section-title">Current Conditions</div>
+            <div class="section-title">Current Conditions (Now)</div>
             <div class="weather-grid">
                 <div class="stat-card">
                     <div class="wind-compass">
@@ -255,28 +285,20 @@
     </main>
 
     <nav class="sidebar" id="sidebarMenu">
-        <div class="close-btn" onclick="toggleMenu()">✕</div> <div class="brand-title">🌊 Easy Tides</div>
+        <div class="close-btn" onclick="toggleMenu()">✕</div>
+        <div class="brand-title">🌊 Easy Tides</div>
         <div class="nav-menu">
-            <a href="#section-tide" class="nav-link" onclick="toggleMenu()">
-                <span>📈</span> Tide Graph
-            </a>
-            <a href="#section-map" class="nav-link" onclick="toggleMenu()">
-                <span>🗺️</span> Station Map
-            </a>
-            <a href="#section-weather" class="nav-link" onclick="toggleMenu()">
-                <span>🌤️</span> Weather
-            </a>
-            <a href="#section-forecast" class="nav-link" onclick="toggleMenu()">
-                <span>📅</span> 7-Day Forecast
-            </a>
+            <a href="#section-tide" class="nav-link" onclick="toggleMenu()"><span>📈</span> Tide Graph</a>
+            <a href="#section-map" class="nav-link" onclick="toggleMenu()"><span>🗺️</span> Station Map</a>
+            <a href="#section-weather-forecast" class="nav-link" onclick="toggleMenu()"><span>🌤️</span> 14-Day Weather</a>
+            <a href="#section-weather" class="nav-link" onclick="toggleMenu()"><span>🍃</span> Current Cond.</a>
+            <a href="#section-forecast" class="nav-link" onclick="toggleMenu()"><span>📅</span> 7-Day Tides</a>
         </div>
     </nav>
 </div>
 
 <script>
-    // [추가됨] 햄버거 메뉴 토글 기능
     function toggleMenu() {
-        // 모바일일 때만 동작하도록 화면 크기 체크 (선택사항이나 UX상 그냥 둬도 무방)
         if (window.innerWidth <= 850) {
             const sidebar = document.getElementById('sidebarMenu');
             const overlay = document.getElementById('menuOverlay');
@@ -319,7 +341,6 @@
 
     function initMap() {
         map = L.map('map').setView([49.1, -123.1], 6);
-
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
@@ -327,7 +348,6 @@
         allStations.forEach(station => {
             if (station.latitude && station.longitude) {
                 const marker = L.marker([station.latitude, station.longitude]).addTo(map);
-                
                 const popupContent = `
                     <div style="text-align:center">
                         <b>${station.officialName}</b><br>
@@ -339,7 +359,6 @@
                 markers.push({ code: station.code, marker: marker });
             }
         });
-
         panMapToCurrent();
     }
 
@@ -354,7 +373,6 @@
 
     function panMapToCurrent() {
         if (!map || allStations.length === 0) return;
-        
         const station = allStations.find(s => s.code === currentStationCode);
         if (station && station.latitude && station.longitude) {
             map.setView([station.latitude, station.longitude], 10);
@@ -363,6 +381,58 @@
         }
     }
 
+    // --- [NEW] 14일 날씨 예보 Fetch 함수 ---
+    async function fetchLongRangeWeather(lat, lon) {
+        const container = document.getElementById('longRangeWeatherContainer');
+        
+        try {
+            // 오픈 메테오 API (14일치 예보, 오늘 기준)
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto&forecast_days=14`;
+            
+            const resp = await fetch(url);
+            const data = await resp.json();
+            
+            if (!data.daily) throw new Error("No forecast data");
+
+            const daily = data.daily;
+            let htmlHTML = "";
+
+            for(let i=0; i<daily.time.length; i++) {
+                const date = new Date(daily.time[i]);
+                const dayName = date.toLocaleDateString('en-GB', {weekday: 'short'});
+                const dateNum = date.toLocaleDateString('en-GB', {month: 'numeric', day:'numeric'});
+                
+                const code = daily.weather_code[i];
+                const icon = getWeatherIcon(code);
+                const maxTemp = Math.round(daily.temperature_2m_max[i]);
+                const minTemp = Math.round(daily.temperature_2m_min[i]);
+                const rain = daily.precipitation_sum[i];
+                const wind = Math.round(daily.wind_speed_10m_max[i]);
+
+                htmlHTML += `
+                    <div class="daily-weather-card">
+                        <div>
+                            <div class="dw-date">${dateNum}</div>
+                            <div class="dw-day">${dayName}</div>
+                        </div>
+                        <div class="dw-icon">${icon}</div>
+                        <div class="dw-temp">${maxTemp}° <span>${minTemp}°</span></div>
+                        <div>
+                            <div class="dw-detail">☔ ${rain}mm</div>
+                            <div class="dw-detail">🍃 ${wind}km/h</div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = htmlHTML;
+
+        } catch (e) {
+            console.error("Long range forecast failed", e);
+            container.innerHTML = `<div style="padding:15px; text-align:center;">Forecast unavailable</div>`;
+        }
+    }
+
+    // 기존 fetchWeatherData (차트용 + 현재 날씨)
     async function fetchWeatherData(lat, lon, dateObj) {
         try {
             const year = dateObj.getFullYear();
@@ -385,7 +455,6 @@
             } else {
                 hourlyWeatherData = [];
             }
-
             updateDashboard(data);
 
         } catch (e) {
@@ -396,19 +465,20 @@
 
     function updateDashboard(data) {
         if (!data || !data.current_weather || !data.daily) return;
-
         const current = data.current_weather;
         const daily = data.daily;
-
         const windSpeed = current.windspeed;
         const windDir = current.winddirection;
         document.getElementById('windArrow').style.transform = `rotate(${windDir + 180}deg)`; 
         document.getElementById('windText').innerText = `${windSpeed} km/h`;
         document.getElementById('windDirText').innerText = getCardinalDirection(windDir);
-
-        const sunrise = new Date(daily.sunrise[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
-        const sunset = new Date(daily.sunset[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('sunTimes').innerHTML = `⬆ ${sunrise}<br>⬇ ${sunset}`;
+        
+        // Safety check for sunrise/sunset array
+        if(daily.sunrise && daily.sunrise.length > 0) {
+             const sunrise = new Date(daily.sunrise[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+             const sunset = new Date(daily.sunset[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+             document.getElementById('sunTimes').innerHTML = `⬆ ${sunrise}<br>⬇ ${sunset}`;
+        }
 
         document.getElementById('tempText').innerText = `${current.temperature}°C`;
         document.getElementById('rainText').innerText = `${daily.precipitation_sum[0]} mm`;
@@ -434,11 +504,9 @@
     async function fetchWeeklyTides(stationId) {
         const tableBody = document.getElementById('weeklyTideBody');
         tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center">Loading forecast...</td></tr>';
-
         const startDate = new Date();
         const endDate = new Date();
         endDate.setDate(endDate.getDate() + 6); 
-
         const fromStr = startDate.toISOString();
         const toStr = endDate.toISOString();
 
@@ -446,33 +514,20 @@
             const url = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp-hilo&from=${fromStr}&to=${toStr}`;
             const resp = await fetch(url);
             const data = await resp.json();
-
             tableBody.innerHTML = '';
-            
             let currentDayStr = '';
-            
             data.forEach(item => {
                 const dateObj = new Date(item.eventDate);
                 const dayStr = dateObj.toLocaleDateString('en-GB', {weekday: 'short', month: 'short', day: 'numeric'});
                 const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'});
-                
                 const row = document.createElement('tr');
-                
                 const dateCell = (dayStr !== currentDayStr) ? `<strong>${dayStr}</strong>` : '';
                 currentDayStr = dayStr;
-
                 const tagClass = item.value > 3.0 ? 'tag-high' : (item.value < 2.0 ? 'tag-low' : '');
                 const typeText = item.value > 3.0 ? 'High' : (item.value < 2.0 ? 'Low' : '-');
-
-                row.innerHTML = `
-                    <td>${dateCell}</td>
-                    <td><span class="tide-tag ${tagClass}">${typeText}</span></td>
-                    <td>${timeStr}</td>
-                    <td>${item.value.toFixed(2)}m</td>
-                `;
+                row.innerHTML = `<td>${dateCell}</td><td><span class="tide-tag ${tagClass}">${typeText}</span></td><td>${timeStr}</td><td>${item.value.toFixed(2)}m</td>`;
                 tableBody.appendChild(row);
             });
-
         } catch (e) {
             tableBody.innerHTML = '<tr><td colspan="4">Forecast unavailable</td></tr>';
         }
@@ -583,7 +638,11 @@
             }
 
             if (stationObj.latitude && stationObj.longitude) {
+                // 기존: 차트 날짜의 날씨
                 await fetchWeatherData(stationObj.latitude, stationObj.longitude, currentDate);
+                // [NEW] 14일 예보 (오늘부터)
+                fetchLongRangeWeather(stationObj.latitude, stationObj.longitude);
+                
                 panMapToCurrent();
             }
 
@@ -657,174 +716,4 @@
                     const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
                     const heightStr = yValue.toFixed(2) + 'm';
 
-                    const padding = 4;
-                    const borderRadius = 4;
-                    const fontSize = 11;
-                    ctx.font = `bold ${fontSize}px Arial`;
-                    
-                    const textWidth1 = ctx.measureText(timeStr).width;
-                    const textWidth2 = ctx.measureText(heightStr).width;
-                    const boxWidth = Math.max(textWidth1, textWidth2) + (padding * 2);
-                    const boxHeight = (fontSize * 2) + (padding * 2) + 2; 
-                    
-                    let boxY = yPos - boxHeight - 8; 
-                    if (boxY < yAxis.top) boxY = yPos + 8; 
-
-                    const boxX = xPos - (boxWidth / 2);
-
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                    ctx.beginPath();
-                    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
-                    ctx.fill();
-                    
-                    ctx.fillStyle = '#0d47a1'; 
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    ctx.fillText(timeStr, xPos, boxY + padding);
-                    ctx.fillText(heightStr, xPos, boxY + padding + fontSize + 2);
-
-                    ctx.restore();
-                }
-            }
-        }
-    };
-
-    const weatherIconPlugin = {
-        id: 'weatherIcons',
-        afterDraw: (chart) => {
-            if (hourlyWeatherData.length === 0) return;
-            
-            const ctx = chart.ctx;
-            const xAxis = chart.scales.x;
-            const yAxis = chart.scales.y;
-            
-            ctx.save();
-            ctx.textAlign = 'center';
-            ctx.font = '10px Arial';
-            
-            let previousCategory = null; 
-
-            for (let i = 0; i < 24; i++) {
-                if (!hourlyWeatherData[i]) continue;
-                
-                const currentCode = hourlyWeatherData[i].code;
-                const currentCategory = getWeatherCategory(currentCode);
-
-                if (previousCategory === null || currentCategory !== previousCategory) {
-                    
-                    const d = new Date(currentDate);
-                    d.setHours(i, 0, 0, 0);
-                    const xPos = xAxis.getPixelForValue(d.getTime());
-                    
-                    if (xPos >= xAxis.left && xPos <= xAxis.right) {
-                        const icon = getWeatherIcon(currentCode);
-                        ctx.fillText(icon, xPos, yAxis.bottom + 50); 
-                    }
-                    previousCategory = currentCategory;
-                }
-            }
-            ctx.restore();
-        }
-    };
-
-    const verticalLinePlugin = {
-        id: 'verticalLine',
-        afterDraw: (chart) => {
-            if (chart.tooltip?._active?.length) {
-                const ctx = chart.ctx;
-                const x = chart.tooltip._active[0].element.x;
-                const topY = chart.scales.y.top;
-                const bottomY = chart.scales.y.bottom;
-                ctx.save();
-                ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x, bottomY);
-                ctx.lineWidth = 1.5; ctx.strokeStyle = '#ff5722'; ctx.setLineDash([5, 5]);
-                ctx.stroke(); ctx.restore();
-            }
-        }
-    };
-
-    function renderChart(lineData, pointData) {
-        document.getElementById('loading').style.display = 'none';
-        const ctx = document.getElementById('tideChart').getContext('2d');
-        const infoBox = document.getElementById('currentInfo');
-
-        myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [
-                    {
-                        label: 'Tide Level', data: lineData,
-                        borderColor: '#4facfe', backgroundColor: 'rgba(79, 172, 254, 0.1)',
-                        borderWidth: 2, pointRadius: 0, hitRadius: 20, fill: true, tension: 0.4,
-                        datalabels: { display: false }
-                    },
-                    {
-                        label: 'High/Low', data: pointData, type: 'scatter',
-                        backgroundColor: 'red', pointRadius: 5,
-                        datalabels: {
-                            display: true,
-                            align: (ctx) => ctx.dataset.data[ctx.dataIndex].y > 2.5 ? 'top' : 'bottom',
-                            color: '#333', backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            borderRadius: 4, padding: 3, font: { weight: 'bold', size: 11 },
-                            formatter: (value) => {
-                                const date = new Date(value.x);
-                                return `${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}\n${value.y.toFixed(2)}m`;
-                            }
-                        }
-                    }
-                ]
-            },
-            plugins: [verticalLinePlugin, weatherIconPlugin, currentTimePlugin],
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                layout: {
-                    padding: { bottom: 60 }
-                },
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { 
-                        type: 'time', 
-                        time: { unit: 'hour', displayFormats: { hour: 'H' } }, 
-                        grid: { display: false }, 
-                        ticks: { maxRotation: 0, autoSkip: true, font: { size: 12 } } 
-                    },
-                    y: { title: { display: false }, ticks: { font: { size: 11 } } }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        enabled: false, 
-                        external: (context) => {
-                            const tooltipModel = context.tooltip;
-                            if (tooltipModel.opacity === 0) return;
-
-                            const dataPoint = tooltipModel.dataPoints[0];
-                            const timeMs = dataPoint.parsed.x;
-                            const tideVal = dataPoint.parsed.y.toFixed(2);
-                            
-                            const date = new Date(timeMs);
-                            const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                            const hour = date.getHours();
-
-                            let weatherStr = "";
-                            if (hourlyWeatherData[hour]) {
-                                const w = hourlyWeatherData[hour];
-                                const icon = getWeatherIcon(w.code);
-                                weatherStr = `<span class="info-item">${icon} ${w.temp}°C</span> <span class="info-item">🌬️ ${w.wind} km/h</span>`;
-                            }
-
-                            infoBox.innerHTML = `
-                                <span class="info-item">⏱️ ${timeStr}</span>
-                                <span class="info-item">💧 ${tideVal}m</span>
-                                ${weatherStr}
-                            `;
-                        }
-                    }
-                }
-            }
-        });
-    }
-</script>
-
-</body>
-</html>
+                    const
