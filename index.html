@@ -14,14 +14,21 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <style>
+        /* [추가됨] 부드러운 스크롤 효과 */
+        html { scroll-behavior: smooth; }
+
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; }
         .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 15px; }
         
-        .card { background: white; width: 100%; padding: 20px 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; }
+        .card { 
+            background: white; width: 100%; padding: 20px 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; 
+            /* [추가됨] 스크롤 시 여백 확보 (메뉴에 가려지지 않게) */
+            scroll-margin-top: 20px; 
+        }
         
         .app-title { text-align: center; margin: 0 0 15px 0; font-size: 1.8rem; font-weight: 800; color: #0d47a1; letter-spacing: -0.5px; }
 
-        .search-container { position: relative; width: 100%; margin: 0 auto 10px auto; z-index: 1000; } /* z-index increased for map overlap */
+        .search-container { position: relative; width: 100%; margin: 0 auto 10px auto; z-index: 1000; }
         .search-input { width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; transition: border-color 0.2s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 15px center; }
         .search-input:focus { border-color: #0077be; }
         
@@ -63,15 +70,57 @@
 
         .marine-note { background-color: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; margin-bottom: 20px; }
 
-        /* [추가됨] 지도 스타일 */
         #map { width: 100%; height: 350px; border-radius: 12px; z-index: 1; }
         .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; }
+
+        /* [추가됨] PC용 우측 상단 플로팅 메뉴 스타일 */
+        .floating-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 15px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            z-index: 9999;
+            display: flex;
+            gap: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #eee;
+            align-items: center;
+        }
+        .menu-link {
+            text-decoration: none;
+            color: #555;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .menu-link:hover { color: #0077be; }
+        
+        /* 모바일에서는 메뉴가 너무 크면 방해될 수 있으므로 작게 조정하거나 숨김 처리 */
+        @media (max-width: 600px) {
+            .floating-menu {
+                bottom: 20px; top: auto; right: 50%; transform: translateX(50%); /* 모바일은 하단 중앙 */
+                padding: 10px 20px;
+            }
+        }
     </style>
 </head>
 <body>
 
+<nav class="floating-menu">
+    <a href="#section-tide" class="menu-link">🌊 Tide</a>
+    <a href="#section-map" class="menu-link">🗺️ Map</a>
+    <a href="#section-weather" class="menu-link">🌤️ Weather</a>
+    <a href="#section-forecast" class="menu-link">📅 7-Day</a>
+</nav>
+
 <div class="container">
-    <div class="card">
+    <div id="section-tide" class="card">
         <h1 class="app-title">Easy Tides</h1>
 
         <div class="search-container">
@@ -93,7 +142,7 @@
         <canvas id="tideChart"></canvas>
     </div>
 
-    <div class="card">
+    <div id="section-map" class="card">
         <div class="section-title">Station Map</div>
         <div id="map"></div>
         <div style="font-size: 0.85rem; color: #666; margin-top: 10px; text-align: center;">
@@ -101,7 +150,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div id="section-weather" class="card">
         <div class="section-title">Current Conditions</div>
         <div class="weather-grid">
             <div class="stat-card">
@@ -132,7 +181,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div id="section-forecast" class="card">
         <div class="section-title">7-Day Tide Forecast</div>
         <table class="weekly-table">
             <thead>
@@ -158,7 +207,6 @@
     let allStations = []; 
     let hourlyWeatherData = []; 
     
-    // [추가됨] 지도 객체 변수
     let map = null;
     let markers = [];
 
@@ -170,38 +218,31 @@
     function initApp() {
         updateDateDisplay();
         document.getElementById('stationSearch').value = currentStationName;
-        // 앱 시작 시 바로 스테이션 목록을 불러와서 지도를 초기화합니다.
         fetchStationsAndInitMap();
         fetchTideData(); 
     }
 
-    // [추가됨] 스테이션 목록 불러오기 및 지도 초기화
     async function fetchStationsAndInitMap() {
         try {
             const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
             allStations = await resp.json();
-            initMap(); // 데이터 로드 후 지도 그리기
+            initMap(); 
         } catch (e) {
             console.error("Failed to load stations for map", e);
         }
     }
 
-    // [추가됨] Leaflet 지도 초기화 함수
     function initMap() {
-        // 지도 생성 (초기 위치는 밴쿠버 인근, 데이터 로드 후 스테이션 위치로 이동됨)
         map = L.map('map').setView([49.1, -123.1], 6);
 
-        // 오픈스트리트맵 타일 레이어 추가
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // 마커 추가
         allStations.forEach(station => {
             if (station.latitude && station.longitude) {
                 const marker = L.marker([station.latitude, station.longitude]).addTo(map);
                 
-                // 팝업 내용 (이름 + 선택 버튼)
                 const popupContent = `
                     <div style="text-align:center">
                         <b>${station.officialName}</b><br>
@@ -214,23 +255,19 @@
             }
         });
 
-        // 현재 선택된 스테이션으로 지도 중심 이동
         panMapToCurrent();
     }
 
-    // [추가됨] 코드로 스테이션 선택 (지도 팝업용)
     window.selectStationByCode = function(code) {
         const station = allStations.find(s => s.code === code);
         if (station) {
             selectStation(station);
-            // 모바일에서 지도 팝업 닫기
             map.closePopup();
-            // 상단 차트로 스크롤 이동 (선택적)
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // 지도에서 선택 시 그래프로 자동 스크롤
+            document.getElementById('section-tide').scrollIntoView({ behavior: 'smooth' });
         }
     };
 
-    // [추가됨] 지도 중심 이동 도우미 함수
     function panMapToCurrent() {
         if (!map || allStations.length === 0) return;
         
@@ -238,7 +275,6 @@
         if (station && station.latitude && station.longitude) {
             map.setView([station.latitude, station.longitude], 10);
             
-            // 해당 마커 팝업 열기
             const m = markers.find(m => m.code === currentStationCode);
             if (m) m.marker.openPopup();
         }
@@ -382,11 +418,9 @@
         return '☁️';
     }
 
-    // [수정됨] 이제 목록은 페이지 로드 시 fetchStationsAndInitMap에서 가져오므로 여기서는 필터만 처리
     function prepareStationList() {
         const list = document.getElementById('suggestions');
         if (allStations.length === 0) {
-            // 아직 로드되지 않았다면 메시지 표시
             list.innerHTML = '<li class="suggestion-item" style="color:#999; justify-content:center;">Loading list...</li>';
             list.style.display = 'block';
             return;
@@ -426,7 +460,6 @@
         document.getElementById('suggestions').style.display = 'none';
         
         fetchTideData();
-        // 지도도 해당 위치로 이동
         panMapToCurrent();
     }
 
@@ -456,12 +489,10 @@
 
         try {
             let stationObj = null;
-            // 이미 불러온 리스트에서 검색
             const found = allStations.find(s => s.code === currentStationCode);
             if (found) {
                 stationObj = found;
             } else {
-                // 리스트에 없으면 개별 fetch (예외 처리)
                 const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
                 const stationData = await stationResp.json();
                 if(stationData.length > 0) stationObj = stationData[0];
@@ -470,7 +501,6 @@
 
             if (stationObj.latitude && stationObj.longitude) {
                 await fetchWeatherData(stationObj.latitude, stationObj.longitude, currentDate);
-                // 지도 이동 (혹시 초기 로드와 겹칠 경우를 위해)
                 panMapToCurrent();
             }
 
