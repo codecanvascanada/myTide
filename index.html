@@ -14,21 +14,133 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <style>
-        /* [추가됨] 부드러운 스크롤 효과 */
         html { scroll-behavior: smooth; }
-
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; }
-        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 15px; }
         
-        .card { 
-            background: white; width: 100%; padding: 20px 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; 
-            /* [추가됨] 스크롤 시 여백 확보 (메뉴에 가려지지 않게) */
-            scroll-margin-top: 20px; 
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+            background-color: #f4f6f9; 
+            margin: 0; 
+            padding: 0;
+            color: #333;
         }
-        
-        .app-title { text-align: center; margin: 0 0 15px 0; font-size: 1.8rem; font-weight: 800; color: #0d47a1; letter-spacing: -0.5px; }
 
-        .search-container { position: relative; width: 100%; margin: 0 auto 10px auto; z-index: 1000; }
+        /* [핵심] 전체 레이아웃: 사이드바 + 콘텐츠 */
+        .app-wrapper {
+            display: grid;
+            grid-template-columns: 240px 1fr; /* 메뉴 240px, 나머지 콘텐츠 */
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        /* [사이드바 스타일] */
+        .sidebar {
+            position: sticky; /* 스크롤 따라오기 */
+            top: 20px;
+            height: fit-content;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0d47a1;
+            margin: 0 0 20px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            color: #555;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .nav-link.active {
+            background-color: #0d47a1;
+            color: white;
+        }
+
+        /* [콘텐츠 영역] */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%; /* 부모 그리드에 맞춤 */
+            min-width: 0; /* 차트 리사이징 이슈 방지 */
+        }
+
+        /* 공통 카드 스타일 */
+        .card { 
+            background: white; 
+            width: 100%; 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+            box-sizing: border-box; 
+            scroll-margin-top: 20px; /* 스크롤 이동 시 여백 */
+        }
+
+        /* 모바일 반응형 (화면이 좁아지면) */
+        @media (max-width: 850px) {
+            .app-wrapper {
+                grid-template-columns: 1fr; /* 1단 레이아웃 */
+                padding: 10px;
+            }
+            .sidebar {
+                position: relative; /* 스티키 해제 */
+                top: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .nav-menu {
+                flex-direction: row; /* 가로 메뉴로 변경 */
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+            .nav-link {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+            .brand-title {
+                border-bottom: none;
+                margin-bottom: 10px;
+                padding-bottom: 0;
+            }
+        }
+
+        /* 기존 컴포넌트 스타일 유지 */
+        .search-container { position: relative; width: 100%; margin: 0 auto 15px auto; z-index: 1000; }
         .search-input { width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; transition: border-color 0.2s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 15px center; }
         .search-input:focus { border-color: #0077be; }
         
@@ -72,131 +184,109 @@
 
         #map { width: 100%; height: 350px; border-radius: 12px; z-index: 1; }
         .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; }
-
-        /* [추가됨] PC용 우측 상단 플로팅 메뉴 스타일 */
-        .floating-menu {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 8px 15px;
-            border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            z-index: 9999;
-            display: flex;
-            gap: 15px;
-            backdrop-filter: blur(5px);
-            border: 1px solid #eee;
-            align-items: center;
-        }
-        .menu-link {
-            text-decoration: none;
-            color: #555;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .menu-link:hover { color: #0077be; }
-        
-        /* 모바일에서는 메뉴가 너무 크면 방해될 수 있으므로 작게 조정하거나 숨김 처리 */
-        @media (max-width: 600px) {
-            .floating-menu {
-                bottom: 20px; top: auto; right: 50%; transform: translateX(50%); /* 모바일은 하단 중앙 */
-                padding: 10px 20px;
-            }
-        }
     </style>
 </head>
 <body>
 
-<nav class="floating-menu">
-    <a href="#section-tide" class="menu-link">🌊 Tide</a>
-    <a href="#section-map" class="menu-link">🗺️ Map</a>
-    <a href="#section-weather" class="menu-link">🌤️ Weather</a>
-    <a href="#section-forecast" class="menu-link">📅 7-Day</a>
-</nav>
-
-<div class="container">
-    <div id="section-tide" class="card">
-        <h1 class="app-title">Easy Tides</h1>
-
-        <div class="search-container">
-            <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
-            <ul id="suggestions" class="suggestions-list"><li class="suggestion-item" style="justify-content: center; color: #999;">Loading...</li></ul>
+<div class="app-wrapper">
+    
+    <nav class="sidebar">
+        <div class="brand-title">🌊 Easy Tides</div>
+        <div class="nav-menu">
+            <a href="#section-tide" class="nav-link">
+                <span>📈</span> Tide Graph
+            </a>
+            <a href="#section-map" class="nav-link">
+                <span>🗺️</span> Station Map
+            </a>
+            <a href="#section-weather" class="nav-link">
+                <span>🌤️</span> Weather
+            </a>
+            <a href="#section-forecast" class="nav-link">
+                <span>📅</span> 7-Day Forecast
+            </a>
         </div>
+    </nav>
+
+    <main class="content-area">
         
-        <div id="currentInfo" class="info-box">
-            Touch graph for details
+        <div id="section-tide" class="card">
+            <div class="search-container">
+                <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
+                <ul id="suggestions" class="suggestions-list"><li class="suggestion-item" style="justify-content: center; color: #999;">Loading...</li></ul>
+            </div>
+            
+            <div id="currentInfo" class="info-box">
+                Touch graph for details
+            </div>
+
+            <div class="date-controls">
+                <button class="nav-btn" onclick="changeDate(-1)">◀</button>
+                <div id="dateDisplay" class="date-display"></div>
+                <button class="nav-btn" onclick="changeDate(1)">▶</button>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;"></div>
+            <canvas id="tideChart"></canvas>
         </div>
 
-        <div class="date-controls">
-            <button class="nav-btn" onclick="changeDate(-1)">◀</button>
-            <div id="dateDisplay" class="date-display"></div>
-            <button class="nav-btn" onclick="changeDate(1)">▶</button>
+        <div id="section-map" class="card">
+            <div class="section-title">Station Map</div>
+            <div id="map"></div>
+            <div style="font-size: 0.85rem; color: #666; margin-top: 10px; text-align: center;">
+                Click a blue pin to select a station.
+            </div>
         </div>
 
-        <div id="loading" class="loading" style="display: none;"></div>
-        <canvas id="tideChart"></canvas>
-    </div>
-
-    <div id="section-map" class="card">
-        <div class="section-title">Station Map</div>
-        <div id="map"></div>
-        <div style="font-size: 0.85rem; color: #666; margin-top: 10px; text-align: center;">
-            Click a blue pin to select a station.
-        </div>
-    </div>
-
-    <div id="section-weather" class="card">
-        <div class="section-title">Current Conditions</div>
-        <div class="weather-grid">
-            <div class="stat-card">
-                <div class="wind-compass">
-                    <div id="windArrow" class="wind-arrow">↑</div>
+        <div id="section-weather" class="card">
+            <div class="section-title">Current Conditions</div>
+            <div class="weather-grid">
+                <div class="stat-card">
+                    <div class="wind-compass">
+                        <div id="windArrow" class="wind-arrow">↑</div>
+                    </div>
+                    <div id="windText" class="stat-value">-- km/h</div>
+                    <div id="windDirText" class="stat-label">Direction</div>
                 </div>
-                <div id="windText" class="stat-value">-- km/h</div>
-                <div id="windDirText" class="stat-label">Direction</div>
+                <div class="stat-card">
+                    <div class="stat-icon">☀️</div>
+                    <div id="sunTimes" class="stat-value">--:--</div>
+                    <div class="stat-label">Sunrise / Sunset</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌡️</div>
+                    <div id="tempText" class="stat-value">--°C</div>
+                    <div class="stat-label">Temperature</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">☔</div>
+                    <div id="rainText" class="stat-value">-- mm</div>
+                    <div class="stat-label">Precipitation</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">☀️</div>
-                <div id="sunTimes" class="stat-value">--:--</div>
-                <div class="stat-label">Sunrise / Sunset</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🌡️</div>
-                <div id="tempText" class="stat-value">--°C</div>
-                <div class="stat-label">Temperature</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">☔</div>
-                <div id="rainText" class="stat-value">-- mm</div>
-                <div class="stat-label">Precipitation</div>
+            <div id="sailingNote" class="marine-note">
+                Loading marine conditions...
             </div>
         </div>
-        <div id="sailingNote" class="marine-note">
-            Loading marine conditions...
-        </div>
-    </div>
 
-    <div id="section-forecast" class="card">
-        <div class="section-title">7-Day Tide Forecast</div>
-        <table class="weekly-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Hi/Lo</th>
-                    <th>Time</th>
-                    <th>Height</th>
-                </tr>
-            </thead>
-            <tbody id="weeklyTideBody">
-                <tr><td colspan="4" style="text-align: center;">Loading forecast...</td></tr>
-            </tbody>
-        </table>
-    </div>
+        <div id="section-forecast" class="card">
+            <div class="section-title">7-Day Tide Forecast</div>
+            <table class="weekly-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Hi/Lo</th>
+                        <th>Time</th>
+                        <th>Height</th>
+                    </tr>
+                </thead>
+                <tbody id="weeklyTideBody">
+                    <tr><td colspan="4" style="text-align: center;">Loading forecast...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
 </div>
 
 <script>
