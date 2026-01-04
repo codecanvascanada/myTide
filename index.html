@@ -16,52 +16,46 @@
         html { scroll-behavior: smooth; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; overflow-x: hidden; }
 
-        /* --- [NEW] 상단 헤더 (Portal Style) --- */
+        /* --- 상단 헤더 (Portal Style) --- */
         .top-header {
             background: white;
             padding: 15px 20px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.08);
             position: sticky;
             top: 0;
-            z-index: 4000;
+            z-index: 5000; /* 최상위 레벨 */
             display: flex;
             align-items: center;
             gap: 30px;
-            flex-wrap: wrap; /* 모바일 대응 */
+            flex-wrap: wrap; 
         }
 
-        /* 1. 사이트 제목 */
         .site-logo {
             font-size: 1.8rem;
             font-weight: 900;
             color: #0077be;
             letter-spacing: -0.5px;
             white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
             cursor: pointer;
         }
 
-        /* 2. 포털형 검색창 컨테이너 */
+        /* 검색창 래퍼 */
         .header-search-wrapper {
             flex-grow: 1;
             max-width: 600px;
-            position: relative;
+            position: relative; /* 중요: suggestion list의 기준점 */
         }
 
         .search-box {
             display: flex;
             align-items: center;
-            border: 2px solid #0077be; /* 브랜드 컬러 테두리 */
-            border-radius: 30px; /* 둥근 모서리 */
+            border: 2px solid #0077be;
+            border-radius: 30px;
             overflow: hidden;
             background: #fff;
             transition: box-shadow 0.2s;
         }
-        .search-box:focus-within {
-            box-shadow: 0 4px 12px rgba(0, 119, 190, 0.2);
-        }
+        .search-box:focus-within { box-shadow: 0 4px 12px rgba(0, 119, 190, 0.2); }
 
         .search-input {
             flex-grow: 1;
@@ -78,48 +72,38 @@
             padding: 12px 25px;
             cursor: pointer;
             font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
         }
-        .search-btn:hover { background: #005c91; }
 
-        /* 자동완성 리스트 */
+        /* 자동완성 리스트 스타일 */
         .suggestions-list {
             position: absolute;
-            top: 100%;
-            left: 10px; right: 10px;
+            top: 100%; /* 검색창 바로 아래 */
+            left: 15px; right: 15px;
             background: white;
             border: 1px solid #ddd;
             border-top: none;
             border-radius: 0 0 12px 12px;
             display: none;
-            z-index: 5000;
+            z-index: 6000; /* 헤더보다 더 위에 */
             list-style: none;
-            padding: 0; margin: 5px 0 0 0;
+            padding: 0; margin: 0;
             max-height: 300px;
             overflow-y: auto;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
         }
-        .suggestion-item { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 0.95rem; }
+        .suggestion-item { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 0.95rem; text-align: left; }
         .suggestion-item:hover { background: #f0f8ff; color: #0077be; }
 
-        /* 3. 모바일 메뉴 버튼 */
         .hamburger-btn {
-            display: none; /* PC 숨김 */
+            display: none; 
             font-size: 1.8rem;
-            background: none;
-            border: none;
-            color: #333;
-            cursor: pointer;
-            margin-left: auto; /* 오른쪽 끝으로 */
+            background: none; border: none; color: #333; cursor: pointer; margin-left: auto; 
         }
 
         /* --- 레이아웃 --- */
         .app-wrapper {
             display: grid;
-            grid-template-columns: 1fr 240px; /* 콘텐츠 | 사이드바 */
+            grid-template-columns: 1fr 240px; 
             gap: 20px;
             max-width: 1200px;
             margin: 0 auto;
@@ -133,13 +117,11 @@
         
         .section-title { font-size: 1.1rem; font-weight: 800; color: #333; margin-bottom: 15px; border-left: 5px solid #0077be; padding-left: 10px; }
 
-        /* 네비게이션 스타일 */
         .nav-menu { display: flex; flex-direction: column; gap: 8px; }
         .nav-link { display: flex; align-items: center; gap: 10px; padding: 12px; color: #555; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; }
         .nav-link:hover { background-color: #e3f2fd; color: #0077be; }
         .close-btn { display: none; text-align: right; font-size: 1.5rem; cursor: pointer; margin-bottom: 10px; }
 
-        /* 기타 UI 요소 */
         .date-controls { display: flex; justify-content: space-between; background: #f8f9fa; padding: 8px; border-radius: 10px; margin-bottom: 15px; }
         .nav-btn { background: white; border: 1px solid #ddd; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; }
         .date-display { flex-grow: 1; text-align: center; line-height: 40px; font-weight: bold; }
@@ -175,7 +157,6 @@
         .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
         .tag-high { background: #e3f2fd; color: #1565c0; } .tag-low { background: #fff3e0; color: #ef6c00; }
 
-        /* 반응형 (모바일) */
         .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2500; }
         
         @media (max-width: 850px) {
@@ -183,10 +164,9 @@
             .sidebar { position: fixed; top: 0; right: -280px; width: 260px; height: 100vh; transition: right 0.3s; border-radius: 0; top: 0 !important;}
             .sidebar.active { right: 0; } .menu-overlay.active { display: block; } .close-btn { display: block; }
             
-            /* 모바일 헤더 레이아웃 변경 */
             .top-header { justify-content: space-between; padding: 10px 15px; gap: 15px; }
-            .header-search-wrapper { order: 3; width: 100%; max-width: 100%; } /* 검색창을 아래로 내림 */
-            .hamburger-btn { display: block; } /* 햄버거 보이기 */
+            .header-search-wrapper { order: 3; width: 100%; max-width: 100%; } 
+            .hamburger-btn { display: block; }
         }
     </style>
 </head>
@@ -281,7 +261,6 @@
 </div>
 
 <script>
-    // --- 1. 초기화 ---
     window.addEventListener('load', () => {
         if(typeof Chart !== 'undefined') Chart.register(ChartDataLabels);
         updateDateDisplay();
@@ -307,9 +286,61 @@
     let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
     let currentStationName = localStorage.getItem('tide_station_name') || 'Steveston';
 
+    // 초기값 세팅 (이제 헤더의 검색창 하나만 존재)
     document.getElementById('stationSearch').value = currentStationName;
 
-    // --- 2. Main Fetch ---
+    // --- Search Logic (Bug Fix: Target Header Wrapper) ---
+    function showSuggestions() { 
+        document.getElementById('suggestions').style.display = 'block'; 
+        filterStations(); 
+    }
+    
+    function filterStations() {
+        const v = document.getElementById('stationSearch').value.toLowerCase();
+        const list = document.getElementById('suggestions');
+        list.innerHTML = "";
+        
+        if (allStations.length === 0) {
+            list.innerHTML = "<li class='suggestion-item' style='color:#999'>Loading list...</li>";
+            return;
+        }
+
+        const m = allStations.filter(s => s.officialName.toLowerCase().includes(v)).slice(0, 10);
+        if(m.length === 0) {
+            list.innerHTML = "<li class='suggestion-item' style='color:#999'>No results</li>";
+        } else {
+            m.forEach(s => {
+                const li = document.createElement('li'); 
+                li.className = 'suggestion-item';
+                li.innerText = s.officialName; 
+                // 클릭 시 이벤트 전파 방지 등을 위해 
+                li.onclick = (e) => {
+                    e.stopPropagation(); // 중요
+                    selectStation(s);
+                };
+                list.appendChild(li);
+            });
+        }
+        list.style.display = 'block';
+    }
+
+    // 외부 클릭 시 닫기 (헤더 래퍼 기준)
+    document.addEventListener('click', e => { 
+        // 클릭된 요소가 header-search-wrapper 내부에 없으면 리스트 닫기
+        if(!e.target.closest('.header-search-wrapper')) {
+            document.getElementById('suggestions').style.display = 'none';
+        }
+    });
+
+    function selectStation(s) {
+        currentStationCode = s.code; currentStationName = s.officialName;
+        localStorage.setItem('tide_station_code', s.code); localStorage.setItem('tide_station_name', s.officialName);
+        document.getElementById('stationSearch').value = s.officialName;
+        document.getElementById('suggestions').style.display = 'none';
+        fetchTideData();
+    }
+
+    // --- Data Fetch ---
     async function fetchTideData() {
         const loader = document.getElementById('chartLoading');
         const loadText = document.getElementById('loadingText');
@@ -364,7 +395,7 @@
         }
     }
 
-    // --- 3. Chart Rendering ---
+    // --- Chart ---
     function renderChart(lineData, pointData) {
         const ctx = document.getElementById('tideChart').getContext('2d');
         const infoBox = document.getElementById('currentInfo');
@@ -375,19 +406,17 @@
                 const now = new Date();
                 const x = chart.scales.x.getPixelForValue(now.getTime());
                 const yAxis = chart.scales.y;
-                
                 if(x >= chart.scales.x.left && x <= chart.scales.x.right) {
                     const ctx = chart.ctx;
                     ctx.save();
                     ctx.beginPath(); ctx.moveTo(x, yAxis.top); ctx.lineTo(x, yAxis.bottom);
                     ctx.lineWidth = 1.5; ctx.strokeStyle = '#2196F3'; ctx.stroke();
-
+                    
                     const ds = chart.data.datasets[0].data;
-                    const closest = ds.reduce((prev, curr) => Math.abs(new Date(curr.x) - now) < Math.abs(new Date(prev.x) - now) ? curr : prev);
+                    const closest = ds.reduce((p, c) => Math.abs(new Date(c.x)-now) < Math.abs(new Date(p.x)-now) ? c : p);
                     const y = yAxis.getPixelForValue(closest ? closest.y : 0);
 
-                    ctx.beginPath(); ctx.arc(x, y, 5, 0, 2*Math.PI); 
-                    ctx.fillStyle = '#2196F3'; ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(x, y, 5, 0, 2*Math.PI); ctx.fillStyle = '#2196F3'; ctx.fill(); ctx.stroke();
 
                     const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
                     const hStr = (closest ? closest.y.toFixed(2) : '0.00') + "m";
@@ -397,10 +426,8 @@
 
                     ctx.fillStyle = "rgba(255,255,255,0.95)"; ctx.fillRect(x - w/2, boxY, w, h);
                     ctx.strokeStyle = "#ccc"; ctx.strokeRect(x - w/2, boxY, w, h);
-                    
                     ctx.fillStyle = "#0d47a1"; ctx.textAlign = "center";
-                    ctx.fillText(timeStr, x, boxY + 12);
-                    ctx.fillText(hStr, x, boxY + 24);
+                    ctx.fillText(timeStr, x, boxY + 12); ctx.fillText(hStr, x, boxY + 24);
                     ctx.restore();
                 }
             }
@@ -412,22 +439,14 @@
                 if(chart.tooltip._active && chart.tooltip._active.length) {
                     const ctx = chart.ctx;
                     let activePoint = chart.tooltip._active.find(x => x.datasetIndex === 0) || chart.tooltip._active[0];
-                    const x = activePoint.element.x;
-                    const y = activePoint.element.y;
-                    const top = chart.scales.y.top;
-                    const bottom = chart.scales.y.bottom;
-                    const dataIndex = activePoint.index;
-                    const datasetIndex = activePoint.datasetIndex;
-                    const val = chart.data.datasets[datasetIndex].data[dataIndex];
+                    const x = activePoint.element.x; const y = activePoint.element.y;
+                    const top = chart.scales.y.top; const bottom = chart.scales.y.bottom;
+                    const val = chart.data.datasets[activePoint.datasetIndex].data[activePoint.index];
                     
                     ctx.save();
                     ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom);
-                    ctx.lineWidth = 1; ctx.strokeStyle = '#ff5722'; ctx.setLineDash([5, 5]); ctx.stroke();
-                    ctx.setLineDash([]); 
-
-                    ctx.beginPath(); ctx.arc(x, y, 5, 0, 2*Math.PI); 
-                    ctx.fillStyle = '#ff5722'; ctx.fill(); 
-                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+                    ctx.lineWidth = 1; ctx.strokeStyle = '#ff5722'; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]); 
+                    ctx.beginPath(); ctx.arc(x, y, 5, 0, 2*Math.PI); ctx.fillStyle = '#ff5722'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
 
                     const tStr = new Date(val.x).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
                     const hStr = val.y.toFixed(2) + "m";
@@ -435,14 +454,10 @@
                     const w = 54; const h = 30;
                     let boxY = y - h - 12; if(boxY < top) boxY = y + 12;
 
-                    ctx.fillStyle = "rgba(255,255,255,0.95)"; 
-                    ctx.strokeStyle = "#ff5722"; ctx.lineWidth = 1;
-                    ctx.fillRect(x - w/2, boxY, w, h);
-                    ctx.strokeRect(x - w/2, boxY, w, h);
-
+                    ctx.fillStyle = "rgba(255,255,255,0.95)"; ctx.strokeStyle = "#ff5722"; ctx.lineWidth = 1;
+                    ctx.fillRect(x - w/2, boxY, w, h); ctx.strokeRect(x - w/2, boxY, w, h);
                     ctx.fillStyle = "#ff5722"; ctx.textAlign = "center";
-                    ctx.fillText(tStr, x, boxY + 12);
-                    ctx.fillText(hStr, x, boxY + 24);
+                    ctx.fillText(tStr, x, boxY + 12); ctx.fillText(hStr, x, boxY + 24);
                     ctx.restore();
                 }
             }
@@ -452,49 +467,20 @@
             type: 'line',
             data: {
                 datasets: [
-                    {
-                        label: 'Level', data: lineData,
-                        borderColor: '#4facfe', backgroundColor: 'rgba(79, 172, 254, 0.1)',
-                        borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4,
-                        datalabels: { display: false }
-                    },
-                    {
-                        label: 'Hi/Lo', data: pointData, type: 'scatter',
-                        backgroundColor: 'red', pointRadius: 5,
-                        datalabels: {
-                            display: true, color: '#333', backgroundColor: 'rgba(255,255,255,0.8)',
-                            borderRadius: 4, font: { weight: 'bold' },
-                            align: (ctx) => ctx.dataset.data[ctx.dataIndex].y > 2.5 ? 'top' : 'bottom',
-                            formatter: (v) => new Date(v.x).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + `\n${v.y.toFixed(2)}m`
-                        }
-                    }
+                    { label: 'Level', data: lineData, borderColor: '#4facfe', backgroundColor: 'rgba(79, 172, 254, 0.1)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4, datalabels: { display: false } },
+                    { label: 'Hi/Lo', data: pointData, type: 'scatter', backgroundColor: 'red', pointRadius: 5, datalabels: { display: true, color: '#333', backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 4, font: { weight: 'bold' }, align: (ctx) => ctx.dataset.data[ctx.dataIndex].y > 2.5 ? 'top' : 'bottom', formatter: (v) => new Date(v.x).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + `\n${v.y.toFixed(2)}m` } }
                 ]
             },
             plugins: [currentTimePlugin, hoverLinePlugin],
             options: {
                 responsive: true, maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'H' } }, grid: {display:false} },
-                    y: { title: {display:false} }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        enabled: false,
-                        external: (context) => {
-                            if(context.tooltip.opacity === 0) return;
-                            const d = context.tooltip.dataPoints[0];
-                            const time = new Date(d.parsed.x).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-                            infoBox.innerHTML = `Selected: <span style="color:#ff5722">${time}</span> &nbsp; Height: <span style="color:#0d47a1">${d.parsed.y.toFixed(2)}m</span>`;
-                        }
-                    }
-                }
+                scales: { x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'H' } }, grid: {display:false} }, y: { title: {display:false} } },
+                plugins: { legend: { display: false }, tooltip: { enabled: false, external: (context) => { if(context.tooltip.opacity === 0) return; const d = context.tooltip.dataPoints[0]; const time = new Date(d.parsed.x).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); infoBox.innerHTML = `Selected: <span style="color:#ff5722">${time}</span> &nbsp; Height: <span style="color:#0d47a1">${d.parsed.y.toFixed(2)}m</span>`; } } }
             }
         });
     }
 
-    // --- 4. Weekly Tide (With Separator & Low Highlight) ---
     async function fetchWeekly(sid) {
         try {
             const s = new Date(); const e = new Date(); e.setDate(e.getDate()+6);
@@ -502,7 +488,6 @@
             const res = await fetch(url);
             const data = await res.json();
             
-            // Group by Date
             const groups = {};
             data.forEach(d => {
                 const dateKey = new Date(d.eventDate).toDateString();
@@ -513,7 +498,6 @@
             let html = "";
             Object.keys(groups).forEach(key => {
                 const events = groups[key];
-                // Find lowest value in this day
                 let minVal = 999;
                 events.forEach(ev => { if(ev.value < minVal) minVal = ev.value; });
 
@@ -521,32 +505,18 @@
                     const date = new Date(d.eventDate);
                     const type = d.value > 3 ? "High" : "Low";
                     const cls = d.value > 3 ? "tag-high" : "tag-low";
-                    
                     const isLowest = (d.value === minVal);
                     const rowClass = isLowest ? "lowest-low" : "";
-                    
-                    // Separator for last item of day
                     const isLastOfDay = (index === events.length - 1);
                     const borderClass = isLastOfDay ? "day-separator" : "";
 
-                    html += `
-                        <tr class="${rowClass} ${borderClass}">
-                            <td>${date.getMonth()+1}/${date.getDate()}</td>
-                            <td><span class="tag ${cls}">${type}</span></td>
-                            <td>${date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
-                            <td>${d.value.toFixed(2)}m</td>
-                        </tr>
-                    `;
+                    html += `<tr class="${rowClass} ${borderClass}"><td>${date.getMonth()+1}/${date.getDate()}</td><td><span class="tag ${cls}">${type}</span></td><td>${date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td><td>${d.value.toFixed(2)}m</td></tr>`;
                 });
             });
-
             document.getElementById('weeklyTideBody').innerHTML = html;
-        } catch(e) { 
-            document.getElementById('weeklyTideBody').innerHTML = "<tr><td colspan='4'>Forecast unavailable</td></tr>"; 
-        }
+        } catch(e) { document.getElementById('weeklyTideBody').innerHTML = "<tr><td colspan='4'>Forecast unavailable</td></tr>"; }
     }
 
-    // --- Weather ---
     async function fetchWeather(lat, lon) {
         try {
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum&timezone=auto&forecast_days=14`;
@@ -583,7 +553,6 @@
         if(c===0) return "☀️"; if(c<3) return "⛅"; if(c<50) return "🌫️"; if(c<80) return "🌧️"; return "⛈️";
     }
 
-    // --- Map ---
     async function fetchStationsAndInitMap() {
         try {
             const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
@@ -633,28 +602,6 @@
 
     function changeDate(off) { currentDate.setDate(currentDate.getDate()+off); updateDateDisplay(); fetchTideData(); }
     function updateDateDisplay() { document.getElementById('dateDisplay').innerText = currentDate.toLocaleDateString('en-CA'); }
-    
-    function showSuggestions() { document.getElementById('suggestions').style.display = 'block'; filterStations(); }
-    function filterStations() {
-        const v = document.getElementById('stationSearch').value.toLowerCase();
-        const list = document.getElementById('suggestions');
-        list.innerHTML = "";
-        const m = allStations.filter(s => s.officialName.toLowerCase().includes(v)).slice(0,10);
-        m.forEach(s => {
-            const li = document.createElement('li'); li.className='suggestion-item';
-            li.innerText = s.officialName; li.onclick = () => selectStation(s);
-            list.appendChild(li);
-        });
-    }
-    function selectStation(s) {
-        currentStationCode = s.code; currentStationName = s.officialName;
-        localStorage.setItem('tide_station_code', s.code); localStorage.setItem('tide_station_name', s.officialName);
-        document.getElementById('stationSearch').value = s.officialName;
-        document.getElementById('suggestions').style.display = 'none';
-        fetchTideData();
-    }
-    document.addEventListener('click', e => { if(!e.target.closest('.search-container')) document.getElementById('suggestions').style.display='none'; });
-
 </script>
 </body>
 </html>
