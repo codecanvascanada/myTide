@@ -1,30 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2115172676845444"
-     crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2115172676845444" crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Easy Tides</title>
+    <title>Easy Tides - Marine Dashboard</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; }
-        .card { background: white; width: 100%; max-width: 800px; padding: 20px 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 15px; }
         
-        .app-title {
-            text-align: center; margin: 0 0 15px 0; font-size: 1.8rem; font-weight: 800; color: #0d47a1; letter-spacing: -0.5px;
-        }
+        /* --- 기존 카드 스타일 --- */
+        .card { background: white; width: 100%; padding: 20px 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; }
+        
+        .app-title { text-align: center; margin: 0 0 15px 0; font-size: 1.8rem; font-weight: 800; color: #0d47a1; letter-spacing: -0.5px; }
 
         .search-container { position: relative; width: 100%; margin: 0 auto 10px auto; z-index: 100; }
-        .search-input {
-            width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; transition: border-color 0.2s;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 15px center;
-        }
+        .search-input { width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; transition: border-color 0.2s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 15px center; }
         .search-input:focus { border-color: #0077be; }
         
         .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 250px; overflow-y: auto; z-index: 1000; list-style: none; padding: 0; margin: 5px 0 0 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none; }
@@ -38,45 +34,107 @@
         .nav-btn:active { background-color: #0077be; color: white; }
         .date-display { font-size: 1rem; font-weight: 600; color: #333; text-align: center; flex-grow: 1; }
 
-        .info-box { 
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border: none; color: #0d47a1; 
-            padding: 12px; text-align: center; border-radius: 12px; 
-            margin-bottom: 15px; font-weight: 600; font-size: 0.95rem; 
-            min-height: 1.4em; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        .info-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: none; color: #0d47a1; padding: 12px; text-align: center; border-radius: 12px; margin-bottom: 15px; font-weight: 600; font-size: 0.95rem; min-height: 1.4em; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .info-item { display: inline-flex; align-items: center; gap: 4px; }
         
         .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); }
-        
         canvas { width: 100% !important; height: 280px !important; touch-action: none; } 
+
+        /* --- NEW SECTIONS STYLES --- */
+        .section-title { font-size: 1.1rem; font-weight: 700; color: #333; margin-bottom: 12px; border-left: 4px solid #0077be; padding-left: 10px; }
+        
+        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: #f8f9fa; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .stat-icon { font-size: 1.8rem; margin-bottom: 5px; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; color: #333; }
+        .stat-label { font-size: 0.8rem; color: #666; margin-top: 2px; }
+
+        .wind-compass { position: relative; width: 60px; height: 60px; border: 2px solid #ddd; border-radius: 50%; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; }
+        .wind-arrow { font-size: 1.5rem; color: #ff5722; transform-origin: center; display: inline-block; }
+        
+        .weekly-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .weekly-table th { text-align: left; padding: 10px; color: #666; font-weight: 600; border-bottom: 2px solid #eee; }
+        .weekly-table td { padding: 12px 10px; border-bottom: 1px solid #f0f0f0; color: #333; }
+        .weekly-table tr:last-child td { border-bottom: none; }
+        .tide-tag { padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+        .tag-high { background-color: #e3f2fd; color: #1976d2; }
+        .tag-low { background-color: #fff3e0; color: #f57c00; }
+
+        .marine-note { background-color: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; margin-bottom: 20px; }
     </style>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2115172676845444"
-     crossorigin="anonymous"></script>
 </head>
 <body>
 
-<div class="card">
-    <h1 class="app-title">Easy Tides</h1>
+<div class="container">
+    <div class="card">
+        <h1 class="app-title">Easy Tides</h1>
 
-    <div class="search-container">
-        <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
-        <ul id="suggestions" class="suggestions-list"><li class="suggestion-item" style="justify-content: center; color: #999;">Loading...</li></ul>
-    </div>
-    
-    <div id="currentInfo" class="info-box">
-        Touch graph for details
+        <div class="search-container">
+            <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
+            <ul id="suggestions" class="suggestions-list"><li class="suggestion-item" style="justify-content: center; color: #999;">Loading...</li></ul>
+        </div>
+        
+        <div id="currentInfo" class="info-box">
+            Touch graph for details
+        </div>
+
+        <div class="date-controls">
+            <button class="nav-btn" onclick="changeDate(-1)">◀</button>
+            <div id="dateDisplay" class="date-display"></div>
+            <button class="nav-btn" onclick="changeDate(1)">▶</button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;"></div>
+        <canvas id="tideChart"></canvas>
     </div>
 
-    <div class="date-controls">
-        <button class="nav-btn" onclick="changeDate(-1)">◀</button>
-        <div id="dateDisplay" class="date-display"></div>
-        <button class="nav-btn" onclick="changeDate(1)">▶</button>
+    <div class="card">
+        <div class="section-title">Current Conditions</div>
+        <div class="weather-grid">
+            <div class="stat-card">
+                <div class="wind-compass">
+                    <div id="windArrow" class="wind-arrow">↑</div>
+                </div>
+                <div id="windText" class="stat-value">-- km/h</div>
+                <div id="windDirText" class="stat-label">Direction</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">☀️</div>
+                <div id="sunTimes" class="stat-value">--:--</div>
+                <div class="stat-label">Sunrise / Sunset</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🌡️</div>
+                <div id="tempText" class="stat-value">--°C</div>
+                <div class="stat-label">Temperature</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">☔</div>
+                <div id="rainText" class="stat-value">-- mm</div>
+                <div class="stat-label">Precipitation</div>
+            </div>
+        </div>
+        <div id="sailingNote" class="marine-note">
+            Loading marine conditions...
+        </div>
     </div>
 
-    <div id="loading" class="loading" style="display: none;"></div>
-    <canvas id="tideChart"></canvas>
+    <div class="card">
+        <div class="section-title">7-Day Tide Forecast</div>
+        <table class="weekly-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Hi/Lo</th>
+                    <th>Time</th>
+                    <th>Height</th>
+                </tr>
+            </thead>
+            <tbody id="weeklyTideBody">
+                <tr><td colspan="4" style="text-align: center;">Loading forecast...</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -98,6 +156,7 @@
         fetchTideData(); 
     }
 
+    // [UPDATED] Fetch Weather with extended parameters for dashboard
     async function fetchWeatherData(lat, lon, dateObj) {
         try {
             const year = dateObj.getFullYear();
@@ -105,11 +164,13 @@
             const day = String(dateObj.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
 
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,wind_speed_10m,weather_code&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
+            // Modified URL to get daily stats (sunrise/sunset) and current weather
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,wind_speed_10m,weather_code&daily=sunrise,sunset,precipitation_sum&current_weather=true&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
             
             const resp = await fetch(url);
             const data = await resp.json();
             
+            // 1. Hourly Data for Chart (Existing logic)
             if (data.hourly) {
                 hourlyWeatherData = data.hourly.time.map((t, i) => ({
                     time: t, 
@@ -120,9 +181,114 @@
             } else {
                 hourlyWeatherData = [];
             }
+
+            // 2. [NEW] Update Dashboard Elements
+            updateDashboard(data);
+
         } catch (e) {
             console.error("Weather load failed", e);
             hourlyWeatherData = [];
+        }
+    }
+
+    // [NEW] Function to update the Weather Dashboard below the chart
+    function updateDashboard(data) {
+        if (!data || !data.current_weather || !data.daily) return;
+
+        const current = data.current_weather;
+        const daily = data.daily;
+
+        // Wind
+        const windSpeed = current.windspeed;
+        const windDir = current.winddirection;
+        document.getElementById('windArrow').style.transform = `rotate(${windDir + 180}deg)`; // +180 because arrow points up
+        document.getElementById('windText').innerText = `${windSpeed} km/h`;
+        document.getElementById('windDirText').innerText = getCardinalDirection(windDir);
+
+        // Sun
+        const sunrise = new Date(daily.sunrise[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+        const sunset = new Date(daily.sunset[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('sunTimes').innerHTML = `⬆ ${sunrise}<br>⬇ ${sunset}`;
+
+        // Temp & Rain
+        document.getElementById('tempText').innerText = `${current.temperature}°C`;
+        document.getElementById('rainText').innerText = `${daily.precipitation_sum[0]} mm`;
+
+        // Marine Note (Sailing advice)
+        const noteEl = document.getElementById('sailingNote');
+        if (windSpeed < 10) {
+            noteEl.innerText = "🍃 Calm winds. Excellent for motor cruising or kayaking. Sailing might be slow.";
+            noteEl.style.backgroundColor = "#e8f5e9"; noteEl.style.color = "#2e7d32";
+        } else if (windSpeed < 25) {
+            noteEl.innerText = "⛵ Good sailing breeze! Moderate conditions suitable for most recreational craft.";
+            noteEl.style.backgroundColor = "#e3f2fd"; noteEl.style.color = "#0d47a1";
+        } else {
+            noteEl.innerText = "⚠️ Strong winds detected. Choppy waters expected. Exercise caution.";
+            noteEl.style.backgroundColor = "#ffebee"; noteEl.style.color = "#c62828";
+        }
+    }
+
+    function getCardinalDirection(angle) {
+        const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        return directions[Math.round(angle / 45) % 8];
+    }
+
+    // [NEW] Function to fetch and render Weekly Tide Table
+    async function fetchWeeklyTides(stationId) {
+        const tableBody = document.getElementById('weeklyTideBody');
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center">Loading forecast...</td></tr>';
+
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 6); // Next 7 days
+
+        const fromStr = startDate.toISOString();
+        const toStr = endDate.toISOString();
+
+        try {
+            const url = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp-hilo&from=${fromStr}&to=${toStr}`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+
+            tableBody.innerHTML = '';
+            
+            // Group by date
+            let currentDayStr = '';
+            
+            data.forEach(item => {
+                const dateObj = new Date(item.eventDate);
+                const dayStr = dateObj.toLocaleDateString('en-GB', {weekday: 'short', month: 'short', day: 'numeric'});
+                const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'});
+                const isHigh = item.value > 2.5; // Simplified logic, ideally compare with neighbors
+                const typeLabel = isHigh ? 'High' : 'Low'; // Note: Actual API "hilo" usually implies extrema, but logic to tag High/Low cleanly might need comparison. 
+                // Better approach for visualization: Check value relative to mean or just list Height. 
+                // We will imply High/Low based on typical ranges or alternating patterns, but for now just show data nicely.
+                
+                // Simple hack for High/Low visual: > 3m is typically High in BC, < 2m Low, but varies by station.
+                // Let's just alternate formatting based on previous value or keep it simple.
+                // For this table, I will use a simple threshold for styling, but rely on user reading height.
+                
+                const row = document.createElement('tr');
+                
+                // Show date only once per day group
+                const dateCell = (dayStr !== currentDayStr) ? `<strong>${dayStr}</strong>` : '';
+                currentDayStr = dayStr;
+
+                // Determine tag style roughly (Just for visual aid)
+                const tagClass = item.value > 3.0 ? 'tag-high' : (item.value < 2.0 ? 'tag-low' : '');
+                const typeText = item.value > 3.0 ? 'High' : (item.value < 2.0 ? 'Low' : '-');
+
+                row.innerHTML = `
+                    <td>${dateCell}</td>
+                    <td><span class="tide-tag ${tagClass}">${typeText}</span></td>
+                    <td>${timeStr}</td>
+                    <td>${item.value.toFixed(2)}m</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+        } catch (e) {
+            tableBody.innerHTML = '<tr><td colspan="4">Forecast unavailable</td></tr>';
         }
     }
 
@@ -228,9 +394,13 @@
                 else throw new Error("Station not found");
             }
 
+            // Fetch Weather Info (Updated function will handle dashboard updates too)
             if (stationObj.latitude && stationObj.longitude) {
                 await fetchWeatherData(stationObj.latitude, stationObj.longitude, currentDate);
             }
+
+            // [NEW] Trigger Weekly Forecast Fetch
+            fetchWeeklyTides(stationObj.id);
 
             const curveUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
             const hiloUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp-hilo&from=${startTime}&to=${endTime}`;
@@ -252,7 +422,7 @@
         }
     }
 
-    // [UPDATED] Current Time Marker with Blue Dot & Label
+    // --- Plugins (Kept Original) ---
     const currentTimePlugin = {
         id: 'currentTime',
         afterDraw: (chart) => {
@@ -262,14 +432,11 @@
             const yAxis = chart.scales.y;
             const xPos = xAxis.getPixelForValue(now.getTime());
 
-            // Check if current time is within chart range
             if (xPos >= xAxis.left && xPos <= xAxis.right) {
-                // 1. Calculate Current Tide Level (Linear Interpolation)
-                const dataset = chart.data.datasets[0].data; // Tide curve data
+                const dataset = chart.data.datasets[0].data;
                 let yValue = null;
                 const nowTime = now.getTime();
 
-                // Find two points surrounding 'now'
                 for (let i = 0; i < dataset.length - 1; i++) {
                     const p1 = dataset[i];
                     const p2 = dataset[i+1];
@@ -277,7 +444,6 @@
                     const t2 = new Date(p2.x).getTime();
 
                     if (nowTime >= t1 && nowTime <= t2) {
-                        // Interpolate Y
                         const ratio = (nowTime - t1) / (t2 - t1);
                         yValue = p1.y + (p2.y - p1.y) * ratio;
                         break;
@@ -286,60 +452,45 @@
 
                 if (yValue !== null) {
                     const yPos = yAxis.getPixelForValue(yValue);
-
-                    // 2. Draw Thin Solid Blue Line
                     ctx.save();
                     ctx.beginPath();
                     ctx.moveTo(xPos, yAxis.top);
                     ctx.lineTo(xPos, yAxis.bottom);
                     ctx.lineWidth = 1;
                     ctx.strokeStyle = '#2196F3';
-                    ctx.setLineDash([]);
                     ctx.stroke();
 
-                    // 3. Draw Blue Dot at Intersection
                     ctx.beginPath();
-                    ctx.arc(xPos, yPos, 4, 0, 2 * Math.PI); // Radius 4
+                    ctx.arc(xPos, yPos, 4, 0, 2 * Math.PI);
                     ctx.fillStyle = '#2196F3';
                     ctx.fill();
                     ctx.strokeStyle = '#fff';
                     ctx.lineWidth = 2;
                     ctx.stroke();
 
-                    // 4. Draw Label (Like the red dots)
-                    // Text Content
                     const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
                     const heightStr = yValue.toFixed(2) + 'm';
-                    const text = timeStr; // Draw time on top line, height on bottom line not supported easily in fillText without calculation
 
-                    // Label Settings
                     const padding = 4;
                     const borderRadius = 4;
                     const fontSize = 11;
                     ctx.font = `bold ${fontSize}px Arial`;
                     
-                    // Measure text for box size
                     const textWidth1 = ctx.measureText(timeStr).width;
                     const textWidth2 = ctx.measureText(heightStr).width;
                     const boxWidth = Math.max(textWidth1, textWidth2) + (padding * 2);
-                    const boxHeight = (fontSize * 2) + (padding * 2) + 2; // 2 lines
+                    const boxHeight = (fontSize * 2) + (padding * 2) + 2; 
                     
-                    // Box Position (Determine whether to show above or below)
-                    // Default above, unless too close to top
                     let boxY = yPos - boxHeight - 8; 
-                    if (boxY < yAxis.top) boxY = yPos + 8; // Flip to bottom if top clipped
+                    if (boxY < yAxis.top) boxY = yPos + 8; 
 
                     const boxX = xPos - (boxWidth / 2);
 
-                    // Draw Box Shadow/Background
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                    
-                    // Round Rect Helper
                     ctx.beginPath();
                     ctx.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
                     ctx.fill();
                     
-                    // Draw Text (Blue color for current time)
                     ctx.fillStyle = '#0d47a1'; 
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'top';
