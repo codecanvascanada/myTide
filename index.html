@@ -38,7 +38,9 @@
         .info-item { display: inline-flex; align-items: center; gap: 4px; }
         
         .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); }
-        canvas { width: 100% !important; height: 280px !important; touch-action: none; } 
+        
+        /* [수정됨] 높이를 400px로 늘림 */
+        canvas { width: 100% !important; height: 400px !important; touch-action: none; } 
 
         /* --- NEW SECTIONS STYLES --- */
         .section-title { font-size: 1.1rem; font-weight: 700; color: #333; margin-bottom: 12px; border-left: 4px solid #0077be; padding-left: 10px; }
@@ -156,7 +158,6 @@
         fetchTideData(); 
     }
 
-    // [UPDATED] Fetch Weather with extended parameters for dashboard
     async function fetchWeatherData(lat, lon, dateObj) {
         try {
             const year = dateObj.getFullYear();
@@ -164,13 +165,11 @@
             const day = String(dateObj.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
 
-            // Modified URL to get daily stats (sunrise/sunset) and current weather
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,wind_speed_10m,weather_code&daily=sunrise,sunset,precipitation_sum&current_weather=true&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
             
             const resp = await fetch(url);
             const data = await resp.json();
             
-            // 1. Hourly Data for Chart (Existing logic)
             if (data.hourly) {
                 hourlyWeatherData = data.hourly.time.map((t, i) => ({
                     time: t, 
@@ -182,7 +181,6 @@
                 hourlyWeatherData = [];
             }
 
-            // 2. [NEW] Update Dashboard Elements
             updateDashboard(data);
 
         } catch (e) {
@@ -191,7 +189,6 @@
         }
     }
 
-    // [NEW] Function to update the Weather Dashboard below the chart
     function updateDashboard(data) {
         if (!data || !data.current_weather || !data.daily) return;
 
@@ -201,7 +198,7 @@
         // Wind
         const windSpeed = current.windspeed;
         const windDir = current.winddirection;
-        document.getElementById('windArrow').style.transform = `rotate(${windDir + 180}deg)`; // +180 because arrow points up
+        document.getElementById('windArrow').style.transform = `rotate(${windDir + 180}deg)`; 
         document.getElementById('windText').innerText = `${windSpeed} km/h`;
         document.getElementById('windDirText').innerText = getCardinalDirection(windDir);
 
@@ -214,7 +211,7 @@
         document.getElementById('tempText').innerText = `${current.temperature}°C`;
         document.getElementById('rainText').innerText = `${daily.precipitation_sum[0]} mm`;
 
-        // Marine Note (Sailing advice)
+        // Marine Note
         const noteEl = document.getElementById('sailingNote');
         if (windSpeed < 10) {
             noteEl.innerText = "🍃 Calm winds. Excellent for motor cruising or kayaking. Sailing might be slow.";
@@ -233,14 +230,13 @@
         return directions[Math.round(angle / 45) % 8];
     }
 
-    // [NEW] Function to fetch and render Weekly Tide Table
     async function fetchWeeklyTides(stationId) {
         const tableBody = document.getElementById('weeklyTideBody');
         tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center">Loading forecast...</td></tr>';
 
         const startDate = new Date();
         const endDate = new Date();
-        endDate.setDate(endDate.getDate() + 6); // Next 7 days
+        endDate.setDate(endDate.getDate() + 6); 
 
         const fromStr = startDate.toISOString();
         const toStr = endDate.toISOString();
@@ -252,29 +248,18 @@
 
             tableBody.innerHTML = '';
             
-            // Group by date
             let currentDayStr = '';
             
             data.forEach(item => {
                 const dateObj = new Date(item.eventDate);
                 const dayStr = dateObj.toLocaleDateString('en-GB', {weekday: 'short', month: 'short', day: 'numeric'});
                 const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'});
-                const isHigh = item.value > 2.5; // Simplified logic, ideally compare with neighbors
-                const typeLabel = isHigh ? 'High' : 'Low'; // Note: Actual API "hilo" usually implies extrema, but logic to tag High/Low cleanly might need comparison. 
-                // Better approach for visualization: Check value relative to mean or just list Height. 
-                // We will imply High/Low based on typical ranges or alternating patterns, but for now just show data nicely.
-                
-                // Simple hack for High/Low visual: > 3m is typically High in BC, < 2m Low, but varies by station.
-                // Let's just alternate formatting based on previous value or keep it simple.
-                // For this table, I will use a simple threshold for styling, but rely on user reading height.
                 
                 const row = document.createElement('tr');
                 
-                // Show date only once per day group
                 const dateCell = (dayStr !== currentDayStr) ? `<strong>${dayStr}</strong>` : '';
                 currentDayStr = dayStr;
 
-                // Determine tag style roughly (Just for visual aid)
                 const tagClass = item.value > 3.0 ? 'tag-high' : (item.value < 2.0 ? 'tag-low' : '');
                 const typeText = item.value > 3.0 ? 'High' : (item.value < 2.0 ? 'Low' : '-');
 
@@ -394,12 +379,10 @@
                 else throw new Error("Station not found");
             }
 
-            // Fetch Weather Info (Updated function will handle dashboard updates too)
             if (stationObj.latitude && stationObj.longitude) {
                 await fetchWeatherData(stationObj.latitude, stationObj.longitude, currentDate);
             }
 
-            // [NEW] Trigger Weekly Forecast Fetch
             fetchWeeklyTides(stationObj.id);
 
             const curveUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
@@ -422,7 +405,6 @@
         }
     }
 
-    // --- Plugins (Kept Original) ---
     const currentTimePlugin = {
         id: 'currentTime',
         afterDraw: (chart) => {
