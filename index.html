@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Easy Tides - Marine Dashboard</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -17,12 +17,10 @@
         html { scroll-behavior: smooth; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; overflow-x: hidden; }
 
-        /* 모바일 헤더 */
+        /* 모바일 헤더 & 레이아웃 */
         .mobile-header { display: none; background: white; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 2000; }
         .mobile-brand { font-size: 1.2rem; font-weight: 800; color: #0d47a1; }
         .hamburger-btn { font-size: 1.5rem; background: none; border: none; cursor: pointer; padding: 0; }
-
-        /* 레이아웃 */
         .app-wrapper { display: grid; grid-template-columns: 1fr 240px; gap: 20px; max-width: 1200px; margin: 0 auto; padding: 20px; box-sizing: border-box; min-height: 100vh; }
         
         /* 사이드바 */
@@ -33,11 +31,11 @@
         .nav-link { display: flex; align-items: center; gap: 10px; padding: 12px 15px; color: #555; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.2s; }
         .nav-link:hover { background-color: #e3f2fd; color: #0d47a1; }
 
-        /* 콘텐츠 */
+        /* 콘텐츠 & 카드 */
         .content-area { display: flex; flex-direction: column; gap: 20px; width: 100%; min-width: 0; }
         .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); box-sizing: border-box; scroll-margin-top: 80px; position: relative; }
 
-        /* 지도 탭 */
+        /* 컴포넌트들 */
         .map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap; }
         .map-tabs { display: flex; background: #f1f3f5; border-radius: 8px; padding: 4px; gap: 5px; }
         .map-tab-btn { border: none; background: transparent; padding: 6px 12px; border-radius: 6px; font-weight: 600; color: #666; cursor: pointer; }
@@ -46,18 +44,6 @@
         .map-view.active { display: block; }
         #map, #windyFrame { width: 100%; height: 100%; border: none; }
 
-        /* 14일 날씨 */
-        .forecast-scroll-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: thin; }
-        .daily-weather-card { min-width: 110px; background: #f8f9fa; border-radius: 12px; padding: 15px 10px; text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
-        .dw-icon { font-size: 2rem; margin: 5px 0; }
-        .dw-temp { font-weight: bold; color: #333; }
-
-        /* 날씨 그리드 */
-        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 12px; text-align: center; }
-        .stat-value { font-weight: bold; font-size: 1.1rem; margin: 5px 0; }
-
-        /* 기타 */
         .search-container { position: relative; width: 100%; margin-bottom: 15px; z-index: 1000; }
         .search-input { width: 100%; padding: 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; display: none; z-index: 2000; list-style: none; padding: 0; margin: 0; }
@@ -67,12 +53,19 @@
         .nav-btn { background: white; border: 1px solid #eee; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; }
         .date-display { flex-grow: 1; text-align: center; line-height: 40px; font-weight: bold; }
         
-        .info-box { background: #e3f2fd; color: #0d47a1; padding: 12px; text-align: center; border-radius: 12px; margin-bottom: 10px; font-weight: bold; }
-        
+        .info-box { background: #e3f2fd; color: #0d47a1; padding: 12px; text-align: center; border-radius: 12px; margin-bottom: 10px; font-weight: bold; min-height: 20px; }
         .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; color: #007bff; z-index: 50; }
         .error-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; text-align: center; width: 80%; display: none; }
         
         canvas { width: 100% !important; height: 350px !important; }
+        
+        .forecast-scroll-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: thin; }
+        .daily-weather-card { min-width: 110px; background: #f8f9fa; border-radius: 12px; padding: 15px 10px; text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
+        .dw-icon { font-size: 2rem; margin: 5px 0; }
+        .dw-temp { font-weight: bold; color: #333; }
+        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 12px; text-align: center; }
+        .stat-value { font-weight: bold; font-size: 1.1rem; margin: 5px 0; }
         
         .weekly-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         .weekly-table th { text-align: left; padding: 8px; border-bottom: 2px solid #eee; color: #666; }
@@ -82,6 +75,7 @@
         .tag-low { background: #fff3e0; color: #ef6c00; }
         
         .menu-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; backdrop-filter: blur(2px); }
+        .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 5px; cursor: pointer; }
 
         @media (max-width: 850px) {
             .mobile-header { display: flex; } .app-wrapper { display: block; padding: 10px; }
@@ -89,7 +83,6 @@
             .sidebar.active { right: 0; } .menu-overlay.active { display: block; }
             .brand-title { display: none; } .close-btn { display: block; } .app-title { display: none; }
         }
-        .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -142,26 +135,10 @@
         <div id="section-weather" class="card">
             <div style="font-weight:700; border-left:4px solid #0077be; padding-left:10px; margin-bottom:12px;">Current Conditions</div>
             <div class="weather-grid">
-                <div class="stat-card">
-                    <div style="font-size:1.5rem">🍃</div>
-                    <div id="windText" class="stat-value">--</div>
-                    <div style="font-size:0.8rem; color:#666">Wind</div>
-                </div>
-                <div class="stat-card">
-                    <div style="font-size:1.5rem">☀️</div>
-                    <div id="sunTimes" class="stat-value" style="font-size:0.9rem">--:--</div>
-                    <div style="font-size:0.8rem; color:#666">Sun</div>
-                </div>
-                <div class="stat-card">
-                    <div style="font-size:1.5rem">🌡️</div>
-                    <div id="tempText" class="stat-value">--</div>
-                    <div style="font-size:0.8rem; color:#666">Temp</div>
-                </div>
-                <div class="stat-card">
-                    <div style="font-size:1.5rem">☔</div>
-                    <div id="rainText" class="stat-value">--</div>
-                    <div style="font-size:0.8rem; color:#666">Rain</div>
-                </div>
+                <div class="stat-card"><div style="font-size:1.5rem">🍃</div><div id="windText" class="stat-value">--</div><div style="font-size:0.8rem; color:#666">Wind</div></div>
+                <div class="stat-card"><div style="font-size:1.5rem">☀️</div><div id="sunTimes" class="stat-value" style="font-size:0.9rem">--:--</div><div style="font-size:0.8rem; color:#666">Sun</div></div>
+                <div class="stat-card"><div style="font-size:1.5rem">🌡️</div><div id="tempText" class="stat-value">--</div><div style="font-size:0.8rem; color:#666">Temp</div></div>
+                <div class="stat-card"><div style="font-size:1.5rem">☔</div><div id="rainText" class="stat-value">--</div><div style="font-size:0.8rem; color:#666">Rain</div></div>
             </div>
             <div id="sailingNote" style="margin-top:10px; padding:10px; background:#e8f5e9; color:#2e7d32; border-radius:8px; font-size:0.9rem;">Wait...</div>
         </div>
@@ -189,16 +166,15 @@
 </div>
 
 <script>
-    // [중요] 라이브러리 로드 대기
     window.onload = function() {
         try {
-            if(typeof Chart === 'undefined') throw new Error("Chart.js failed to load");
+            if(typeof Chart === 'undefined') throw new Error("Chart.js not loaded");
             Chart.register(ChartDataLabels);
             initApp();
         } catch(e) {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('errorMsg').style.display = 'block';
-            document.getElementById('errorMsg').innerHTML = "Script Error: " + e.message + "<br>Please refresh.";
+            document.getElementById('errorMsg').innerHTML = "Script Error: " + e.message;
         }
     };
 
@@ -215,26 +191,28 @@
     let map = null;
     let currentLat = 49.12; 
     let currentLon = -123.18;
-    
     let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
     let currentStationName = localStorage.getItem('tide_station_name') || 'Steveston';
 
     function initApp() {
         updateDateDisplay();
         document.getElementById('stationSearch').value = currentStationName;
-        // API 호출 시작
         fetchStationsAndInitMap();
         fetchTideData(); 
     }
 
-    // --- 맵 탭 전환 ---
+    function showError(msg) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('errorMsg').style.display = 'block';
+        document.getElementById('errorMsg').innerText = "Error: " + msg;
+    }
+
     window.switchMapView = function(type, btn) {
         document.querySelectorAll('.map-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('view-station').classList.remove('active');
         document.getElementById('view-wind').classList.remove('active');
         document.getElementById('view-' + type).classList.add('active');
-        
         if(type === 'station') { if(map) setTimeout(() => map.invalidateSize(), 100); }
         else { updateWindyMap(currentLat, currentLon); }
     }
@@ -245,17 +223,13 @@
         if(frame.src !== src) frame.src = src;
     }
 
-    // --- Station Map ---
     async function fetchStationsAndInitMap() {
         try {
             const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
             if(!resp.ok) throw new Error("Station API error");
             allStations = await resp.json();
             initMap();
-        } catch(e) {
-            console.error(e);
-            document.getElementById('map').innerText = "Map Error: " + e.message;
-        }
+        } catch(e) { document.getElementById('map').innerText = "Map Error"; }
     }
 
     function initMap() {
@@ -290,7 +264,6 @@
         }
     }
 
-    // --- Main Data Fetch ---
     async function fetchTideData() {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('errorMsg').style.display = 'none';
@@ -298,14 +271,11 @@
         if (myChart) myChart.destroy();
 
         try {
-            // 1. Station Check
             let sObj = allStations.find(s => s.code === currentStationCode);
             if (!sObj) {
                 const r = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
-                if(!r.ok) throw new Error("Station lookup failed");
                 const d = await r.json();
-                if(d.length > 0) sObj = d[0];
-                else throw new Error("Station not found");
+                if(d.length > 0) sObj = d[0]; else throw new Error("Station not found");
             }
 
             if(sObj.latitude) {
@@ -315,20 +285,15 @@
                 fetchLongRange(currentLat, currentLon).catch(e => console.warn(e));
             }
 
-            // 2. Tide Data
             const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0,0,0).toISOString();
             const end = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23,59,59).toISOString();
 
             fetchWeekly(sObj.id).catch(e => console.warn(e));
 
-            // 5초 타임아웃 적용 (API가 느릴 경우 대비)
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("API Timeout")), 8000));
-            const fetchPromise = Promise.all([
+            const [resCurve, resHilo] = await Promise.all([
                 fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${sObj.id}/data?time-series-code=wlp&from=${start}&to=${end}`),
                 fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${sObj.id}/data?time-series-code=wlp-hilo&from=${start}&to=${end}`)
             ]);
-
-            const [resCurve, resHilo] = await Promise.race([fetchPromise, timeoutPromise]);
 
             if(!resCurve.ok || !resHilo.ok) throw new Error("Tide Data API Error");
 
@@ -344,9 +309,7 @@
 
         } catch (e) {
             console.error(e);
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('errorMsg').style.display = 'block';
-            document.getElementById('errorMsg').innerText = "Data Load Failed: " + e.message;
+            showError(e.message);
         }
     }
 
@@ -378,144 +341,37 @@
             },
             plugins: [
                 {
+                    // [1] Blue Line & Label Plugin (RESTORED)
                     id: 'currentTime',
                     afterDraw: (chart) => {
                         const now = new Date();
                         const x = chart.scales.x.getPixelForValue(now.getTime());
+                        const yAxis = chart.scales.y;
+                        
                         if(x > chart.scales.x.left && x < chart.scales.x.right) {
                             const ctx = chart.ctx;
                             ctx.save();
-                            ctx.beginPath(); ctx.moveTo(x, chart.scales.y.top); ctx.lineTo(x, chart.scales.y.bottom);
+                            
+                            // 1. Line
+                            ctx.beginPath(); ctx.moveTo(x, yAxis.top); ctx.lineTo(x, yAxis.bottom);
                             ctx.lineWidth=1; ctx.strokeStyle='#2196F3'; ctx.stroke();
-                            // Blue Dot
-                            const y = chart.scales.y.getPixelForValue(chart.data.datasets[0].data.find(d => Math.abs(new Date(d.x) - now) < 900000)?.y || 0); 
+                            
+                            // 2. Dot
+                            const currentYVal = chart.data.datasets[0].data.find(d => Math.abs(new Date(d.x) - now) < 900000)?.y || 0; 
+                            const y = yAxis.getPixelForValue(currentYVal);
                             if(y) { ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI); ctx.fillStyle='#2196F3'; ctx.fill(); }
-                            ctx.restore();
-                        }
-                    }
-                },
-                {
-                    // [복구됨] Vertical Red Line Plugin
-                    id: 'verticalLine',
-                    afterDraw: (chart) => {
-                        if (chart.tooltip._active && chart.tooltip._active.length) {
-                            const ctx = chart.ctx;
-                            const x = chart.tooltip._active[0].element.x;
-                            const topY = chart.scales.y.top;
-                            const bottomY = chart.scales.y.bottom;
-                            ctx.save();
-                            ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x, bottomY);
-                            ctx.lineWidth = 1.5; ctx.strokeStyle = '#ff5722'; ctx.setLineDash([5, 5]);
-                            ctx.stroke(); ctx.restore();
-                        }
-                    }
-                }
-            ],
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'H' } }, grid: {display:false} },
-                    y: { title: {display:false} }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        enabled: false,
-                        external: (ctx) => {
-                            if(ctx.tooltip.opacity === 0) return;
-                            const d = ctx.tooltip.dataPoints[0];
-                            const time = new Date(d.parsed.x).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-                            infoBox.innerHTML = `⏱️ ${time} &nbsp; 💧 ${d.parsed.y.toFixed(2)}m`;
-                        }
-                    }
-                }
-            }
-        });
-    }
 
-    // --- 날씨 ---
-    async function fetchWeather(lat, lon) {
-        try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=sunrise,sunset,precipitation_sum&timezone=auto`;
-            const res = await fetch(url);
-            const data = await res.json();
-            
-            if(data.current_weather) {
-                document.getElementById('tempText').innerText = data.current_weather.temperature + "°C";
-                document.getElementById('windText').innerText = data.current_weather.windspeed + " km/h";
-                const ws = data.current_weather.windspeed;
-                const note = document.getElementById('sailingNote');
-                if(ws < 10) { note.innerText = "🍃 Calm winds. Good for motoring."; note.style.background="#e8f5e9"; note.style.color="#2e7d32"; }
-                else if(ws < 25) { note.innerText = "⛵ Good sailing breeze."; note.style.background="#e3f2fd"; note.style.color="#0d47a1"; }
-                else { note.innerText = "⚠️ Strong winds. Be careful."; note.style.background="#ffebee"; note.style.color="#c62828"; }
-            }
-            if(data.daily) {
-                document.getElementById('rainText').innerText = data.daily.precipitation_sum[0] + " mm";
-                const sr = new Date(data.daily.sunrise[0]).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                const ss = new Date(data.daily.sunset[0]).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                document.getElementById('sunTimes').innerHTML = `⬆${sr} ⬇${ss}`;
-            }
-        } catch(e) { console.warn("Weather error", e); }
-    }
-
-    async function fetchLongRange(lat, lon) {
-        try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=14`;
-            const res = await fetch(url);
-            const data = await res.json();
-            let html = "";
-            data.daily.time.forEach((t, i) => {
-                const date = new Date(t);
-                const icon = getWIcon(data.daily.weather_code[i]);
-                html += `<div class="daily-weather-card"><div>${date.getDate()}/${date.getMonth()+1}</div><div class="dw-icon">${icon}</div><div class="dw-temp">${Math.round(data.daily.temperature_2m_max[i])}°</div><div style="font-size:0.8rem">${data.daily.precipitation_sum[i]}mm</div></div>`;
-            });
-            document.getElementById('longRangeWeatherContainer').innerHTML = html;
-        } catch(e) { document.getElementById('longRangeWeatherContainer').innerText = "Weather unavailable"; }
-    }
-
-    async function fetchWeekly(sid) {
-        const start = new Date(); const end = new Date(); end.setDate(end.getDate()+6);
-        const url = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${sid}/data?time-series-code=wlp-hilo&from=${start.toISOString()}&to=${end.toISOString()}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        let html = "";
-        data.forEach(d => {
-            const date = new Date(d.eventDate);
-            const type = d.value > 3 ? "High" : "Low"; 
-            const cls = d.value > 3 ? "tag-high" : "tag-low";
-            html += `<tr><td>${date.getMonth()+1}/${date.getDate()}</td><td><span class="tide-tag ${cls}">${type}</span></td><td>${date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td><td>${d.value.toFixed(2)}m</td></tr>`;
-        });
-        document.getElementById('weeklyTideBody').innerHTML = html;
-    }
-
-    function getWIcon(c) {
-        if(c===0) return "☀️"; if(c<3) return "⛅"; if(c<50) return "🌫️"; if(c<80) return "🌧️"; return "⛈️";
-    }
-
-    function changeDate(off) { currentDate.setDate(currentDate.getDate() + off); updateDateDisplay(); fetchTideData(); }
-    function updateDateDisplay() { document.getElementById('dateDisplay').innerText = currentDate.toLocaleDateString(); }
-    
-    function prepareStationList() { document.getElementById('suggestions').style.display = 'block'; filterStations(); }
-    function filterStations() {
-        const v = document.getElementById('stationSearch').value.toLowerCase();
-        const list = document.getElementById('suggestions');
-        list.innerHTML = "";
-        const m = allStations.filter(s => s.officialName.toLowerCase().includes(v)).slice(0,10);
-        if(m.length===0) list.innerHTML="<li class='suggestion-item'>No results</li>";
-        m.forEach(s => {
-            const li = document.createElement('li'); li.className='suggestion-item';
-            li.innerText = s.officialName; li.onclick = () => selectStation(s);
-            list.appendChild(li);
-        });
-    }
-    function selectStation(s) {
-        currentStationCode = s.code; currentStationName = s.officialName;
-        localStorage.setItem('tide_station_code', s.code); localStorage.setItem('tide_station_name', s.officialName);
-        document.getElementById('stationSearch').value = s.officialName; document.getElementById('suggestions').style.display = 'none';
-        fetchTideData();
-    }
-    document.addEventListener('click', e => { if(!e.target.closest('.search-container')) document.getElementById('suggestions').style.display='none'; });
-</script>
-</body>
-</html>
+                            // 3. Label (Text Box)
+                            const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+                            const heightStr = currentYVal.toFixed(2) + 'm';
+                            
+                            ctx.font = 'bold 11px Arial';
+                            const tw1 = ctx.measureText(timeStr).width;
+                            const tw2 = ctx.measureText(heightStr).width;
+                            const w = Math.max(tw1, tw2) + 10;
+                            const h = 30;
+                            let ly = y - h - 10; if(ly < yAxis.top) ly = y + 10;
+                            
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                            ctx.strokeStyle = '#ccc';
+                            ctx.fillRect(x - w/2, ly, w, h);
