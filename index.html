@@ -22,12 +22,28 @@
             margin: 0; 
             padding: 0;
             color: #333;
+            overflow-x: hidden; /* 슬라이드 메뉴 스크롤 방지 */
         }
 
-        /* [핵심] 전체 레이아웃: 사이드바 + 콘텐츠 */
+        /* --- [1] 모바일 헤더 (PC에선 숨김) --- */
+        .mobile-header {
+            display: none; /* 기본 숨김 */
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+        }
+        .mobile-brand { font-size: 1.2rem; font-weight: 800; color: #0d47a1; }
+        .hamburger-btn { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #333; padding: 0; }
+
+        /* --- [2] 전체 레이아웃 (PC: 콘텐츠 | 메뉴) --- */
         .app-wrapper {
             display: grid;
-            grid-template-columns: 240px 1fr; /* 메뉴 240px, 나머지 콘텐츠 */
+            grid-template-columns: 1fr 240px; /* 왼쪽 콘텐츠, 오른쪽 메뉴 240px */
             gap: 20px;
             max-width: 1200px;
             margin: 0 auto;
@@ -36,17 +52,20 @@
             min-height: 100vh;
         }
 
-        /* [사이드바 스타일] */
+        /* --- [3] 사이드바 스타일 --- */
         .sidebar {
-            position: sticky; /* 스크롤 따라오기 */
+            position: sticky;
             top: 20px;
             height: fit-content;
             background: white;
             border-radius: 16px;
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            z-index: 100;
+            z-index: 3000;
         }
+
+        /* 모바일 닫기 버튼 (PC 숨김) */
+        .close-btn { display: none; text-align: right; margin-bottom: 20px; font-size: 1.5rem; cursor: pointer; color: #666; }
 
         .brand-title {
             font-size: 1.5rem;
@@ -56,162 +75,109 @@
             padding-bottom: 15px;
             border-bottom: 2px solid #f0f0f0;
             letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
+        .nav-menu { display: flex; flex-direction: column; gap: 8px; }
         .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 15px;
-            color: #555;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.2s;
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 15px; color: #555; text-decoration: none;
+            border-radius: 8px; font-weight: 600; transition: all 0.2s;
+        }
+        .nav-link:hover { background-color: #e3f2fd; color: #0d47a1; }
+
+        /* --- [4] 콘텐츠 영역 --- */
+        .content-area { display: flex; flex-direction: column; gap: 20px; width: 100%; min-width: 0; }
+        .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); box-sizing: border-box; scroll-margin-top: 80px; }
+
+        /* --- [5] 모바일 오버레이 (배경 어둡게) --- */
+        .menu-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2500;
+            backdrop-filter: blur(2px);
         }
 
-        .nav-link:hover {
-            background-color: #e3f2fd;
-            color: #0d47a1;
-        }
-
-        .nav-link.active {
-            background-color: #0d47a1;
-            color: white;
-        }
-
-        /* [콘텐츠 영역] */
-        .content-area {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%; /* 부모 그리드에 맞춤 */
-            min-width: 0; /* 차트 리사이징 이슈 방지 */
-        }
-
-        /* 공통 카드 스타일 */
-        .card { 
-            background: white; 
-            width: 100%; 
-            padding: 20px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
-            box-sizing: border-box; 
-            scroll-margin-top: 20px; /* 스크롤 이동 시 여백 */
-        }
-
-        /* 모바일 반응형 (화면이 좁아지면) */
+        /* --- [6] 반응형 (모바일 뷰) --- */
         @media (max-width: 850px) {
+            .mobile-header { display: flex; } /* 헤더 보이기 */
+            
             .app-wrapper {
-                grid-template-columns: 1fr; /* 1단 레이아웃 */
+                display: block; /* 그리드 해제 */
                 padding: 10px;
             }
+
             .sidebar {
-                position: relative; /* 스티키 해제 */
-                top: 0;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
+                position: fixed;
+                top: 0; right: -280px; /* 화면 밖으로 숨김 */
+                width: 260px; height: 100vh;
+                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius: 0;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.1);
             }
-            .nav-menu {
-                flex-direction: row; /* 가로 메뉴로 변경 */
-                flex-wrap: wrap;
-                justify-content: center;
-                width: 100%;
-            }
-            .nav-link {
-                font-size: 0.9rem;
-                padding: 8px 12px;
-            }
-            .brand-title {
-                border-bottom: none;
-                margin-bottom: 10px;
-                padding-bottom: 0;
-            }
+            
+            .sidebar.active { right: 0; /* 슬라이드 인 */ }
+            .menu-overlay.active { display: block; }
+            .brand-title { display: none; /* 사이드바 안 로고 숨김 (헤더에 있으니) */ }
+            .close-btn { display: block; /* 닫기 버튼 표시 */ }
+            .content-area { padding-bottom: 30px; }
         }
 
         /* 기존 컴포넌트 스타일 유지 */
+        .app-title { display: none; } /* PC에서도 사이드바 로고가 있으므로 메인 타이틀은 숨기거나 작게 처리 */
+        @media (max-width: 850px) { .app-title { display: none; } } /* 모바일은 헤더 사용 */
+
         .search-container { position: relative; width: 100%; margin: 0 auto 15px auto; z-index: 1000; }
-        .search-input { width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; transition: border-color 0.2s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 15px center; }
-        .search-input:focus { border-color: #0077be; }
-        
+        .search-input { width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 15px center; }
         .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 250px; overflow-y: auto; z-index: 2000; list-style: none; padding: 0; margin: 5px 0 0 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none; }
         .suggestion-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; }
-        .suggestion-item:last-child { border-bottom: none; }
-        .suggestion-item:active { background-color: #f0f8ff; color: #0077be; }
-        .suggestion-code { color: #999; font-size: 0.85em; }
-
+        
         .date-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 5px; border-radius: 10px; }
-        .nav-btn { background-color: #fff; border: 1px solid #eee; border-radius: 8px; width: 44px; height: 44px; cursor: pointer; font-size: 1.2rem; color: #0077be; display: flex; align-items: center; justify-content: center; transition: all 0.1s; -webkit-tap-highlight-color: transparent; }
-        .nav-btn:active { background-color: #0077be; color: white; }
+        .nav-btn { background-color: #fff; border: 1px solid #eee; border-radius: 8px; width: 44px; height: 44px; cursor: pointer; font-size: 1.2rem; color: #0077be; display: flex; align-items: center; justify-content: center; }
         .date-display { font-size: 1rem; font-weight: 600; color: #333; text-align: center; flex-grow: 1; }
 
-        .info-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: none; color: #0d47a1; padding: 12px; text-align: center; border-radius: 12px; margin-bottom: 15px; font-weight: 600; font-size: 0.95rem; min-height: 1.4em; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .info-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: none; color: #0d47a1; padding: 12px; text-align: center; border-radius: 12px; margin-bottom: 15px; font-weight: 600; font-size: 0.95rem; min-height: 1.4em; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; }
         .info-item { display: inline-flex; align-items: center; gap: 4px; }
         
         .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); z-index: 500;}
         canvas { width: 100% !important; height: 400px !important; touch-action: none; } 
 
         .section-title { font-size: 1.1rem; font-weight: 700; color: #333; margin-bottom: 12px; border-left: 4px solid #0077be; padding-left: 10px; }
-        
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .stat-card { background: #f8f9fa; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .stat-icon { font-size: 1.8rem; margin-bottom: 5px; }
         .stat-value { font-size: 1.1rem; font-weight: 700; color: #333; }
         .stat-label { font-size: 0.8rem; color: #666; margin-top: 2px; }
-
         .wind-compass { position: relative; width: 60px; height: 60px; border: 2px solid #ddd; border-radius: 50%; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; }
         .wind-arrow { font-size: 1.5rem; color: #ff5722; transform-origin: center; display: inline-block; }
         
         .weekly-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         .weekly-table th { text-align: left; padding: 10px; color: #666; font-weight: 600; border-bottom: 2px solid #eee; }
         .weekly-table td { padding: 12px 10px; border-bottom: 1px solid #f0f0f0; color: #333; }
-        .weekly-table tr:last-child td { border-bottom: none; }
         .tide-tag { padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
         .tag-high { background-color: #e3f2fd; color: #1976d2; }
         .tag-low { background-color: #fff3e0; color: #f57c00; }
-
         .marine-note { background-color: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; margin-bottom: 20px; }
-
+        
         #map { width: 100%; height: 350px; border-radius: 12px; z-index: 1; }
         .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; }
     </style>
 </head>
 <body>
 
+<header class="mobile-header">
+    <div class="mobile-brand">🌊 Easy Tides</div>
+    <button class="hamburger-btn" onclick="toggleMenu()">
+        ☰
+    </button>
+</header>
+
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
 <div class="app-wrapper">
     
-    <nav class="sidebar">
-        <div class="brand-title">🌊 Easy Tides</div>
-        <div class="nav-menu">
-            <a href="#section-tide" class="nav-link">
-                <span>📈</span> Tide Graph
-            </a>
-            <a href="#section-map" class="nav-link">
-                <span>🗺️</span> Station Map
-            </a>
-            <a href="#section-weather" class="nav-link">
-                <span>🌤️</span> Weather
-            </a>
-            <a href="#section-forecast" class="nav-link">
-                <span>📅</span> 7-Day Forecast
-            </a>
-        </div>
-    </nav>
-
     <main class="content-area">
         
         <div id="section-tide" class="card">
-            <div class="search-container">
+            <h1 class="app-title" style="text-align: left; display:block; margin-top:0;">Easy Tides</h1> <div class="search-container">
                 <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
                 <ul id="suggestions" class="suggestions-list"><li class="suggestion-item" style="justify-content: center; color: #999;">Loading...</li></ul>
             </div>
@@ -287,9 +253,38 @@
         </div>
 
     </main>
+
+    <nav class="sidebar" id="sidebarMenu">
+        <div class="close-btn" onclick="toggleMenu()">✕</div> <div class="brand-title">🌊 Easy Tides</div>
+        <div class="nav-menu">
+            <a href="#section-tide" class="nav-link" onclick="toggleMenu()">
+                <span>📈</span> Tide Graph
+            </a>
+            <a href="#section-map" class="nav-link" onclick="toggleMenu()">
+                <span>🗺️</span> Station Map
+            </a>
+            <a href="#section-weather" class="nav-link" onclick="toggleMenu()">
+                <span>🌤️</span> Weather
+            </a>
+            <a href="#section-forecast" class="nav-link" onclick="toggleMenu()">
+                <span>📅</span> 7-Day Forecast
+            </a>
+        </div>
+    </nav>
 </div>
 
 <script>
+    // [추가됨] 햄버거 메뉴 토글 기능
+    function toggleMenu() {
+        // 모바일일 때만 동작하도록 화면 크기 체크 (선택사항이나 UX상 그냥 둬도 무방)
+        if (window.innerWidth <= 850) {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('menuOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+    }
+
     Chart.register(ChartDataLabels);
 
     let currentDate = new Date(); 
@@ -353,7 +348,6 @@
         if (station) {
             selectStation(station);
             map.closePopup();
-            // 지도에서 선택 시 그래프로 자동 스크롤
             document.getElementById('section-tide').scrollIntoView({ behavior: 'smooth' });
         }
     };
@@ -364,7 +358,6 @@
         const station = allStations.find(s => s.code === currentStationCode);
         if (station && station.latitude && station.longitude) {
             map.setView([station.latitude, station.longitude], 10);
-            
             const m = markers.find(m => m.code === currentStationCode);
             if (m) m.marker.openPopup();
         }
