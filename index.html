@@ -25,7 +25,7 @@
             overflow-x: hidden; 
         }
 
-        /* 모바일 헤더 */
+        /* --- 모바일 헤더 --- */
         .mobile-header {
             display: none; 
             background: white;
@@ -40,7 +40,7 @@
         .mobile-brand { font-size: 1.2rem; font-weight: 800; color: #0d47a1; }
         .hamburger-btn { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #333; padding: 0; }
 
-        /* 전체 레이아웃 */
+        /* --- 전체 레이아웃 --- */
         .app-wrapper {
             display: grid;
             grid-template-columns: 1fr 240px; 
@@ -52,7 +52,7 @@
             min-height: 100vh;
         }
 
-        /* 사이드바 */
+        /* --- 사이드바 --- */
         .sidebar {
             position: sticky;
             top: 20px;
@@ -63,9 +63,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             z-index: 3000;
         }
-
         .close-btn { display: none; text-align: right; margin-bottom: 20px; font-size: 1.5rem; cursor: pointer; color: #666; }
-
         .brand-title {
             font-size: 1.5rem;
             font-weight: 800;
@@ -75,7 +73,6 @@
             border-bottom: 2px solid #f0f0f0;
             letter-spacing: -0.5px;
         }
-
         .nav-menu { display: flex; flex-direction: column; gap: 8px; }
         .nav-link {
             display: flex; align-items: center; gap: 10px;
@@ -84,33 +81,37 @@
         }
         .nav-link:hover { background-color: #e3f2fd; color: #0d47a1; }
 
-        /* 콘텐츠 영역 */
+        /* --- 콘텐츠 --- */
         .content-area { display: flex; flex-direction: column; gap: 20px; width: 100%; min-width: 0; }
         .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); box-sizing: border-box; scroll-margin-top: 80px; }
 
-        /* 14일 예보 가로 스크롤 */
+        /* --- [NEW] 지도 탭 스타일 --- */
+        .map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .map-tabs { display: flex; background: #f1f3f5; border-radius: 8px; padding: 4px; gap: 5px; }
+        .map-tab-btn {
+            border: none; background: transparent; padding: 6px 12px; border-radius: 6px;
+            font-size: 0.9rem; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s;
+        }
+        .map-tab-btn.active { background: white; color: #0077be; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* 지도 컨테이너들 */
+        .map-view { display: none; width: 100%; height: 400px; border-radius: 12px; overflow: hidden; position: relative; }
+        .map-view.active { display: block; }
+        #map { width: 100%; height: 100%; z-index: 1; }
+        #windyFrame { width: 100%; height: 100%; border: none; }
+
+        /* 14일 예보 스크롤 */
         .forecast-scroll-container {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding-bottom: 15px;
-            scrollbar-width: thin;
+            display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: thin;
         }
         .forecast-scroll-container::-webkit-scrollbar { height: 8px; }
         .forecast-scroll-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .forecast-scroll-container::-webkit-scrollbar-thumb { background-color: #cbd5e0; border-radius: 4px; }
 
         .daily-weather-card {
-            min-width: 110px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 15px 10px;
-            text-align: center;
-            border: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
+            min-width: 110px; background: #f8f9fa; border-radius: 12px; padding: 15px 10px;
+            text-align: center; border: 1px solid #eee; display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between;
         }
         .dw-date { font-weight: 700; color: #333; font-size: 0.9rem; margin-bottom: 5px; }
         .dw-day { color: #666; font-size: 0.8rem; margin-bottom: 8px; }
@@ -122,8 +123,7 @@
         /* 모바일 오버레이 */
         .menu-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 2500;
-            backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.5); z-index: 2500; backdrop-filter: blur(2px);
         }
 
         /* 반응형 */
@@ -145,723 +145,4 @@
         .app-title { display: none; } 
         @media (max-width: 850px) { .app-title { display: none; } }
 
-        .search-container { position: relative; width: 100%; margin: 0 auto 15px auto; z-index: 1000; }
-        .search-input { width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 15px center; }
-        .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 250px; overflow-y: auto; z-index: 2000; list-style: none; padding: 0; margin: 5px 0 0 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none; }
-        .suggestion-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; }
-        
-        .date-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 5px; border-radius: 10px; }
-        .nav-btn { background-color: #fff; border: 1px solid #eee; border-radius: 8px; width: 44px; height: 44px; cursor: pointer; font-size: 1.2rem; color: #0077be; display: flex; align-items: center; justify-content: center; }
-        .date-display { font-size: 1rem; font-weight: 600; color: #333; text-align: center; flex-grow: 1; }
-
-        .info-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: none; color: #0d47a1; padding: 12px; text-align: center; border-radius: 12px; margin-bottom: 15px; font-weight: 600; font-size: 0.95rem; min-height: 1.4em; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; }
-        .info-item { display: inline-flex; align-items: center; gap: 4px; }
-        
-        .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); z-index: 500;}
-        canvas { width: 100% !important; height: 400px !important; touch-action: none; } 
-
-        .section-title { font-size: 1.1rem; font-weight: 700; color: #333; margin-bottom: 12px; border-left: 4px solid #0077be; padding-left: 10px; }
-        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: #f8f9fa; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .stat-icon { font-size: 1.8rem; margin-bottom: 5px; }
-        .stat-value { font-size: 1.1rem; font-weight: 700; color: #333; }
-        .stat-label { font-size: 0.8rem; color: #666; margin-top: 2px; }
-        .wind-compass { position: relative; width: 60px; height: 60px; border: 2px solid #ddd; border-radius: 50%; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; }
-        .wind-arrow { font-size: 1.5rem; color: #ff5722; transform-origin: center; display: inline-block; }
-        
-        .weekly-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .weekly-table th { text-align: left; padding: 10px; color: #666; font-weight: 600; border-bottom: 2px solid #eee; }
-        .weekly-table td { padding: 12px 10px; border-bottom: 1px solid #f0f0f0; color: #333; }
-        .tide-tag { padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
-        .tag-high { background-color: #e3f2fd; color: #1976d2; }
-        .tag-low { background-color: #fff3e0; color: #f57c00; }
-        .marine-note { background-color: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; margin-bottom: 20px; }
-        
-        #map { width: 100%; height: 350px; border-radius: 12px; z-index: 1; }
-        .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; }
-    </style>
-</head>
-<body>
-
-<header class="mobile-header">
-    <div class="mobile-brand">🌊 Easy Tides</div>
-    <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
-</header>
-
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-
-<div class="app-wrapper">
-    
-    <main class="content-area">
-        
-        <div id="section-tide" class="card">
-            <h1 class="app-title" style="text-align: left; display:block; margin-top:0;">Easy Tides</h1> 
-
-            <div class="search-container">
-                <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." onfocus="prepareStationList()" oninput="filterStations()">
-                <ul id="suggestions" class="suggestions-list"><li class="suggestion-item" style="justify-content: center; color: #999;">Loading...</li></ul>
-            </div>
-            
-            <div id="currentInfo" class="info-box">
-                Touch graph for details
-            </div>
-
-            <div class="date-controls">
-                <button class="nav-btn" onclick="changeDate(-1)">◀</button>
-                <div id="dateDisplay" class="date-display"></div>
-                <button class="nav-btn" onclick="changeDate(1)">▶</button>
-            </div>
-
-            <div id="loading" class="loading" style="display: none;"></div>
-            <canvas id="tideChart"></canvas>
-        </div>
-
-        <div id="section-map" class="card">
-            <div class="section-title">Station Map</div>
-            <div id="map"></div>
-            <div style="font-size: 0.85rem; color: #666; margin-top: 10px; text-align: center;">
-                Click a blue pin to select a station.
-            </div>
-        </div>
-
-        <div id="section-weather-forecast" class="card">
-            <div class="section-title">14-Day Weather Forecast</div>
-            <div class="forecast-scroll-container" id="longRangeWeatherContainer">
-                <div style="width:100%; text-align:center; color:#999; padding:20px;">Loading forecast...</div>
-            </div>
-        </div>
-
-        <div id="section-weather" class="card">
-            <div class="section-title">Current Conditions (Now)</div>
-            <div class="weather-grid">
-                <div class="stat-card">
-                    <div class="wind-compass">
-                        <div id="windArrow" class="wind-arrow">↑</div>
-                    </div>
-                    <div id="windText" class="stat-value">-- km/h</div>
-                    <div id="windDirText" class="stat-label">Direction</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">☀️</div>
-                    <div id="sunTimes" class="stat-value">--:--</div>
-                    <div class="stat-label">Sunrise / Sunset</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🌡️</div>
-                    <div id="tempText" class="stat-value">--°C</div>
-                    <div class="stat-label">Temperature</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">☔</div>
-                    <div id="rainText" class="stat-value">-- mm</div>
-                    <div class="stat-label">Precipitation</div>
-                </div>
-            </div>
-            <div id="sailingNote" class="marine-note">
-                Loading marine conditions...
-            </div>
-        </div>
-
-        <div id="section-forecast" class="card">
-            <div class="section-title">7-Day Tide Forecast</div>
-            <table class="weekly-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Hi/Lo</th>
-                        <th>Time</th>
-                        <th>Height</th>
-                    </tr>
-                </thead>
-                <tbody id="weeklyTideBody">
-                    <tr><td colspan="4" style="text-align: center;">Loading forecast...</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-    </main>
-
-    <nav class="sidebar" id="sidebarMenu">
-        <div class="close-btn" onclick="toggleMenu()">✕</div>
-        <div class="brand-title">🌊 Easy Tides</div>
-        <div class="nav-menu">
-            <a href="#section-tide" class="nav-link" onclick="toggleMenu()"><span>📈</span> Tide Graph</a>
-            <a href="#section-map" class="nav-link" onclick="toggleMenu()"><span>🗺️</span> Station Map</a>
-            <a href="#section-weather-forecast" class="nav-link" onclick="toggleMenu()"><span>🌤️</span> 14-Day Weather</a>
-            <a href="#section-weather" class="nav-link" onclick="toggleMenu()"><span>🍃</span> Current Cond.</a>
-            <a href="#section-forecast" class="nav-link" onclick="toggleMenu()"><span>📅</span> 7-Day Tides</a>
-        </div>
-    </nav>
-</div>
-
-<script>
-    function toggleMenu() {
-        if (window.innerWidth <= 850) {
-            const sidebar = document.getElementById('sidebarMenu');
-            const overlay = document.getElementById('menuOverlay');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-    }
-
-    // Chart.js 3.x에서는 register가 필요합니다.
-    try {
-        Chart.register(ChartDataLabels);
-    } catch(e) { console.warn("Chart plugin registration issue", e); }
-
-    let currentDate = new Date(); 
-    let myChart = null; 
-    let allStations = []; 
-    let hourlyWeatherData = []; 
-    
-    let map = null;
-    let markers = [];
-
-    let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
-    let currentStationName = localStorage.getItem('tide_station_name') || 'Steveston';
-
-    // 앱 시작
-    setTimeout(initApp, 100);
-
-    function initApp() {
-        updateDateDisplay();
-        document.getElementById('stationSearch').value = currentStationName;
-        
-        // 데이터 로드 시작
-        fetchStationsAndInitMap();
-        fetchTideData(); 
-    }
-
-    async function fetchStationsAndInitMap() {
-        try {
-            const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
-            if(!resp.ok) throw new Error("Station list failed");
-            allStations = await resp.json();
-            initMap(); 
-        } catch (e) {
-            console.error("Failed to load stations for map", e);
-            document.getElementById('map').innerHTML = '<div style="text-align:center; padding-top:150px; color:red;">Map loading failed. Check connection.</div>';
-        }
-    }
-
-    function initMap() {
-        if(map) return; // 이미 초기화됨
-        map = L.map('map').setView([49.1, -123.1], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        allStations.forEach(station => {
-            if (station.latitude && station.longitude) {
-                const marker = L.marker([station.latitude, station.longitude]).addTo(map);
-                const popupContent = `
-                    <div style="text-align:center">
-                        <b>${station.officialName}</b><br>
-                        <span style="color:#666; font-size:0.8em">${station.code}</span><br>
-                        <button class="map-popup-btn" onclick="selectStationByCode('${station.code}')">Select Here</button>
-                    </div>
-                `;
-                marker.bindPopup(popupContent);
-                markers.push({ code: station.code, marker: marker });
-            }
-        });
-        panMapToCurrent();
-    }
-
-    window.selectStationByCode = function(code) {
-        const station = allStations.find(s => s.code === code);
-        if (station) {
-            selectStation(station);
-            map.closePopup();
-            document.getElementById('section-tide').scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
-    function panMapToCurrent() {
-        if (!map || allStations.length === 0) return;
-        const station = allStations.find(s => s.code === currentStationCode);
-        if (station && station.latitude && station.longitude) {
-            map.setView([station.latitude, station.longitude], 10);
-            const m = markers.find(m => m.code === currentStationCode);
-            if (m) m.marker.openPopup();
-        }
-    }
-
-    async function fetchLongRangeWeather(lat, lon) {
-        const container = document.getElementById('longRangeWeatherContainer');
-        try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto&forecast_days=14`;
-            const resp = await fetch(url);
-            const data = await resp.json();
-            if (!data.daily) throw new Error("No forecast data");
-
-            const daily = data.daily;
-            let htmlHTML = "";
-
-            for(let i=0; i<daily.time.length; i++) {
-                const date = new Date(daily.time[i]);
-                const dayName = date.toLocaleDateString('en-GB', {weekday: 'short'});
-                const dateNum = date.toLocaleDateString('en-GB', {month: 'numeric', day:'numeric'});
-                
-                const code = daily.weather_code[i];
-                const icon = getWeatherIcon(code);
-                const maxTemp = Math.round(daily.temperature_2m_max[i]);
-                const minTemp = Math.round(daily.temperature_2m_min[i]);
-                const rain = daily.precipitation_sum[i];
-                const wind = Math.round(daily.wind_speed_10m_max[i]);
-
-                htmlHTML += `
-                    <div class="daily-weather-card">
-                        <div>
-                            <div class="dw-date">${dateNum}</div>
-                            <div class="dw-day">${dayName}</div>
-                        </div>
-                        <div class="dw-icon">${icon}</div>
-                        <div class="dw-temp">${maxTemp}° <span>${minTemp}°</span></div>
-                        <div>
-                            <div class="dw-detail">☔ ${rain}mm</div>
-                            <div class="dw-detail">🍃 ${wind}km/h</div>
-                        </div>
-                    </div>
-                `;
-            }
-            container.innerHTML = htmlHTML;
-
-        } catch (e) {
-            console.error("Long range forecast failed", e);
-            container.innerHTML = `<div style="padding:15px; text-align:center;">Forecast unavailable</div>`;
-        }
-    }
-
-    async function fetchWeatherData(lat, lon, dateObj) {
-        try {
-            const year = dateObj.getFullYear();
-            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const day = String(dateObj.getDate()).padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
-
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,wind_speed_10m,weather_code&daily=sunrise,sunset,precipitation_sum&current_weather=true&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
-            
-            const resp = await fetch(url);
-            const data = await resp.json();
-            
-            if (data.hourly) {
-                hourlyWeatherData = data.hourly.time.map((t, i) => ({
-                    time: t, 
-                    temp: data.hourly.temperature_2m[i],
-                    wind: data.hourly.wind_speed_10m[i],
-                    code: data.hourly.weather_code[i]
-                }));
-            } else {
-                hourlyWeatherData = [];
-            }
-            updateDashboard(data);
-
-        } catch (e) {
-            console.error("Weather load failed", e);
-            hourlyWeatherData = [];
-        }
-    }
-
-    function updateDashboard(data) {
-        if (!data || !data.current_weather || !data.daily) return;
-        const current = data.current_weather;
-        const daily = data.daily;
-        const windSpeed = current.windspeed;
-        const windDir = current.winddirection;
-        document.getElementById('windArrow').style.transform = `rotate(${windDir + 180}deg)`; 
-        document.getElementById('windText').innerText = `${windSpeed} km/h`;
-        document.getElementById('windDirText').innerText = getCardinalDirection(windDir);
-        
-        if(daily.sunrise && daily.sunrise.length > 0) {
-             const sunrise = new Date(daily.sunrise[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
-             const sunset = new Date(daily.sunset[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
-             document.getElementById('sunTimes').innerHTML = `⬆ ${sunrise}<br>⬇ ${sunset}`;
-        }
-
-        document.getElementById('tempText').innerText = `${current.temperature}°C`;
-        document.getElementById('rainText').innerText = `${daily.precipitation_sum[0]} mm`;
-
-        const noteEl = document.getElementById('sailingNote');
-        if (windSpeed < 10) {
-            noteEl.innerText = "🍃 Calm winds. Excellent for motor cruising or kayaking. Sailing might be slow.";
-            noteEl.style.backgroundColor = "#e8f5e9"; noteEl.style.color = "#2e7d32";
-        } else if (windSpeed < 25) {
-            noteEl.innerText = "⛵ Good sailing breeze! Moderate conditions suitable for most recreational craft.";
-            noteEl.style.backgroundColor = "#e3f2fd"; noteEl.style.color = "#0d47a1";
-        } else {
-            noteEl.innerText = "⚠️ Strong winds detected. Choppy waters expected. Exercise caution.";
-            noteEl.style.backgroundColor = "#ffebee"; noteEl.style.color = "#c62828";
-        }
-    }
-
-    function getCardinalDirection(angle) {
-        const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-        return directions[Math.round(angle / 45) % 8];
-    }
-
-    async function fetchWeeklyTides(stationId) {
-        const tableBody = document.getElementById('weeklyTideBody');
-        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center">Loading forecast...</td></tr>';
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setDate(endDate.getDate() + 6); 
-        const fromStr = startDate.toISOString();
-        const toStr = endDate.toISOString();
-
-        try {
-            const url = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp-hilo&from=${fromStr}&to=${toStr}`;
-            const resp = await fetch(url);
-            if(!resp.ok) throw new Error("Tide forecast failed");
-            const data = await resp.json();
-            tableBody.innerHTML = '';
-            let currentDayStr = '';
-            data.forEach(item => {
-                const dateObj = new Date(item.eventDate);
-                const dayStr = dateObj.toLocaleDateString('en-GB', {weekday: 'short', month: 'short', day: 'numeric'});
-                const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'});
-                const row = document.createElement('tr');
-                const dateCell = (dayStr !== currentDayStr) ? `<strong>${dayStr}</strong>` : '';
-                currentDayStr = dayStr;
-                const tagClass = item.value > 3.0 ? 'tag-high' : (item.value < 2.0 ? 'tag-low' : '');
-                const typeText = item.value > 3.0 ? 'High' : (item.value < 2.0 ? 'Low' : '-');
-                row.innerHTML = `<td>${dateCell}</td><td><span class="tide-tag ${tagClass}">${typeText}</span></td><td>${timeStr}</td><td>${item.value.toFixed(2)}m</td>`;
-                tableBody.appendChild(row);
-            });
-        } catch (e) {
-            console.error(e);
-            tableBody.innerHTML = '<tr><td colspan="4">Forecast unavailable</td></tr>';
-        }
-    }
-
-    function getWeatherCategory(code) {
-        if (code === 0) return 'clear';
-        if (code >= 1 && code <= 3) return 'cloud';
-        if (code >= 45 && code <= 48) return 'fog';
-        if (code >= 51 && code <= 67) return 'rain'; 
-        if (code >= 71 && code <= 77) return 'snow';
-        if (code >= 80 && code <= 82) return 'rain'; 
-        if (code >= 85 && code <= 86) return 'snow';
-        if (code >= 95) return 'storm';
-        return 'unknown';
-    }
-
-    function getWeatherIcon(code) {
-        if (code === 0) return '☀️'; 
-        if (code >= 1 && code <= 3) return '⛅'; 
-        if (code >= 45 && code <= 48) return '🌫️'; 
-        if (code >= 51 && code <= 67) return '🌧️'; 
-        if (code >= 71 && code <= 77) return '❄️'; 
-        if (code >= 80 && code <= 82) return '🌦️'; 
-        if (code >= 95) return '⛈️'; 
-        return '☁️';
-    }
-
-    function prepareStationList() {
-        const list = document.getElementById('suggestions');
-        if (allStations.length === 0) {
-            list.innerHTML = '<li class="suggestion-item" style="color:#999; justify-content:center;">Loading list...</li>';
-            list.style.display = 'block';
-            return;
-        }
-        filterStations();
-    }
-
-    function filterStations() {
-        const input = document.getElementById('stationSearch');
-        const list = document.getElementById('suggestions');
-        const query = input.value.toLowerCase();
-        list.innerHTML = '';
-        if (allStations.length === 0) return;
-        const matches = allStations.filter(s => s.officialName.toLowerCase().includes(query) || s.code.includes(query)).slice(0, 10);
-        if (matches.length > 0) {
-            list.style.display = 'block';
-            matches.forEach(s => {
-                const li = document.createElement('li');
-                li.className = 'suggestion-item';
-                li.innerHTML = `<span>${s.officialName}</span> <span class="suggestion-code">${s.code}</span>`;
-                li.onclick = () => selectStation(s);
-                list.appendChild(li);
-            });
-        } else {
-             const li = document.createElement('li');
-             li.className = 'suggestion-item'; li.style.color = '#999'; li.style.justifyContent = 'center'; li.innerText = 'No locations found';
-             list.appendChild(li); list.style.display = 'block';
-        }
-    }
-
-    function selectStation(station) {
-        currentStationCode = station.code;
-        currentStationName = station.officialName;
-        localStorage.setItem('tide_station_code', currentStationCode);
-        localStorage.setItem('tide_station_name', currentStationName);
-        document.getElementById('stationSearch').value = currentStationName;
-        document.getElementById('suggestions').style.display = 'none';
-        
-        fetchTideData();
-        panMapToCurrent();
-    }
-
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.search-container')) document.getElementById('suggestions').style.display = 'none';
-    });
-
-    function changeDate(offset) {
-        currentDate.setDate(currentDate.getDate() + offset);
-        updateDateDisplay();
-        fetchTideData();
-    }
-
-    function updateDateDisplay() {
-        const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' };
-        document.getElementById('dateDisplay').innerText = currentDate.toLocaleDateString('en-CA', options);
-    }
-
-    async function fetchTideData() {
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('currentInfo').innerHTML = `Loading ${currentStationName}...`;
-        
-        if (myChart) myChart.destroy();
-
-        const startTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0).toISOString();
-        const endTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59).toISOString();
-
-        try {
-            let stationObj = null;
-            const found = allStations.find(s => s.code === currentStationCode);
-            if (found) {
-                stationObj = found;
-            } else {
-                const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
-                if(!stationResp.ok) throw new Error("Station lookup failed");
-                const stationData = await stationResp.json();
-                if(stationData.length > 0) stationObj = stationData[0];
-                else throw new Error("Station not found");
-            }
-
-            if (stationObj.latitude && stationObj.longitude) {
-                await fetchWeatherData(stationObj.latitude, stationObj.longitude, currentDate);
-                fetchLongRangeWeather(stationObj.latitude, stationObj.longitude);
-                panMapToCurrent();
-            }
-
-            fetchWeeklyTides(stationObj.id);
-
-            const curveUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp&from=${startTime}&to=${endTime}`;
-            const hiloUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp-hilo&from=${startTime}&to=${endTime}`;
-
-            const [curveResp, hiloResp] = await Promise.all([fetch(curveUrl), fetch(hiloUrl)]);
-            
-            if(!curveResp.ok || !hiloResp.ok) throw new Error("Tide data failed");
-            
-            const curveData = await curveResp.json();
-            const hiloData = await hiloResp.json();
-
-            const lineData = curveData.map(item => ({ x: item.eventDate, y: item.value }));
-            const pointData = hiloData.map(item => ({ x: item.eventDate, y: item.value }));
-
-            document.getElementById('currentInfo').innerHTML = "Tap/Hover chart for details";
-            renderChart(lineData, pointData);
-
-        } catch (error) {
-            console.error(error);
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('currentInfo').innerHTML = "<span style='color:red'>⚠️ Data Failed. Check Connection</span>";
-        }
-    }
-
-    const currentTimePlugin = {
-        id: 'currentTime',
-        afterDraw: (chart) => {
-            const now = new Date();
-            const ctx = chart.ctx;
-            const xAxis = chart.scales.x;
-            const yAxis = chart.scales.y;
-            const xPos = xAxis.getPixelForValue(now.getTime());
-
-            if (xPos >= xAxis.left && xPos <= xAxis.right) {
-                const dataset = chart.data.datasets[0].data;
-                let yValue = null;
-                const nowTime = now.getTime();
-
-                for (let i = 0; i < dataset.length - 1; i++) {
-                    const p1 = dataset[i];
-                    const p2 = dataset[i+1];
-                    const t1 = new Date(p1.x).getTime();
-                    const t2 = new Date(p2.x).getTime();
-
-                    if (nowTime >= t1 && nowTime <= t2) {
-                        const ratio = (nowTime - t1) / (t2 - t1);
-                        yValue = p1.y + (p2.y - p1.y) * ratio;
-                        break;
-                    }
-                }
-
-                if (yValue !== null) {
-                    const yPos = yAxis.getPixelForValue(yValue);
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.moveTo(xPos, yAxis.top);
-                    ctx.lineTo(xPos, yAxis.bottom);
-                    ctx.lineWidth = 1;
-                    ctx.strokeStyle = '#2196F3';
-                    ctx.stroke();
-
-                    ctx.beginPath();
-                    ctx.arc(xPos, yPos, 4, 0, 2 * Math.PI);
-                    ctx.fillStyle = '#2196F3';
-                    ctx.fill();
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-
-                    const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
-                    const heightStr = yValue.toFixed(2) + 'm';
-                    const padding = 4;
-                    const borderRadius = 4;
-                    const fontSize = 11;
-                    ctx.font = `bold ${fontSize}px Arial`;
-                    
-                    const textWidth1 = ctx.measureText(timeStr).width;
-                    const textWidth2 = ctx.measureText(heightStr).width;
-                    const boxWidth = Math.max(textWidth1, textWidth2) + (padding * 2);
-                    const boxHeight = (fontSize * 2) + (padding * 2) + 2; 
-                    
-                    let boxY = yPos - boxHeight - 8; 
-                    if (boxY < yAxis.top) boxY = yPos + 8; 
-
-                    const boxX = xPos - (boxWidth / 2);
-
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                    ctx.beginPath();
-                    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
-                    ctx.fill();
-                    
-                    ctx.fillStyle = '#0d47a1'; 
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    ctx.fillText(timeStr, xPos, boxY + padding);
-                    ctx.fillText(heightStr, xPos, boxY + padding + fontSize + 2);
-
-                    ctx.restore();
-                }
-            }
-        }
-    };
-
-    const weatherIconPlugin = {
-        id: 'weatherIcons',
-        afterDraw: (chart) => {
-            if (hourlyWeatherData.length === 0) return;
-            const ctx = chart.ctx;
-            const xAxis = chart.scales.x;
-            const yAxis = chart.scales.y;
-            ctx.save();
-            ctx.textAlign = 'center';
-            ctx.font = '10px Arial';
-            let previousCategory = null; 
-            for (let i = 0; i < 24; i++) {
-                if (!hourlyWeatherData[i]) continue;
-                const currentCode = hourlyWeatherData[i].code;
-                const currentCategory = getWeatherCategory(currentCode);
-                if (previousCategory === null || currentCategory !== previousCategory) {
-                    const d = new Date(currentDate);
-                    d.setHours(i, 0, 0, 0);
-                    const xPos = xAxis.getPixelForValue(d.getTime());
-                    if (xPos >= xAxis.left && xPos <= xAxis.right) {
-                        const icon = getWeatherIcon(currentCode);
-                        ctx.fillText(icon, xPos, yAxis.bottom + 50); 
-                    }
-                    previousCategory = currentCategory;
-                }
-            }
-            ctx.restore();
-        }
-    };
-
-    const verticalLinePlugin = {
-        id: 'verticalLine',
-        afterDraw: (chart) => {
-            if (chart.tooltip?._active?.length) {
-                const ctx = chart.ctx;
-                const x = chart.tooltip._active[0].element.x;
-                const topY = chart.scales.y.top;
-                const bottomY = chart.scales.y.bottom;
-                ctx.save();
-                ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x, bottomY);
-                ctx.lineWidth = 1.5; ctx.strokeStyle = '#ff5722'; ctx.setLineDash([5, 5]);
-                ctx.stroke(); ctx.restore();
-            }
-        }
-    };
-
-    function renderChart(lineData, pointData) {
-        document.getElementById('loading').style.display = 'none';
-        const ctx = document.getElementById('tideChart').getContext('2d');
-        const infoBox = document.getElementById('currentInfo');
-
-        myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [
-                    {
-                        label: 'Tide Level', data: lineData,
-                        borderColor: '#4facfe', backgroundColor: 'rgba(79, 172, 254, 0.1)',
-                        borderWidth: 2, pointRadius: 0, hitRadius: 20, fill: true, tension: 0.4,
-                        datalabels: { display: false }
-                    },
-                    {
-                        label: 'High/Low', data: pointData, type: 'scatter',
-                        backgroundColor: 'red', pointRadius: 5,
-                        datalabels: {
-                            display: true,
-                            align: (ctx) => ctx.dataset.data[ctx.dataIndex].y > 2.5 ? 'top' : 'bottom',
-                            color: '#333', backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            borderRadius: 4, padding: 3, font: { weight: 'bold', size: 11 },
-                            formatter: (value) => {
-                                const date = new Date(value.x);
-                                return `${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}\n${value.y.toFixed(2)}m`;
-                            }
-                        }
-                    }
-                ]
-            },
-            plugins: [verticalLinePlugin, weatherIconPlugin, currentTimePlugin],
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                layout: { padding: { bottom: 60 } },
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'H' } }, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, font: { size: 12 } } },
-                    y: { title: { display: false }, ticks: { font: { size: 11 } } }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        enabled: false, 
-                        external: (context) => {
-                            const tooltipModel = context.tooltip;
-                            if (tooltipModel.opacity === 0) return;
-                            const dataPoint = tooltipModel.dataPoints[0];
-                            const timeMs = dataPoint.parsed.x;
-                            const tideVal = dataPoint.parsed.y.toFixed(2);
-                            const date = new Date(timeMs);
-                            const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                            const hour = date.getHours();
-                            let weatherStr = "";
-                            if (hourlyWeatherData[hour]) {
-                                const w = hourlyWeatherData[hour];
-                                const icon = getWeatherIcon(w.code);
-                                weatherStr = `<span class="info-item">${icon} ${w.temp}°C</span> <span class="info-item">🌬️ ${w.wind} km/h</span>`;
-                            }
-                            infoBox.innerHTML = `<span class="info-item">⏱️ ${timeStr}</span><span class="info-item">💧 ${tideVal}m</span>${weatherStr}`;
-                        }
-                    }
-                }
-            }
-        });
-    }
-</script>
-
-</body>
-</html>
+        .search-container { position: relative; width: 100%; margin
