@@ -10,20 +10,22 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; }
         .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 15px; }
         
-        /* --- 기존 카드 스타일 --- */
         .card { background: white; width: 100%; padding: 20px 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; box-sizing: border-box; }
         
         .app-title { text-align: center; margin: 0 0 15px 0; font-size: 1.8rem; font-weight: 800; color: #0d47a1; letter-spacing: -0.5px; }
 
-        .search-container { position: relative; width: 100%; margin: 0 auto 10px auto; z-index: 100; }
+        .search-container { position: relative; width: 100%; margin: 0 auto 10px auto; z-index: 1000; } /* z-index increased for map overlap */
         .search-input { width: 100%; padding: 12px 40px 12px 15px; font-size: 1rem; border: 1px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box; transition: border-color 0.2s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 15px center; }
         .search-input:focus { border-color: #0077be; }
         
-        .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 250px; overflow-y: auto; z-index: 1000; list-style: none; padding: 0; margin: 5px 0 0 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none; }
+        .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 250px; overflow-y: auto; z-index: 2000; list-style: none; padding: 0; margin: 5px 0 0 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none; }
         .suggestion-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:active { background-color: #f0f8ff; color: #0077be; }
@@ -37,12 +39,9 @@
         .info-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: none; color: #0d47a1; padding: 12px; text-align: center; border-radius: 12px; margin-bottom: 15px; font-weight: 600; font-size: 0.95rem; min-height: 1.4em; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .info-item { display: inline-flex; align-items: center; gap: 4px; }
         
-        .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); }
-        
-        /* [수정됨] 높이를 400px로 늘림 */
+        .loading { text-align: center; font-weight: bold; color: #007bff; position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); z-index: 500;}
         canvas { width: 100% !important; height: 400px !important; touch-action: none; } 
 
-        /* --- NEW SECTIONS STYLES --- */
         .section-title { font-size: 1.1rem; font-weight: 700; color: #333; margin-bottom: 12px; border-left: 4px solid #0077be; padding-left: 10px; }
         
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
@@ -63,6 +62,10 @@
         .tag-low { background-color: #fff3e0; color: #f57c00; }
 
         .marine-note { background-color: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; margin-bottom: 20px; }
+
+        /* [추가됨] 지도 스타일 */
+        #map { width: 100%; height: 350px; border-radius: 12px; z-index: 1; }
+        .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -88,6 +91,14 @@
 
         <div id="loading" class="loading" style="display: none;"></div>
         <canvas id="tideChart"></canvas>
+    </div>
+
+    <div class="card">
+        <div class="section-title">Station Map</div>
+        <div id="map"></div>
+        <div style="font-size: 0.85rem; color: #666; margin-top: 10px; text-align: center;">
+            Click a blue pin to select a station.
+        </div>
     </div>
 
     <div class="card">
@@ -147,6 +158,10 @@
     let allStations = []; 
     let hourlyWeatherData = []; 
     
+    // [추가됨] 지도 객체 변수
+    let map = null;
+    let markers = [];
+
     let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
     let currentStationName = localStorage.getItem('tide_station_name') || 'Steveston';
 
@@ -155,7 +170,78 @@
     function initApp() {
         updateDateDisplay();
         document.getElementById('stationSearch').value = currentStationName;
+        // 앱 시작 시 바로 스테이션 목록을 불러와서 지도를 초기화합니다.
+        fetchStationsAndInitMap();
         fetchTideData(); 
+    }
+
+    // [추가됨] 스테이션 목록 불러오기 및 지도 초기화
+    async function fetchStationsAndInitMap() {
+        try {
+            const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
+            allStations = await resp.json();
+            initMap(); // 데이터 로드 후 지도 그리기
+        } catch (e) {
+            console.error("Failed to load stations for map", e);
+        }
+    }
+
+    // [추가됨] Leaflet 지도 초기화 함수
+    function initMap() {
+        // 지도 생성 (초기 위치는 밴쿠버 인근, 데이터 로드 후 스테이션 위치로 이동됨)
+        map = L.map('map').setView([49.1, -123.1], 6);
+
+        // 오픈스트리트맵 타일 레이어 추가
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 마커 추가
+        allStations.forEach(station => {
+            if (station.latitude && station.longitude) {
+                const marker = L.marker([station.latitude, station.longitude]).addTo(map);
+                
+                // 팝업 내용 (이름 + 선택 버튼)
+                const popupContent = `
+                    <div style="text-align:center">
+                        <b>${station.officialName}</b><br>
+                        <span style="color:#666; font-size:0.8em">${station.code}</span><br>
+                        <button class="map-popup-btn" onclick="selectStationByCode('${station.code}')">Select Here</button>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                markers.push({ code: station.code, marker: marker });
+            }
+        });
+
+        // 현재 선택된 스테이션으로 지도 중심 이동
+        panMapToCurrent();
+    }
+
+    // [추가됨] 코드로 스테이션 선택 (지도 팝업용)
+    window.selectStationByCode = function(code) {
+        const station = allStations.find(s => s.code === code);
+        if (station) {
+            selectStation(station);
+            // 모바일에서 지도 팝업 닫기
+            map.closePopup();
+            // 상단 차트로 스크롤 이동 (선택적)
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    // [추가됨] 지도 중심 이동 도우미 함수
+    function panMapToCurrent() {
+        if (!map || allStations.length === 0) return;
+        
+        const station = allStations.find(s => s.code === currentStationCode);
+        if (station && station.latitude && station.longitude) {
+            map.setView([station.latitude, station.longitude], 10);
+            
+            // 해당 마커 팝업 열기
+            const m = markers.find(m => m.code === currentStationCode);
+            if (m) m.marker.openPopup();
+        }
     }
 
     async function fetchWeatherData(lat, lon, dateObj) {
@@ -195,23 +281,19 @@
         const current = data.current_weather;
         const daily = data.daily;
 
-        // Wind
         const windSpeed = current.windspeed;
         const windDir = current.winddirection;
         document.getElementById('windArrow').style.transform = `rotate(${windDir + 180}deg)`; 
         document.getElementById('windText').innerText = `${windSpeed} km/h`;
         document.getElementById('windDirText').innerText = getCardinalDirection(windDir);
 
-        // Sun
         const sunrise = new Date(daily.sunrise[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
         const sunset = new Date(daily.sunset[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('sunTimes').innerHTML = `⬆ ${sunrise}<br>⬇ ${sunset}`;
 
-        // Temp & Rain
         document.getElementById('tempText').innerText = `${current.temperature}°C`;
         document.getElementById('rainText').innerText = `${daily.precipitation_sum[0]} mm`;
 
-        // Marine Note
         const noteEl = document.getElementById('sailingNote');
         if (windSpeed < 10) {
             noteEl.innerText = "🍃 Calm winds. Excellent for motor cruising or kayaking. Sailing might be slow.";
@@ -300,15 +382,16 @@
         return '☁️';
     }
 
-    async function prepareStationList() {
+    // [수정됨] 이제 목록은 페이지 로드 시 fetchStationsAndInitMap에서 가져오므로 여기서는 필터만 처리
+    function prepareStationList() {
         const list = document.getElementById('suggestions');
-        if (allStations.length > 0) { filterStations(); return; }
-        list.style.display = 'block';
-        try {
-            const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
-            allStations = await resp.json();
-            list.innerHTML = ''; filterStations(); 
-        } catch (e) { list.innerHTML = '<li class="suggestion-item">Error loading list</li>'; }
+        if (allStations.length === 0) {
+            // 아직 로드되지 않았다면 메시지 표시
+            list.innerHTML = '<li class="suggestion-item" style="color:#999; justify-content:center;">Loading list...</li>';
+            list.style.display = 'block';
+            return;
+        }
+        filterStations();
     }
 
     function filterStations() {
@@ -341,7 +424,10 @@
         localStorage.setItem('tide_station_name', currentStationName);
         document.getElementById('stationSearch').value = currentStationName;
         document.getElementById('suggestions').style.display = 'none';
+        
         fetchTideData();
+        // 지도도 해당 위치로 이동
+        panMapToCurrent();
     }
 
     document.addEventListener('click', function(e) {
@@ -370,9 +456,12 @@
 
         try {
             let stationObj = null;
+            // 이미 불러온 리스트에서 검색
             const found = allStations.find(s => s.code === currentStationCode);
-            if (found) stationObj = found;
-            else {
+            if (found) {
+                stationObj = found;
+            } else {
+                // 리스트에 없으면 개별 fetch (예외 처리)
                 const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
                 const stationData = await stationResp.json();
                 if(stationData.length > 0) stationObj = stationData[0];
@@ -381,6 +470,8 @@
 
             if (stationObj.latitude && stationObj.longitude) {
                 await fetchWeatherData(stationObj.latitude, stationObj.longitude, currentDate);
+                // 지도 이동 (혹시 초기 로드와 겹칠 경우를 위해)
+                panMapToCurrent();
             }
 
             fetchWeeklyTides(stationObj.id);
