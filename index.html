@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Easy Tides - Marine Dashboard</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -25,7 +25,7 @@
             overflow-x: hidden; 
         }
 
-        /* --- 모바일 헤더 --- */
+        /* 모바일 헤더 */
         .mobile-header {
             display: none; 
             background: white;
@@ -40,7 +40,7 @@
         .mobile-brand { font-size: 1.2rem; font-weight: 800; color: #0d47a1; }
         .hamburger-btn { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #333; padding: 0; }
 
-        /* --- 전체 레이아웃 (PC: 콘텐츠 | 메뉴) --- */
+        /* 전체 레이아웃 */
         .app-wrapper {
             display: grid;
             grid-template-columns: 1fr 240px; 
@@ -52,7 +52,7 @@
             min-height: 100vh;
         }
 
-        /* --- 사이드바 스타일 --- */
+        /* 사이드바 */
         .sidebar {
             position: sticky;
             top: 20px;
@@ -84,20 +84,18 @@
         }
         .nav-link:hover { background-color: #e3f2fd; color: #0d47a1; }
 
-        /* --- 콘텐츠 영역 --- */
+        /* 콘텐츠 영역 */
         .content-area { display: flex; flex-direction: column; gap: 20px; width: 100%; min-width: 0; }
         .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); box-sizing: border-box; scroll-margin-top: 80px; }
 
-        /* --- [NEW] 14일 예보 가로 스크롤 스타일 --- */
+        /* 14일 예보 가로 스크롤 */
         .forecast-scroll-container {
             display: flex;
             gap: 12px;
             overflow-x: auto;
-            padding-bottom: 15px; /* 스크롤바 공간 확보 */
+            padding-bottom: 15px;
             scrollbar-width: thin;
-            scrollbar-color: #cbd5e0 #f1f5f9;
         }
-        /* 웹킷 브라우저 스크롤바 스타일링 */
         .forecast-scroll-container::-webkit-scrollbar { height: 8px; }
         .forecast-scroll-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .forecast-scroll-container::-webkit-scrollbar-thumb { background-color: #cbd5e0; border-radius: 4px; }
@@ -121,14 +119,14 @@
         .dw-temp span { color: #666; font-weight: 400; font-size: 0.85rem; }
         .dw-detail { font-size: 0.75rem; color: #555; margin-top: 5px; display: flex; align-items: center; gap: 3px; justify-content: center; }
 
-        /* --- 모바일 오버레이 --- */
+        /* 모바일 오버레이 */
         .menu-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 2500;
             backdrop-filter: blur(2px);
         }
 
-        /* --- 반응형 --- */
+        /* 반응형 */
         @media (max-width: 850px) {
             .mobile-header { display: flex; }
             .app-wrapper { display: block; padding: 10px; }
@@ -144,7 +142,6 @@
             .content-area { padding-bottom: 30px; }
         }
 
-        /* 공통 컴포넌트 */
         .app-title { display: none; } 
         @media (max-width: 850px) { .app-title { display: none; } }
 
@@ -307,7 +304,10 @@
         }
     }
 
-    Chart.register(ChartDataLabels);
+    // Chart.js 3.x에서는 register가 필요합니다.
+    try {
+        Chart.register(ChartDataLabels);
+    } catch(e) { console.warn("Chart plugin registration issue", e); }
 
     let currentDate = new Date(); 
     let myChart = null; 
@@ -320,11 +320,14 @@
     let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
     let currentStationName = localStorage.getItem('tide_station_name') || 'Steveston';
 
-    initApp();
+    // 앱 시작
+    setTimeout(initApp, 100);
 
     function initApp() {
         updateDateDisplay();
         document.getElementById('stationSearch').value = currentStationName;
+        
+        // 데이터 로드 시작
         fetchStationsAndInitMap();
         fetchTideData(); 
     }
@@ -332,14 +335,17 @@
     async function fetchStationsAndInitMap() {
         try {
             const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
+            if(!resp.ok) throw new Error("Station list failed");
             allStations = await resp.json();
             initMap(); 
         } catch (e) {
             console.error("Failed to load stations for map", e);
+            document.getElementById('map').innerHTML = '<div style="text-align:center; padding-top:150px; color:red;">Map loading failed. Check connection.</div>';
         }
     }
 
     function initMap() {
+        if(map) return; // 이미 초기화됨
         map = L.map('map').setView([49.1, -123.1], 6);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
@@ -381,17 +387,12 @@
         }
     }
 
-    // --- [NEW] 14일 날씨 예보 Fetch 함수 ---
     async function fetchLongRangeWeather(lat, lon) {
         const container = document.getElementById('longRangeWeatherContainer');
-        
         try {
-            // 오픈 메테오 API (14일치 예보, 오늘 기준)
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto&forecast_days=14`;
-            
             const resp = await fetch(url);
             const data = await resp.json();
-            
             if (!data.daily) throw new Error("No forecast data");
 
             const daily = data.daily;
@@ -432,7 +433,6 @@
         }
     }
 
-    // 기존 fetchWeatherData (차트용 + 현재 날씨)
     async function fetchWeatherData(lat, lon, dateObj) {
         try {
             const year = dateObj.getFullYear();
@@ -473,7 +473,6 @@
         document.getElementById('windText').innerText = `${windSpeed} km/h`;
         document.getElementById('windDirText').innerText = getCardinalDirection(windDir);
         
-        // Safety check for sunrise/sunset array
         if(daily.sunrise && daily.sunrise.length > 0) {
              const sunrise = new Date(daily.sunrise[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
              const sunset = new Date(daily.sunset[0]).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
@@ -513,6 +512,7 @@
         try {
             const url = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationId}/data?time-series-code=wlp-hilo&from=${fromStr}&to=${toStr}`;
             const resp = await fetch(url);
+            if(!resp.ok) throw new Error("Tide forecast failed");
             const data = await resp.json();
             tableBody.innerHTML = '';
             let currentDayStr = '';
@@ -529,6 +529,7 @@
                 tableBody.appendChild(row);
             });
         } catch (e) {
+            console.error(e);
             tableBody.innerHTML = '<tr><td colspan="4">Forecast unavailable</td></tr>';
         }
     }
@@ -632,17 +633,15 @@
                 stationObj = found;
             } else {
                 const stationResp = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
+                if(!stationResp.ok) throw new Error("Station lookup failed");
                 const stationData = await stationResp.json();
                 if(stationData.length > 0) stationObj = stationData[0];
                 else throw new Error("Station not found");
             }
 
             if (stationObj.latitude && stationObj.longitude) {
-                // 기존: 차트 날짜의 날씨
                 await fetchWeatherData(stationObj.latitude, stationObj.longitude, currentDate);
-                // [NEW] 14일 예보 (오늘부터)
                 fetchLongRangeWeather(stationObj.latitude, stationObj.longitude);
-                
                 panMapToCurrent();
             }
 
@@ -652,6 +651,9 @@
             const hiloUrl = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${stationObj.id}/data?time-series-code=wlp-hilo&from=${startTime}&to=${endTime}`;
 
             const [curveResp, hiloResp] = await Promise.all([fetch(curveUrl), fetch(hiloUrl)]);
+            
+            if(!curveResp.ok || !hiloResp.ok) throw new Error("Tide data failed");
+            
             const curveData = await curveResp.json();
             const hiloData = await hiloResp.json();
 
@@ -664,7 +666,7 @@
         } catch (error) {
             console.error(error);
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('currentInfo').innerHTML = "⚠️ Data Unavailable";
+            document.getElementById('currentInfo').innerHTML = "<span style='color:red'>⚠️ Data Failed. Check Connection</span>";
         }
     }
 
@@ -715,5 +717,151 @@
 
                     const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
                     const heightStr = yValue.toFixed(2) + 'm';
+                    const padding = 4;
+                    const borderRadius = 4;
+                    const fontSize = 11;
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    
+                    const textWidth1 = ctx.measureText(timeStr).width;
+                    const textWidth2 = ctx.measureText(heightStr).width;
+                    const boxWidth = Math.max(textWidth1, textWidth2) + (padding * 2);
+                    const boxHeight = (fontSize * 2) + (padding * 2) + 2; 
+                    
+                    let boxY = yPos - boxHeight - 8; 
+                    if (boxY < yAxis.top) boxY = yPos + 8; 
 
-                    const
+                    const boxX = xPos - (boxWidth / 2);
+
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.beginPath();
+                    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = '#0d47a1'; 
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(timeStr, xPos, boxY + padding);
+                    ctx.fillText(heightStr, xPos, boxY + padding + fontSize + 2);
+
+                    ctx.restore();
+                }
+            }
+        }
+    };
+
+    const weatherIconPlugin = {
+        id: 'weatherIcons',
+        afterDraw: (chart) => {
+            if (hourlyWeatherData.length === 0) return;
+            const ctx = chart.ctx;
+            const xAxis = chart.scales.x;
+            const yAxis = chart.scales.y;
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.font = '10px Arial';
+            let previousCategory = null; 
+            for (let i = 0; i < 24; i++) {
+                if (!hourlyWeatherData[i]) continue;
+                const currentCode = hourlyWeatherData[i].code;
+                const currentCategory = getWeatherCategory(currentCode);
+                if (previousCategory === null || currentCategory !== previousCategory) {
+                    const d = new Date(currentDate);
+                    d.setHours(i, 0, 0, 0);
+                    const xPos = xAxis.getPixelForValue(d.getTime());
+                    if (xPos >= xAxis.left && xPos <= xAxis.right) {
+                        const icon = getWeatherIcon(currentCode);
+                        ctx.fillText(icon, xPos, yAxis.bottom + 50); 
+                    }
+                    previousCategory = currentCategory;
+                }
+            }
+            ctx.restore();
+        }
+    };
+
+    const verticalLinePlugin = {
+        id: 'verticalLine',
+        afterDraw: (chart) => {
+            if (chart.tooltip?._active?.length) {
+                const ctx = chart.ctx;
+                const x = chart.tooltip._active[0].element.x;
+                const topY = chart.scales.y.top;
+                const bottomY = chart.scales.y.bottom;
+                ctx.save();
+                ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x, bottomY);
+                ctx.lineWidth = 1.5; ctx.strokeStyle = '#ff5722'; ctx.setLineDash([5, 5]);
+                ctx.stroke(); ctx.restore();
+            }
+        }
+    };
+
+    function renderChart(lineData, pointData) {
+        document.getElementById('loading').style.display = 'none';
+        const ctx = document.getElementById('tideChart').getContext('2d');
+        const infoBox = document.getElementById('currentInfo');
+
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: 'Tide Level', data: lineData,
+                        borderColor: '#4facfe', backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        borderWidth: 2, pointRadius: 0, hitRadius: 20, fill: true, tension: 0.4,
+                        datalabels: { display: false }
+                    },
+                    {
+                        label: 'High/Low', data: pointData, type: 'scatter',
+                        backgroundColor: 'red', pointRadius: 5,
+                        datalabels: {
+                            display: true,
+                            align: (ctx) => ctx.dataset.data[ctx.dataIndex].y > 2.5 ? 'top' : 'bottom',
+                            color: '#333', backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderRadius: 4, padding: 3, font: { weight: 'bold', size: 11 },
+                            formatter: (value) => {
+                                const date = new Date(value.x);
+                                return `${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}\n${value.y.toFixed(2)}m`;
+                            }
+                        }
+                    }
+                ]
+            },
+            plugins: [verticalLinePlugin, weatherIconPlugin, currentTimePlugin],
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                layout: { padding: { bottom: 60 } },
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'H' } }, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, font: { size: 12 } } },
+                    y: { title: { display: false }, ticks: { font: { size: 11 } } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: false, 
+                        external: (context) => {
+                            const tooltipModel = context.tooltip;
+                            if (tooltipModel.opacity === 0) return;
+                            const dataPoint = tooltipModel.dataPoints[0];
+                            const timeMs = dataPoint.parsed.x;
+                            const tideVal = dataPoint.parsed.y.toFixed(2);
+                            const date = new Date(timeMs);
+                            const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                            const hour = date.getHours();
+                            let weatherStr = "";
+                            if (hourlyWeatherData[hour]) {
+                                const w = hourlyWeatherData[hour];
+                                const icon = getWeatherIcon(w.code);
+                                weatherStr = `<span class="info-item">${icon} ${w.temp}°C</span> <span class="info-item">🌬️ ${w.wind} km/h</span>`;
+                            }
+                            infoBox.innerHTML = `<span class="info-item">⏱️ ${timeStr}</span><span class="info-item">💧 ${tideVal}m</span>${weatherStr}`;
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
