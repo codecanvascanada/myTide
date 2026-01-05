@@ -13,50 +13,80 @@
 
     <style>
         /* 기본 설정 */
-        html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; color: #333; overflow-x: hidden; }
+        html, body { 
+            margin: 0; padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: #f4f6f9; color: #333; 
+            /* Sticky 작동을 방해하는 overflow 속성 제거 */
+            height: 100%;
+        }
         
-        /* 로딩 화면 (안전장치 적용됨) */
+        /* 로딩 화면 */
         #app-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s; }
         .loader-spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #0077be; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- 헤더 --- */
+        /* --- 상단 헤더 --- */
         .top-header {
             background: white; padding: 0 30px; height: 70px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.05);
             position: relative; z-index: 5000;
             display: flex; align-items: center; justify-content: space-between;
         }
+        
         .site-logo { font-size: 1.8rem; font-weight: 900; color: #0077be; cursor: pointer; white-space: nowrap; z-index: 5002; }
         
-        .header-search-wrapper { position: absolute; left: 50%; transform: translateX(-50%); width: 400px; z-index: 5001; }
+        /* 검색창 (PC 중앙 고정) */
+        .header-search-wrapper { 
+            position: absolute; left: 50%; transform: translateX(-50%); 
+            width: 400px; z-index: 5001; 
+        }
         .search-box { display: flex; align-items: center; border: 2px solid #0077be; border-radius: 30px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .search-input { flex-grow: 1; border: none; padding: 10px 20px; font-size: 0.95rem; outline: none; }
         .search-btn { background: #0077be; border: none; color: white; padding: 10px 20px; cursor: pointer; font-size: 1.1rem; }
         
-        .suggestions-list { position: absolute; top: 105%; left: 15px; right: 15px; background: white; border: 1px solid #ddd; border-radius: 12px; display: none; z-index: 6000; list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .suggestions-list {
+            position: absolute; top: 105%; left: 15px; right: 15px;
+            background: white; border: 1px solid #ddd; border-radius: 12px;
+            display: none; z-index: 6000; list-style: none; padding: 0; margin: 0;
+            max-height: 300px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
         .suggestion-item { padding: 12px 15px; border-bottom: 1px solid #f5f5f5; cursor: pointer; text-align: left; }
         .suggestion-item:hover { background: #f0f8ff; color: #0077be; }
 
         .hamburger-btn { display: none; font-size: 1.8rem; background: none; border: none; cursor: pointer; }
 
-        /* --- 레이아웃 --- */
+        /* --- [수정됨] 레이아웃 --- */
         .app-wrapper {
-            display: flex; justify-content: center; align-items: flex-start;
-            gap: 25px; max-width: 1200px; margin: 0 auto; padding: 25px 20px; box-sizing: border-box;
+            display: flex; 
+            align-items: flex-start; /* [중요] 사이드바가 늘어나지 않게 상단 정렬 */
+            justify-content: center;
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 25px 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
         }
+
         .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 
-        /* 사이드바 (PC: Sticky) */
+        /* [수정됨] 사이드바 (PC 고정) */
         .sidebar {
-            width: 240px; flex-shrink: 0;
-            position: sticky; top: 25px; 
+            width: 240px; 
+            flex-shrink: 0; 
+            
+            /* Sticky 고정 설정 */
+            position: -webkit-sticky;
+            position: sticky;
+            top: 20px; /* 스크롤 시 화면 상단 20px 위치에 고정 */
+            
             background: white; border-radius: 16px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); z-index: 1000;
         }
 
         /* 카드 공통 */
-        .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; }
+        .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; scroll-margin-top: 20px; }
         .section-title { font-size: 1.1rem; font-weight: 800; color: #333; margin-bottom: 15px; border-left: 5px solid #0077be; padding-left: 10px; }
 
         /* 메뉴 */
@@ -74,12 +104,10 @@
         .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; border-radius: 16px; }
         canvas { width: 100% !important; height: 350px !important; }
 
-        .map-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .map-tabs button { padding: 6px 12px; border: 1px solid #ddd; background: #f8f9fa; cursor: pointer; border-radius: 6px; font-weight: 600; }
-        .map-tabs button.active { background: #0077be; color: white; border-color: #0077be; }
-        .map-view { display: none; height: 400px; width: 100%; border-radius: 12px; overflow: hidden; position: relative; }
-        .map-view.active { display: block; }
-        #map, #windyFrame { width: 100%; height: 100%; border: none; }
+        /* [수정됨] 지도 스타일 (분리됨) */
+        .map-container { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; background: #eee; position: relative; }
+        #map { width: 100%; height: 100%; z-index: 1; }
+        #windyFrame { width: 100%; height: 100%; border: none; }
         .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 5px; cursor: pointer; }
 
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -127,7 +155,6 @@
 <div id="app-loader">
     <div class="loader-spinner"></div>
     <div>System Initializing...</div>
-    <div style="font-size:0.8rem; margin-top:10px; color:#999">Wait a moment...</div>
 </div>
 
 <header class="top-header">
@@ -163,16 +190,18 @@
             <canvas id="tideChart"></canvas>
         </div>
 
-        <div id="section-map" class="card">
-            <div class="map-header">
-                <div class="section-title" style="margin:0; border:0; padding:0;">Map View</div>
-                <div class="map-tabs">
-                    <button class="map-tab-btn active" onclick="setMapTab('station', this)">Stations</button>
-                    <button class="map-tab-btn" onclick="setMapTab('wind', this)">Wind</button>
-                </div>
+        <div id="section-station-map" class="card">
+            <div class="section-title">Station Map</div>
+            <div class="map-container">
+                <div id="map" style="width:100%; height:100%;"></div>
             </div>
-            <div id="view-station" class="map-view active"><div id="map"></div></div>
-            <div id="view-wind" class="map-view"><iframe id="windyFrame"></iframe></div>
+        </div>
+
+        <div id="section-wind-map" class="card">
+            <div class="section-title">Wind Flow Map</div>
+            <div class="map-container">
+                <iframe id="windyFrame" style="width:100%; height:100%; border:none;"></iframe>
+            </div>
         </div>
 
         <div id="section-weather-forecast" class="card">
@@ -207,9 +236,10 @@
         <div class="brand-title">Menu</div>
         <div class="nav-menu">
             <a href="#section-tide" class="nav-link" onclick="toggleMenu()">📈 Tide Graph</a>
-            <a href="#section-map" class="nav-link" onclick="toggleMenu()">🗺️ Maps</a>
+            <a href="#section-station-map" class="nav-link" onclick="toggleMenu()">📍 Station Map</a>
+            <a href="#section-wind-map" class="nav-link" onclick="toggleMenu()">🍃 Wind Map</a>
             <a href="#section-weather-forecast" class="nav-link" onclick="toggleMenu()">🌤️ 14-Day Weather</a>
-            <a href="#section-weather" class="nav-link" onclick="toggleMenu()">🍃 Conditions</a>
+            <a href="#section-weather" class="nav-link" onclick="toggleMenu()">🌡️ Conditions</a>
             <a href="#section-forecast" class="nav-link" onclick="toggleMenu()">📅 Weekly Tides</a>
         </div>
     </nav>
@@ -230,15 +260,11 @@
 </footer>
 
 <script>
-    // --- [안전장치] 로딩 강제 종료 ---
-    // API 에러가 나더라도 2초 뒤에는 무조건 화면을 보여줍니다.
+    // --- 로딩 종료 ---
     setTimeout(() => {
         const loader = document.getElementById('app-loader');
-        if(loader) {
-            loader.style.opacity = '0';
-            setTimeout(() => { loader.style.display = 'none'; }, 500);
-        }
-    }, 2000);
+        if(loader) { loader.style.opacity = '0'; setTimeout(() => { loader.style.display = 'none'; }, 500); }
+    }, 1500);
 
     document.addEventListener('DOMContentLoaded', () => {
         try { if(typeof Chart !== 'undefined') Chart.register(ChartDataLabels); initApp(); } 
@@ -271,7 +297,7 @@
     function filterStations() {
         const v = searchInput.value.toLowerCase();
         suggestionsList.innerHTML = "";
-        if (allStations.length === 0) { suggestionsList.innerHTML = "<li class='suggestion-item'>Loading...</li>"; return; }
+        if (allStations.length === 0) { suggestionsList.innerHTML = "<li class='suggestion-item'>Loading stations...</li>"; return; }
         const matches = allStations.filter(s => s.officialName.toLowerCase().includes(v)).slice(0, 10);
         if(matches.length === 0) { suggestionsList.innerHTML = "<li class='suggestion-item' style='color:#999'>No results</li>"; } 
         else {
@@ -292,7 +318,7 @@
         fetchTideData();
     }
 
-    function initApp() { updateDateDisplay(); fetchStationsAndInitMap(); fetchTideData(); }
+    function initApp() { updateDateDisplay(); initMap(); fetchStations(); fetchTideData(); }
 
     function initMap() {
         if(map) return;
@@ -300,7 +326,6 @@
         if(!mapContainer) return;
         map = L.map('map').setView([49.1, -123.1], 6);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
-        // 리사이징 이슈 방지
         setTimeout(() => { map.invalidateSize(); }, 500);
         updateWindyMap();
     }
@@ -328,24 +353,14 @@
 
     function updateWindyMap() {
         const src = `https://embed.windy.com/embed2.html?lat=${currentLat}&lon=${currentLon}&detailLat=${currentLat}&detailLon=${currentLon}&width=650&height=450&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1`;
-        document.getElementById('windyFrame').src = src;
+        const iframe = document.getElementById('windyFrame');
+        if(iframe) iframe.src = src;
     }
 
     window.selectStationByCode = function(code) {
         const s = allStations.find(st => st.code === code);
         if(s) { selectStation(s); map.closePopup(); document.getElementById('section-tide').scrollIntoView({ behavior: 'smooth' }); }
     };
-
-    window.setMapTab = function(type, btn) {
-        document.querySelectorAll('.map-tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('view-station').classList.remove('active');
-        document.getElementById('view-wind').classList.remove('active');
-        document.getElementById('view-'+type).classList.add('active');
-        if(type==='station' && map) setTimeout(()=>map.invalidateSize(), 100);
-    }
-
-    async function fetchStationsAndInitMap() { initMap(); await fetchStations(); }
 
     async function fetchTideData() {
         const loader = document.getElementById('chartLoading');
