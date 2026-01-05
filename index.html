@@ -15,86 +15,52 @@
         /* 기본 설정 */
         html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; color: #333; overflow-x: hidden; scroll-behavior: smooth; }
         
-        /* 초기 로딩 화면 */
+        /* 로딩 화면 */
         #app-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s; }
         .loader-spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #0077be; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- [1] 상단 헤더 & 검색창 --- */
-        .top-header {
-            background: white; padding: 15px 20px; box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            position: relative; z-index: 5000;
-            display: flex; align-items: center; gap: 30px;
-            flex-wrap: wrap; /* 모바일 줄바꿈 허용 */
-        }
-        .site-logo { font-size: 1.8rem; font-weight: 900; color: #0077be; cursor: pointer; white-space: nowrap; margin-right: auto; /* 로고 왼쪽 정렬 */ }
+        /* 헤더 */
+        .top-header { background: white; padding: 15px 20px; box-shadow: 0 2px 15px rgba(0,0,0,0.08); position: relative; z-index: 5000; display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
+        .site-logo { font-size: 1.8rem; font-weight: 900; color: #0077be; cursor: pointer; white-space: nowrap; margin-right: auto; }
         
-        /* 검색창 영역 */
         .header-search-wrapper { flex-grow: 1; max-width: 600px; position: relative; }
         .search-box { display: flex; align-items: center; border: 2px solid #0077be; border-radius: 30px; overflow: hidden; background: #fff; }
         .search-input { flex-grow: 1; border: none; padding: 12px 20px; font-size: 1rem; outline: none; }
         .search-btn { background: #0077be; border: none; color: white; padding: 12px 25px; cursor: pointer; font-size: 1.2rem; }
         
-        .suggestions-list {
-            position: absolute; top: 105%; left: 10px; right: 10px;
-            background: white; border: 1px solid #ddd; border-radius: 12px;
-            display: none; z-index: 6000; list-style: none; padding: 0; margin: 0;
-            max-height: 300px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
+        .suggestions-list { position: absolute; top: 105%; left: 10px; right: 10px; background: white; border: 1px solid #ddd; border-radius: 12px; display: none; z-index: 6000; list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         .suggestion-item { padding: 12px 15px; border-bottom: 1px solid #f5f5f5; cursor: pointer; text-align: left; }
         .suggestion-item:hover { background: #f0f8ff; color: #0077be; }
-
         .hamburger-btn { display: none; font-size: 1.8rem; background: none; border: none; cursor: pointer; }
 
-        /* --- [2] 레이아웃 & 사이드바 고정 --- */
-        .app-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 240px; /* 콘텐츠 | 사이드바 */
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow: visible; /* Sticky 작동 필수 조건 */
-        }
-
-        /* PC 버전 오른쪽 메뉴 (고정됨) */
-        .sidebar {
-            position: sticky;
-            top: 20px; /* 스크롤 시 화면 상단에서 20px 떨어진 곳에 고정 */
-            height: fit-content; /* 내용물 크기만큼만 차지 */
-            align-self: start;   /* Grid 안에서 늘어나지 않게 상단 정렬 */
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            z-index: 1000;
-        }
-
+        /* 레이아웃 */
+        .app-wrapper { display: grid; grid-template-columns: 1fr 240px; gap: 20px; max-width: 1200px; margin: 0 auto; padding: 20px; box-sizing: border-box; overflow: visible; }
         .content-area { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+        
+        .sidebar { position: sticky; top: 20px; height: fit-content; align-self: start; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); z-index: 1000; }
         .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; }
         .section-title { font-size: 1.1rem; font-weight: 800; color: #333; margin-bottom: 15px; border-left: 5px solid #0077be; padding-left: 10px; }
 
-        /* 메뉴 스타일 */
         .nav-menu { display: flex; flex-direction: column; gap: 8px; }
         .nav-link { display: flex; align-items: center; gap: 10px; padding: 12px; color: #555; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; }
         .nav-link:hover { background-color: #e3f2fd; color: #0077be; }
         .close-btn { display: none; text-align: right; font-size: 1.5rem; cursor: pointer; margin-bottom: 10px; }
         .brand-title { font-size: 1.5rem; font-weight: 900; color: #0077be; margin-bottom: 20px; }
 
-        /* 컴포넌트 */
         .date-controls { display: flex; justify-content: space-between; background: #f8f9fa; padding: 8px; border-radius: 10px; margin-bottom: 15px; }
         .nav-btn { background: white; border: 1px solid #ddd; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; }
         .date-display { flex-grow: 1; text-align: center; line-height: 40px; font-weight: bold; }
         .info-box { background: #e3f2fd; color: #0d47a1; padding: 12px; text-align: center; border-radius: 8px; margin-bottom: 15px; font-weight: bold; font-size: 0.95rem; }
-        
         .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; border-radius: 16px; }
         canvas { width: 100% !important; height: 350px !important; }
 
         .map-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .map-tabs button { padding: 6px 12px; border: 1px solid #ddd; background: #f8f9fa; cursor: pointer; border-radius: 6px; font-weight: 600; }
         .map-tabs button.active { background: #0077be; color: white; border-color: #0077be; }
-        .map-view { display: none; height: 400px; width: 100%; border-radius: 12px; overflow: hidden; }
+        
+        /* [중요] 맵 뷰 높이 고정 */
+        .map-view { display: none; height: 400px; width: 100%; border-radius: 12px; overflow: hidden; position: relative; }
         .map-view.active { display: block; }
         #map, #windyFrame { width: 100%; height: 100%; border: none; }
         .map-popup-btn { background: #0077be; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 5px; cursor: pointer; }
@@ -113,49 +79,15 @@
         .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
         .tag-high { background: #e3f2fd; color: #1565c0; } .tag-low { background: #fff3e0; color: #ef6c00; }
 
-        /* 모바일 메뉴 오버레이 */
         .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2500; }
         
-        /* --- [3] 모바일 반응형 디자인 (850px 이하) --- */
         @media (max-width: 850px) {
-            .app-wrapper { display: block; padding: 10px; } /* Grid 해제 */
-            
-            /* 모바일 사이드바 (슬라이드 메뉴) */
-            .sidebar { 
-                position: fixed; 
-                top: 0 !important; 
-                right: -280px; 
-                width: 260px; 
-                height: 100vh; 
-                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-                border-radius: 0; 
-                z-index: 9000; 
-                box-shadow: -2px 0 10px rgba(0,0,0,0.1); 
-            }
-            .sidebar.active { right: 0; } 
-            
-            .menu-overlay.active { display: block; }
+            .app-wrapper { display: block; padding: 10px; }
+            .sidebar { position: fixed; top: 0 !important; right: -280px; width: 260px; height: 100vh; transition: right 0.3s; border-radius: 0; z-index: 9000; box-shadow: -2px 0 10px rgba(0,0,0,0.1); }
+            .sidebar.active { right: 0; } .menu-overlay.active { display: block; }
             .hamburger-btn, .close-btn { display: block; }
-            
-            /* 모바일 헤더 레이아웃 조정 (2단 구성) */
-            .top-header { 
-                padding: 10px 15px; 
-                gap: 10px; 
-            }
-            .site-logo {
-                font-size: 1.5rem;
-            }
-            .hamburger-btn {
-                margin-left: 0; /* 로고와 버튼 사이 간격은 justify-between으로 처리 */
-            }
-            
-            /* 검색창을 강제로 다음 줄로 내리고 꽉 채움 */
-            .header-search-wrapper { 
-                order: 3; 
-                width: 100%; 
-                max-width: 100%; 
-                margin-top: 5px; 
-            }
+            .top-header { justify-content: space-between; padding: 10px 15px; gap: 15px; }
+            .header-search-wrapper { order: 3; width: 100%; max-width: 100%; }
         }
     </style>
 </head>
@@ -168,15 +100,13 @@
 
 <header class="top-header">
     <div class="site-logo" onclick="location.reload()">🌊 Easy Tides</div>
-    
     <div class="header-search-wrapper">
         <div class="search-box">
-            <input type="text" id="stationSearch" class="search-input" placeholder="Search location (e.g. Vancouver)..." oninput="filterStations()">
+            <input type="text" id="stationSearch" class="search-input" placeholder="Search location..." oninput="filterStations()">
             <button class="search-btn">🔍</button>
         </div>
         <ul id="suggestions" class="suggestions-list"></ul>
     </div>
-
     <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
 </header>
 
@@ -216,7 +146,7 @@
         <div id="section-weather-forecast" class="card">
             <div class="section-title">14-Day Forecast</div>
             <div class="scroll-container" id="longRangeContainer">
-                <div style="padding:20px; text-align:center; color:#999;">Loading weather...</div>
+                <div style="padding:20px; text-align:center; color:#999;">Loading...</div>
             </div>
         </div>
 
@@ -254,12 +184,14 @@
 </div>
 
 <script>
-    // --- 초기화 ---
+    // --- 초기화: 안전 모드 ---
     document.addEventListener('DOMContentLoaded', () => {
         try {
             if(typeof Chart !== 'undefined') Chart.register(ChartDataLabels);
             initApp();
-        } catch(e) { console.error("Resource Error", e); }
+        } catch(e) { console.error("Err", e); }
+        
+        // 로딩 화면 제거
         setTimeout(() => {
             document.getElementById('app-loader').style.opacity = '0';
             setTimeout(() => { document.getElementById('app-loader').style.display = 'none'; }, 500);
@@ -278,6 +210,7 @@
     let myChart = null;
     let allStations = [];
     let map = null;
+    let markers = [];
     let currentLat = 49.12; 
     let currentLon = -123.18;
     let currentStationCode = localStorage.getItem('tide_station_code') || '07607';
@@ -287,14 +220,9 @@
     const suggestionsList = document.getElementById('suggestions');
     searchInput.value = currentStationName;
 
-    // --- 검색 ---
+    // --- Search Logic ---
     searchInput.addEventListener('focus', () => { if(allStations.length > 0) filterStations(); suggestionsList.style.display='block'; });
-    
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.header-search-wrapper')) {
-            suggestionsList.style.display = 'none';
-        }
-    });
+    document.addEventListener('click', (e) => { if (!e.target.closest('.header-search-wrapper')) suggestionsList.style.display = 'none'; });
 
     function filterStations() {
         const v = searchInput.value.toLowerCase();
@@ -327,13 +255,89 @@
         fetchTideData();
     }
 
+    // --- 앱 실행 ---
     function initApp() {
         updateDateDisplay();
-        fetchStationsAndInitMap();
+        // 지도 초기화 (즉시)
+        initMap(); 
+        // 데이터 로드
+        fetchStations();
         fetchTideData(); 
     }
 
-    // --- 데이터 로드 ---
+    // --- [중요] 맵 초기화 및 복구 로직 ---
+    function initMap() {
+        // 이미 있으면 스킵
+        if(map) return;
+        
+        const mapContainer = document.getElementById('map');
+        if(!mapContainer) return;
+
+        // Leaflet 초기화 (기본 좌표)
+        map = L.map('map').setView([49.1, -123.1], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
+        
+        // [핵심] 지도 렌더링 강제 복구 (타이밍 이슈 해결)
+        setTimeout(() => { map.invalidateSize(); }, 500);
+        setTimeout(() => { map.invalidateSize(); }, 2000);
+        
+        updateWindyMap();
+    }
+
+    async function fetchStations() {
+        try {
+            const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
+            allStations = await resp.json();
+            // 핀 찍기
+            if(map) {
+                allStations.forEach(s => {
+                    if(s.latitude) {
+                        const m = L.marker([s.latitude, s.longitude]).addTo(map);
+                        m.bindPopup(`<b>${s.officialName}</b><br><button class="map-popup-btn" onclick="selectStationByCode('${s.code}')">Select</button>`);
+                        markers.push({code:s.code, m:m});
+                    }
+                });
+            }
+        } catch(e) {}
+    }
+
+    function updateMapMarker() {
+        if(!map) return;
+        map.setView([currentLat, currentLon], 10);
+        // 마커 팝업 열기
+        /*
+        const target = markers.find(mk => mk.code == currentStationCode);
+        if(target) target.m.openPopup();
+        */
+        updateWindyMap();
+    }
+
+    function updateWindyMap() {
+        const src = `https://embed.windy.com/embed2.html?lat=${currentLat}&lon=${currentLon}&detailLat=${currentLat}&detailLon=${currentLon}&width=650&height=450&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1`;
+        document.getElementById('windyFrame').src = src;
+    }
+
+    window.selectStationByCode = function(code) {
+        const s = allStations.find(st => st.code === code);
+        if(s) {
+            selectStation(s);
+            map.closePopup();
+            document.getElementById('section-tide').scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    window.setMapTab = function(type, btn) {
+        document.querySelectorAll('.map-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('view-station').classList.remove('active');
+        document.getElementById('view-wind').classList.remove('active');
+        document.getElementById('view-'+type).classList.add('active');
+        
+        // 탭 전환 시 지도 크기 재계산 (필수)
+        if(type==='station' && map) setTimeout(()=>map.invalidateSize(), 100);
+    }
+
+    // --- Tide Fetch ---
     async function fetchTideData() {
         const loader = document.getElementById('chartLoading');
         const loadText = document.getElementById('loadingText');
@@ -346,7 +350,8 @@
         if(myChart) myChart.destroy();
 
         try {
-            let sObj = allStations.find(s => s.code === currentStationCode);
+            let sObj = null;
+            if(allStations.length > 0) sObj = allStations.find(s => s.code === currentStationCode);
             if (!sObj) {
                 try {
                     const r = await fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations?code=${currentStationCode}`);
@@ -366,7 +371,7 @@
 
             if(sObj) fetchWeekly(sObj.id);
 
-            const idToUse = sObj ? sObj.id : '5cebf1df3d0f4a073c4bbcb5'; 
+            const idToUse = sObj ? sObj.id : '5cebf1df3d0f4a073c4bbcb5';
             const [resCurve, resHilo] = await Promise.all([
                 fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${idToUse}/data?time-series-code=wlp&from=${start}&to=${end}`),
                 fetch(`https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${idToUse}/data?time-series-code=wlp-hilo&from=${start}&to=${end}`)
@@ -383,7 +388,7 @@
             renderChart(lineData, pointData);
 
         } catch (e) {
-            console.error("Fetch Error", e);
+            console.error("Data Load Error", e);
             loadText.innerText = "Data Unavailable";
             retryBtn.style.display = 'block';
             renderChart([], []);
@@ -543,53 +548,6 @@
             });
             document.getElementById('weeklyTideBody').innerHTML = html;
         } catch(e) { document.getElementById('weeklyTideBody').innerHTML = "<tr><td colspan='4'>Forecast unavailable</td></tr>"; }
-    }
-
-    // --- Maps ---
-    async function fetchStationsAndInitMap() {
-        try {
-            const resp = await fetch('https://api-iwls.dfo-mpo.gc.ca/api/v1/stations');
-            allStations = await resp.json();
-            initMap();
-        } catch(e) { document.getElementById('map').innerText = "Map Error"; }
-    }
-
-    function initMap() {
-        if(map) return;
-        map = L.map('map').setView([49.1, -123.1], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
-        allStations.forEach(s => {
-            if(s.latitude) {
-                const m = L.marker([s.latitude, s.longitude]).addTo(map);
-                m.bindPopup(`<b>${s.officialName}</b><br><button class="map-popup-btn" onclick="selectStationByCode('${s.code}')">Select</button>`);
-                markers.push({code:s.code, m:m});
-            }
-        });
-        updateMapMarker();
-    }
-
-    function updateMapMarker() {
-        if(!map) return;
-        map.setView([currentLat, currentLon], 10);
-        document.getElementById('windyFrame').src = `https://embed.windy.com/embed2.html?lat=${currentLat}&lon=${currentLon}&detailLat=${currentLat}&detailLon=${currentLon}&width=650&height=450&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1`;
-    }
-
-    window.selectStationByCode = function(code) {
-        const s = allStations.find(st => st.code === code);
-        if(s) {
-            selectStation(s);
-            map.closePopup();
-            document.getElementById('section-tide').scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
-    window.setMapTab = function(type, btn) {
-        document.querySelectorAll('.map-tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('view-station').classList.remove('active');
-        document.getElementById('view-wind').classList.remove('active');
-        document.getElementById('view-'+type).classList.add('active');
-        if(type==='station' && map) setTimeout(()=>map.invalidateSize(),200);
     }
 
     function changeDate(off) { currentDate.setDate(currentDate.getDate()+off); updateDateDisplay(); fetchTideData(); }
