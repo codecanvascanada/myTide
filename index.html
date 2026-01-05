@@ -20,25 +20,24 @@
         .loader-spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #0077be; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- [1] 상단 헤더 & 검색창 (수정됨) --- */
+        /* --- 상단 헤더 --- */
         .top-header {
             background: white; padding: 15px 30px; box-shadow: 0 2px 15px rgba(0,0,0,0.08);
             position: relative; z-index: 5000;
-            display: flex; align-items: center; justify-content: space-between; /* 양끝 정렬 */
-            height: 60px; /* 높이 고정 */
+            display: flex; align-items: center; justify-content: space-between;
+            height: 60px;
         }
         
         .site-logo { 
             font-size: 1.8rem; font-weight: 900; color: #0077be; 
-            cursor: pointer; white-space: nowrap; z-index: 5002; /* 검색창보다 위 */
+            cursor: pointer; white-space: nowrap; z-index: 5002;
         }
         
-        /* 검색창 래퍼: PC에서 화면 정중앙 고정 */
+        /* 검색창 (PC 중앙) */
         .header-search-wrapper { 
             position: absolute; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 400px; /* 길이 절반 정도로 축소 */
+            left: 50%; transform: translateX(-50%); 
+            width: 400px; 
             z-index: 5001;
         }
 
@@ -57,22 +56,34 @@
 
         .hamburger-btn { display: none; font-size: 1.8rem; background: none; border: none; cursor: pointer; }
 
-        /* --- [2] 레이아웃 & 사이드바 (수정됨: Fixed Position) --- */
+        /* --- [수정됨] 레이아웃 구조 --- */
         .app-wrapper {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px 20px 20px 20px;
-            padding-right: 280px; /* 사이드바 공간만큼 본문 여백 확보 */
+            padding: 20px;
             box-sizing: border-box;
-            position: relative;
+            position: relative; /* Fixed 메뉴의 기준점 */
         }
 
-        /* PC 사이드바: 완전 고정 (Fixed) */
+        /* [중요] PC 버전 레이아웃 
+           - Grid 대신 Block 사용 + Margin으로 공간 확보
+           - 이렇게 해야 겹침 현상을 완벽히 제어 가능 
+        */
+        .content-area { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            width: auto; 
+            /* 오른쪽 메뉴 공간(240px) + 여백(30px) = 270px 확보 */
+            margin-right: 270px; 
+        }
+
+        /* [수정됨] PC 오른쪽 고정 메뉴 */
         .sidebar {
-            position: fixed; /* 스크롤해도 항상 그 자리 */
-            top: 110px; /* 헤더 아래 위치 */
-            right: max(20px, calc(50% - 600px + 20px)); /* 중앙 정렬된 컨텐츠 기준 우측 배치 */
-            width: 240px;
+            position: fixed;       /* 스크롤 무시하고 고정 */
+            top: 110px;            /* 헤더 아래 적당한 위치 */
+            right: 30px;           /* 화면 오른쪽 끝에서 30px 떨어짐 */
+            width: 240px;          /* 너비 고정 */
             height: fit-content;
             background: white;
             border-radius: 16px;
@@ -81,8 +92,6 @@
             z-index: 4000;
         }
 
-        .content-area { display: flex; flex-direction: column; gap: 20px; min-width: 0; width: 100%; }
-        
         /* 카드 스타일 */
         .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; }
         .section-title { font-size: 1.1rem; font-weight: 800; color: #333; margin-bottom: 15px; border-left: 5px solid #0077be; padding-left: 10px; }
@@ -127,7 +136,8 @@
 
         /* Footer */
         .site-footer { background-color: #fff; border-top: 1px solid #e0e0e0; padding: 40px 20px; margin-top: 40px; text-align: center; color: #666; }
-        .footer-content { max-width: 1200px; margin: 0 auto; padding-right: 260px; /* 사이드바 공간 고려 */ }
+        /* 푸터도 메인 콘텐츠와 같은 너비/여백 적용 */
+        .footer-content { max-width: 1200px; margin: 0 auto; padding-right: 270px; }
         .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin: 20px 0; }
         .footer-links a { text-decoration: none; color: #666; font-size: 0.9rem; font-weight: 500; }
 
@@ -135,33 +145,40 @@
         
         /* --- [3] 모바일 반응형 (850px 이하) --- */
         @media (max-width: 850px) {
-            /* 본문 여백 제거 */
-            .app-wrapper { padding: 10px; }
-            
+            .app-wrapper { padding: 10px; display: block; }
+            .content-area { margin-right: 0; width: 100%; } /* 모바일은 여백 제거 */
+            .footer-content { padding-right: 0; }
+
             /* 사이드바 -> 슬라이드 메뉴 */
             .sidebar { 
-                position: fixed; top: 0 !important; right: -280px; width: 260px; height: 100vh; 
-                transition: right 0.3s; border-radius: 0; z-index: 9000; box-shadow: -2px 0 10px rgba(0,0,0,0.1); 
+                position: fixed; 
+                top: 0 !important; 
+                right: -280px; 
+                width: 260px; 
+                height: 100vh; 
+                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+                border-radius: 0; 
+                z-index: 9000; 
+                box-shadow: -2px 0 10px rgba(0,0,0,0.1); 
             }
             .sidebar.active { right: 0; } 
             
             .menu-overlay.active { display: block; }
             .hamburger-btn, .close-btn { display: block; }
             
-            /* 헤더 레이아웃 변경 */
-            .top-header { height: auto; padding: 15px; gap: 15px; }
+            /* 헤더 */
+            .top-header { padding: 10px 15px; gap: 10px; }
+            .site-logo { font-size: 1.5rem; }
+            .hamburger-btn { margin-left: 0; }
             
-            /* 검색창 모바일: 아래로 내리고 중앙 정렬 */
+            /* 검색창 모바일: 중앙 정렬 & 85% */
             .header-search-wrapper { 
-                position: static; /* absolute 해제 */
+                position: static; 
                 transform: none; 
                 order: 3; 
-                width: 100%; 
+                width: 85%; 
                 margin: 5px auto 0 auto; 
             }
-            
-            /* 푸터 여백 제거 */
-            .footer-content { padding-right: 0; }
             .footer-links { flex-direction: column; gap: 10px; }
         }
     </style>
@@ -521,6 +538,7 @@
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum&timezone=auto&forecast_days=14`;
             const res = await fetch(url);
             const data = await res.json();
+
             if(data.current_weather) {
                 document.getElementById('valTemp').innerText = data.current_weather.temperature + "°";
                 document.getElementById('valWind').innerText = data.current_weather.windspeed + " km";
@@ -535,6 +553,7 @@
                 const sr = new Date(data.daily.sunrise[0]).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
                 const ss = new Date(data.daily.sunset[0]).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
                 document.getElementById('valSun').innerHTML = `${sr}<br>${ss}`;
+
                 let html = "";
                 data.daily.time.forEach((t, i) => {
                     const d = new Date(t);
@@ -552,13 +571,19 @@
             const url = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${sid}/data?time-series-code=wlp-hilo&from=${s.toISOString()}&to=${e.toISOString()}`;
             const res = await fetch(url);
             const data = await res.json();
+            
             const groups = {};
-            data.forEach(d => { const k = new Date(d.eventDate).toDateString(); if(!groups[k]) groups[k] = []; groups[k].push(d); });
+            data.forEach(d => {
+                const k = new Date(d.eventDate).toDateString();
+                if(!groups[k]) groups[k] = []; groups[k].push(d);
+            });
+
             let html = "";
             Object.keys(groups).forEach(key => {
                 const events = groups[key];
                 let minVal = 999;
                 events.forEach(ev => { if(ev.value < minVal) minVal = ev.value; });
+
                 events.forEach((d, index) => {
                     const date = new Date(d.eventDate);
                     const type = d.value > 3 ? "High" : "Low";
