@@ -13,83 +13,36 @@
 
     <style>
         /* 기본 설정 */
-        html, body { 
-            margin: 0; padding: 0; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background-color: #f4f6f9; color: #333; 
-            /* Sticky 작동을 방해하는 overflow 속성 제거 */
-            height: 100%;
-        }
+        html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; color: #333; height: 100%; }
         
         /* 로딩 화면 */
         #app-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s; }
         .loader-spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #0077be; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- 상단 헤더 --- */
-        .top-header {
-            background: white; padding: 0 30px; height: 70px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-            position: relative; z-index: 5000;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        
+        /* --- 헤더 --- */
+        .top-header { background: white; padding: 0 30px; height: 70px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); position: relative; z-index: 5000; display: flex; align-items: center; justify-content: space-between; }
         .site-logo { font-size: 1.8rem; font-weight: 900; color: #0077be; cursor: pointer; white-space: nowrap; z-index: 5002; }
-        
-        /* 검색창 (PC 중앙 고정) */
-        .header-search-wrapper { 
-            position: absolute; left: 50%; transform: translateX(-50%); 
-            width: 400px; z-index: 5001; 
-        }
+        .header-search-wrapper { position: absolute; left: 50%; transform: translateX(-50%); width: 400px; z-index: 5001; }
         .search-box { display: flex; align-items: center; border: 2px solid #0077be; border-radius: 30px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .search-input { flex-grow: 1; border: none; padding: 10px 20px; font-size: 0.95rem; outline: none; }
         .search-btn { background: #0077be; border: none; color: white; padding: 10px 20px; cursor: pointer; font-size: 1.1rem; }
-        
-        .suggestions-list {
-            position: absolute; top: 105%; left: 15px; right: 15px;
-            background: white; border: 1px solid #ddd; border-radius: 12px;
-            display: none; z-index: 6000; list-style: none; padding: 0; margin: 0;
-            max-height: 300px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
+        .suggestions-list { position: absolute; top: 105%; left: 15px; right: 15px; background: white; border: 1px solid #ddd; border-radius: 12px; display: none; z-index: 6000; list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         .suggestion-item { padding: 12px 15px; border-bottom: 1px solid #f5f5f5; cursor: pointer; text-align: left; }
         .suggestion-item:hover { background: #f0f8ff; color: #0077be; }
-
         .hamburger-btn { display: none; font-size: 1.8rem; background: none; border: none; cursor: pointer; }
 
-        /* --- [수정됨] 레이아웃 --- */
-        .app-wrapper {
-            display: flex; 
-            align-items: flex-start; /* [중요] 사이드바가 늘어나지 않게 상단 정렬 */
-            justify-content: center;
-            gap: 25px;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 25px 20px;
-            box-sizing: border-box;
-            min-height: 100vh;
-        }
-
+        /* --- 레이아웃 --- */
+        .app-wrapper { display: flex; align-items: flex-start; justify-content: center; gap: 25px; max-width: 1200px; margin: 0 auto; padding: 25px 20px; box-sizing: border-box; min-height: 100vh; }
         .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 
-        /* [수정됨] 사이드바 (PC 고정) */
-        .sidebar {
-            width: 240px; 
-            flex-shrink: 0; 
-            
-            /* Sticky 고정 설정 */
-            position: -webkit-sticky;
-            position: sticky;
-            top: 20px; /* 스크롤 시 화면 상단 20px 위치에 고정 */
-            
-            background: white; border-radius: 16px; padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); z-index: 1000;
-        }
+        /* 사이드바 */
+        .sidebar { width: 240px; flex-shrink: 0; position: sticky; -webkit-position: sticky; top: 20px; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); z-index: 1000; }
 
-        /* 카드 공통 */
+        /* 카드 */
         .card { background: white; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; scroll-margin-top: 20px; }
         .section-title { font-size: 1.1rem; font-weight: 800; color: #333; margin-bottom: 15px; border-left: 5px solid #0077be; padding-left: 10px; }
 
-        /* 메뉴 */
         .nav-menu { display: flex; flex-direction: column; gap: 8px; }
         .nav-link { display: flex; align-items: center; gap: 10px; padding: 12px; color: #555; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; }
         .nav-link:hover { background-color: #e3f2fd; color: #0077be; }
@@ -104,7 +57,9 @@
         .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; border-radius: 16px; }
         canvas { width: 100% !important; height: 350px !important; }
 
-        /* [수정됨] 지도 스타일 (분리됨) */
+        .map-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .map-tabs button { padding: 6px 12px; border: 1px solid #ddd; background: #f8f9fa; cursor: pointer; border-radius: 6px; font-weight: 600; }
+        .map-tabs button.active { background: #0077be; color: white; border-color: #0077be; }
         .map-container { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; background: #eee; position: relative; }
         #map { width: 100%; height: 100%; z-index: 1; }
         #windyFrame { width: 100%; height: 100%; border: none; }
@@ -131,14 +86,33 @@
         .footer-links a { text-decoration: none; color: #666; font-size: 0.9rem; font-weight: 500; }
 
         .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2500; }
-        
-        /* 모바일 반응형 (850px 이하) */
+
+        /* --- [광고 스타일] --- */
+        .ad-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .ad-placeholder {
+            width: 100%;
+            height: 100px; /* 모바일/PC 상황에 맞춰 자동 조정되면 좋음 */
+            background-color: #f0f0f0;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        /* 사이드바 광고용 높이 */
+        .sidebar .ad-placeholder { height: 250px; }
+
         @media (max-width: 850px) {
-            .app-wrapper { display: block; padding: 15px; } /* Flex 해제 */
-            .sidebar { 
-                position: fixed; top: 0 !important; right: -280px; width: 260px; height: 100vh; 
-                transition: right 0.3s; border-radius: 0; z-index: 9000; box-shadow: -2px 0 10px rgba(0,0,0,0.1); 
-            }
+            .app-wrapper { display: block; padding: 15px; }
+            .sidebar { position: fixed; top: 0 !important; right: -280px; width: 260px; height: 100vh; transition: right 0.3s; border-radius: 0; z-index: 9000; box-shadow: -2px 0 10px rgba(0,0,0,0.1); }
             .sidebar.active { right: 0; } 
             .menu-overlay.active { display: block; }
             .hamburger-btn, .close-btn { display: block; }
@@ -147,10 +121,10 @@
             .hamburger-btn { margin-left: auto; order: 2; }
             .header-search-wrapper { position: static; transform: none; order: 3; width: 85%; margin: 5px auto 0 auto; }
             .footer-links { flex-direction: column; gap: 10px; }
+            /* 모바일에서 사이드바 광고는 숨기거나 작게 */
+            .sidebar .ad-placeholder { height: 100px; }
         }
     </style>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2115172676845444"
-     crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -192,17 +166,23 @@
             <canvas id="tideChart"></canvas>
         </div>
 
+        <div class="ad-container">
+            <div class="ad-placeholder">
+                Google Ad (In-Feed) Area
+            </div>
+        </div>
+
         <div id="section-station-map" class="card">
             <div class="section-title">Station Map</div>
             <div class="map-container">
-                <div id="map" style="width:100%; height:100%;"></div>
+                <div id="map"></div>
             </div>
         </div>
 
         <div id="section-wind-map" class="card">
             <div class="section-title">Wind Flow Map</div>
             <div class="map-container">
-                <iframe id="windyFrame" style="width:100%; height:100%; border:none;"></iframe>
+                <iframe id="windyFrame"></iframe>
             </div>
         </div>
 
@@ -231,6 +211,13 @@
                 <tbody id="weeklyTideBody"><tr><td colspan="4" style="text-align:center">Loading...</td></tr></tbody>
             </table>
         </div>
+
+        <div class="ad-container" style="margin-top:20px;">
+            <div class="ad-placeholder">
+                Google Ad (Bottom) Area
+            </div>
+        </div>
+
     </main>
 
     <nav class="sidebar" id="sidebarMenu">
@@ -243,6 +230,27 @@
             <a href="#section-weather-forecast" class="nav-link" onclick="toggleMenu()">🌤️ 14-Day Weather</a>
             <a href="#section-weather" class="nav-link" onclick="toggleMenu()">🌡️ Conditions</a>
             <a href="#section-forecast" class="nav-link" onclick="toggleMenu()">📅 Weekly Tides</a>
+        </div>
+
+        <div class="ad-container" style="margin-top:30px;">
+            <div class="ad-placeholder">
+                <!--구글애드 사이드바-->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2115172676845444"
+     crossorigin="anonymous"></script>
+<!-- myTideBox -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-2115172676845444"
+     data-ad-slot="9670513369"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+                <!--구글애드 사이드바-->
+
+            </div>
         </div>
     </nav>
 </div>
@@ -262,7 +270,6 @@
 </footer>
 
 <script>
-    // --- 로딩 종료 ---
     setTimeout(() => {
         const loader = document.getElementById('app-loader');
         if(loader) { loader.style.opacity = '0'; setTimeout(() => { loader.style.display = 'none'; }, 500); }
@@ -299,7 +306,7 @@
     function filterStations() {
         const v = searchInput.value.toLowerCase();
         suggestionsList.innerHTML = "";
-        if (allStations.length === 0) { suggestionsList.innerHTML = "<li class='suggestion-item'>Loading stations...</li>"; return; }
+        if (allStations.length === 0) { suggestionsList.innerHTML = "<li class='suggestion-item'>Loading...</li>"; return; }
         const matches = allStations.filter(s => s.officialName.toLowerCase().includes(v)).slice(0, 10);
         if(matches.length === 0) { suggestionsList.innerHTML = "<li class='suggestion-item' style='color:#999'>No results</li>"; } 
         else {
@@ -329,6 +336,7 @@
         map = L.map('map').setView([49.1, -123.1], 6);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
         setTimeout(() => { map.invalidateSize(); }, 500);
+        setTimeout(() => { map.invalidateSize(); }, 2000);
         updateWindyMap();
     }
 
@@ -355,8 +363,7 @@
 
     function updateWindyMap() {
         const src = `https://embed.windy.com/embed2.html?lat=${currentLat}&lon=${currentLon}&detailLat=${currentLat}&detailLon=${currentLon}&width=650&height=450&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1`;
-        const iframe = document.getElementById('windyFrame');
-        if(iframe) iframe.src = src;
+        document.getElementById('windyFrame').src = src;
     }
 
     window.selectStationByCode = function(code) {
@@ -459,7 +466,7 @@
                     const y = activePoint.element.y;
                     ctx.save();
                     ctx.beginPath(); ctx.moveTo(x, chart.scales.y.top); ctx.lineTo(x, chart.scales.y.bottom);
-                    ctx.lineWidth=1; ctx.strokeStyle='#ff5722'; ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+                    ctx.lineWidth=1.5; ctx.strokeStyle='#ff5722'; ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
                     ctx.beginPath(); ctx.arc(x, y, 5, 0, 2*Math.PI); ctx.fillStyle='#ff5722'; ctx.fill();
                     const val = chart.data.datasets[activePoint.datasetIndex].data[activePoint.index];
                     const tStr = new Date(val.x).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
