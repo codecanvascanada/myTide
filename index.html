@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <link rel="canonical" href="https://tidecanada.com">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tide Canada</title>
     
+    <title>Tide Canada - Marine Weather, Tide Charts & Wind Forecast for Sailing & Fishing</title>
+    <meta name="description" content="Real-time tide tables, wind flow maps, and 14-day marine weather forecasts. Essential tool for sailors, anglers, and boaters in Vancouver, Richmond, Steveston, and across Canada.">
+    <meta name="keywords" content="Tide Chart, Canada Tides, Marine Weather, Sailing Wind, Fishing Tides, Vancouver Tides, Steveston Tides, BC Ferries Weather">
+    
+    <meta property="og:title" content="Tide Canada - Best Marine Dashboard">
+    <meta property="og:description" content="Accurate tide graphs and wind maps for sailors and anglers. Check real-time conditions now.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tidecanada.com">
+    <meta property="og:site_name" content="Tide Canada">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
@@ -154,20 +163,6 @@
         
         <div id="section-tide" class="card">
 
-            <!--광고임시제거
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2115172676845444"
-     crossorigin="anonymous"></script>
-
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-2115172676845444"
-     data-ad-slot="9670513369"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
--->
             <div class="section-title">Tide Graph</div>
             <div id="currentInfo" class="info-box">Touch chart for details</div>
             <div class="date-controls">
@@ -182,21 +177,7 @@
             </div>
             <canvas id="tideChart"></canvas>
         </div>
-<!-- 광고 임시 비활성
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2115172676845444"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-format="autorelaxed"
-     data-ad-client="ca-pub-2115172676845444"
-     data-ad-slot="8764625803"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
--->
-   
-
-        <div id="section-station-map" class="card">
+<div id="section-station-map" class="card">
             <div class="section-title">Station Map</div>
             <div class="map-container">
                 <div id="map"></div>
@@ -236,8 +217,35 @@
             </table>
         </div>
 
-    <!--하단광고-->
-    <!--하단광고-->
+        <div class="ad-container" style="margin-top:20px;">
+            <div class="ad-placeholder">
+                Google Ad (Bottom) Area
+            </div>
+        </div>
+
+        <section style="margin: 40px 0; padding: 25px; background:white; border-radius:16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <h2 style="font-size: 1.4rem; color:#0077be; margin-bottom:15px;">Canada Marine Weather & Tide Tables</h2>
+            <p style="font-size: 0.95rem; line-height: 1.6; color:#555; margin-bottom:20px;">
+                Tide Canada provides accurate, real-time <strong>tide charts</strong> and <strong>marine weather forecasts</strong> for sailors, anglers, and outdoor enthusiasts. 
+                Whether you are planning a fishing trip in <strong>Steveston</strong> or sailing near <strong>Vancouver</strong>, check our 14-day weather forecast and wind flow maps to ensure a safe voyage.
+            </p>
+            
+            <h3 style="font-size: 1.1rem; color:#333; margin-bottom:10px;">Popular Tide Stations</h3>
+            <div style="font-size: 0.9rem; line-height: 1.6; color:#666;">
+                We cover major hydrographic stations across British Columbia and Canada, including:
+                <ul style="list-style-type: none; padding:0; margin-top:5px; display: flex; flex-wrap: wrap; gap: 10px;">
+                    <li style="background:#f0f8ff; padding:5px 10px; border-radius:15px;">Steveston</li>
+                    <li style="background:#f0f8ff; padding:5px 10px; border-radius:15px;">Vancouver Harbour</li>
+                    <li style="background:#f0f8ff; padding:5px 10px; border-radius:15px;">Point Atkinson</li>
+                    <li style="background:#f0f8ff; padding:5px 10px; border-radius:15px;">Victoria</li>
+                    <li style="background:#f0f8ff; padding:5px 10px; border-radius:15px;">Nanaimo</li>
+                    <li style="background:#f0f8ff; padding:5px 10px; border-radius:15px;">New Westminster</li>
+                    <li style="background:#f0f8ff; padding:5px 10px; border-radius:15px;">Prince Rupert</li>
+                    <li style="background:#f0f8ff; padding:5px 10px; border-radius:15px;">Tofino</li>
+                    <li style="background:#f0f8ff; padding:5px 10px; border-radius:15px;">Campbell River</li>
+                </ul>
+            </div>
+        </section>
 
     </main>
 
@@ -254,8 +262,7 @@
         </div>
 
 
-<!-- 측면광고 -->
-       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2115172676845444"
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2115172676845444"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block"
@@ -266,14 +273,7 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<!-- 측면광고 -->
-
-
-
-
-
-
-    </nav>
+</nav>
 </div>
 
 <footer class="site-footer">
@@ -487,7 +487,7 @@
                     const y = activePoint.element.y;
                     ctx.save();
                     ctx.beginPath(); ctx.moveTo(x, chart.scales.y.top); ctx.lineTo(x, chart.scales.y.bottom);
-                    ctx.lineWidth=1.5; ctx.strokeStyle='#ff5722'; ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+                    ctx.lineWidth=1; ctx.strokeStyle='#ff5722'; ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
                     ctx.beginPath(); ctx.arc(x, y, 5, 0, 2*Math.PI); ctx.fillStyle='#ff5722'; ctx.fill();
                     const val = chart.data.datasets[activePoint.datasetIndex].data[activePoint.index];
                     const tStr = new Date(val.x).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
