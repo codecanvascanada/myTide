@@ -121,6 +121,15 @@
 
         .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2500; }
 
+        /* Guide Section */
+        .guide-section { margin-top: 40px; padding: 40px; background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); line-height: 1.8; color: #444; text-align: left; }
+        .guide-section h2 { color: #0077be; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; margin-top: 30px; font-size: 1.8rem; }
+        .guide-section h3 { color: #333; margin-top: 25px; font-size: 1.3rem; }
+        .guide-section p { margin-bottom: 20px; font-size: 1rem; }
+        .guide-section ul { margin-bottom: 25px; padding-left: 20px; }
+        .guide-section li { margin-bottom: 10px; }
+        .guide-section strong { color: #0077be; }
+
         /* 모바일 반응형 */
         @media (max-width: 850px) {
             .app-wrapper { display: block; padding: 15px; }
@@ -162,7 +171,6 @@
 
 <div class="app-wrapper">
     <main class="content-area">
-        <!--광고
         <div class="ad-container">
             <ins class="adsbygoogle"
                  style="display:block"
@@ -172,7 +180,6 @@
                  data-full-width-responsive="true"></ins>
             <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
-    광고-->
         <div id="section-tide" class="card">
             <div class="section-title">Tide Graph</div>
             <div id="currentInfo" class="info-box">Touch chart for details</div>
@@ -188,7 +195,6 @@
             </div>
             <canvas id="tideChart"></canvas>
         </div>
-<!--광고
         <div class="ad-container">
             <ins class="adsbygoogle"
                  style="display:block"
@@ -197,7 +203,6 @@
                  data-ad-slot="8764625803"></ins>
             <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
-    -->
         <div id="section-station-map" class="card">
             <div class="section-title">Station Map</div>
             <div class="map-container">
@@ -267,6 +272,60 @@
             </div>
         </section>
 
+        <section id="section-guide" class="guide-section">
+            <h2>Comprehensive Marine Knowledge & Tide Guide</h2>
+            <p>
+                Welcome to the <strong>Tide Canada Marine Education Center</strong>. Understanding the ocean's rhythms is essential for safe navigation, successful fishing, and environmental stewardship. 
+                This guide provides professional insights into the science behind tidal movements and the unique marine characteristics of the Canadian coastline.
+            </p>
+
+            <h3>Chapter 1: The Science of Tides</h3>
+            <p>
+                Tides are the rise and fall of sea levels caused by the combined effects of the gravitational forces exerted by the <strong>Moon</strong> and the <strong>Sun</strong>, and the rotation of the Earth. 
+                While the Sun is much larger than the Moon, the Moon's proximity to Earth means its gravitational pull is approximately twice as strong in generating tides.
+            </p>
+            <ul>
+                <li><strong>Spring Tides:</strong> Occur when the Sun, Moon, and Earth are aligned (during Full Moon and New Moon). This alignment results in higher-than-average high tides and lower-than-average low tides.</li>
+                <li><strong>Neap Tides:</strong> Occur when the Sun and Moon are at right angles to each other (during the first and third quarter moons). The gravitational forces partially cancel each other out, leading to moderate tides with less variation.</li>
+                <li><strong>Tidal Range:</strong> The vertical difference between high tide and the succeeding low tide. This can vary from a few centimeters to over 16 meters depending on the location.</li>
+            </ul>
+
+            <h3>Chapter 2: Canada's Diverse Coastal Geography</h3>
+            <p>
+                With the longest coastline in the world, Canada experiences a vast range of tidal behaviors. 
+                The <strong>Bay of Fundy</strong>, located between New Brunswick and Nova Scotia, is home to the highest tides on Earth. 
+                The unique funnel shape and depth of the bay create a "resonance" effect, where the water's natural oscillation frequency matches the tidal cycle, amplifying the range to extreme levels.
+            </p>
+            <p>
+                On the <strong>Pacific Coast</strong>, British Columbia's intricate network of fjords, islands, and narrow channels (like the Seymour Narrows) creates complex tidal currents. 
+                In some areas, the water doesn't just rise and fall; it moves horizontally at speeds exceeding 15 knots, creating dangerous whirlpools and standing waves that require careful passage planning.
+            </p>
+
+            <h3>Chapter 3: How to Read Tide Charts & Datum</h3>
+            <p>
+                A tide chart is more than just a list of times. To use it effectively, you must understand the <strong>Chart Datum</strong>. 
+                In Canada, the datum used is <strong>Lower Low Water Large Tide (LLWLT)</strong>. This is a conservative level chosen so that the water level will rarely fall below the depths shown on navigation charts.
+            </p>
+            <ul>
+                <li><strong>Time Scales:</strong> Always verify if your tide table is in Standard Time or Daylight Saving Time. Tide Canada automatically adjusts for local time zones.</li>
+                <li><strong>Height Measurements:</strong> Heights are typically given in meters relative to the Chart Datum. If a chart shows a rock with 2 meters of water over it at datum, and the tide is 3 meters, you have 5 meters of clearance.</li>
+                <li><strong>Meteorological Effects:</strong> Remember that weather plays a role. High-pressure systems can suppress tides, while low-pressure systems and strong onshore winds can cause "storm surges," raising water levels significantly above predicted values.</li>
+            </ul>
+
+            <h3>Chapter 4: Marine Safety & Voyage Planning</h3>
+            <p>
+                Safe boating begins with a "Float Plan" that accounts for the tides. Entering a shallow harbor or crossing a sandbar must be timed with a rising (flooding) tide to ensure sufficient draft. 
+                Conversely, passing under bridges requires checking for <strong>Vertical Clearance</strong> at high tide.
+            </p>
+            <p>
+                <strong>Tidal Currents:</strong> It is crucial to distinguish between <em>Tide</em> (vertical movement) and <em>Current</em> (horizontal movement). 
+                The moment when the current stops before reversing direction is called <strong>Slack Water</strong>. This is often the safest time to navigate narrow passes or perform complex maneuvers like docking in high-current areas.
+            </p>
+            <p>
+                Always consult multiple sources of information, including official Canadian Hydrographic Service data, and keep a lookout for real-time changes in sea state.
+            </p>
+        </section>
+
     </main>
 
     <nav class="sidebar" id="sidebarMenu">
@@ -279,8 +338,8 @@
             <a href="#section-weather-forecast" class="nav-link" onclick="toggleMenu()">🌤️ 14-Day Weather</a>
             <a href="#section-weather" class="nav-link" onclick="toggleMenu()">🌡️ Conditions</a>
             <a href="#section-forecast" class="nav-link" onclick="toggleMenu()">📅 Weekly Tides</a>
+            <a href="#section-guide" class="nav-link" onclick="toggleMenu()">📚 Marine Guide</a>
         </div>
-<!--광고
         <div class="ad-container" style="margin-top:20px;">
             <ins class="adsbygoogle"
                  style="display:block"
@@ -290,7 +349,6 @@
                  data-full-width-responsive="true"></ins>
             <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
-    광고-->
     </nav>
 </div>
 
