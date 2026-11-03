@@ -82,6 +82,22 @@
         .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; border-radius: 16px; }
         canvas { width: 100% !important; height: 350px !important; }
 
+        /* Weekly tide graph */
+        .weekly-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .weekly-inner { min-width: 900px; position: relative; }
+        .weekly-inner canvas { height: 420px !important; }
+
+        /* Donation card */
+        .donate-card { text-align: center; background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%); border: 1px solid #cfe5f7; }
+        .donate-title { font-size: 1.3rem; font-weight: 800; color: #0077be; margin: 0 0 8px 0; }
+        .donate-text { font-size: 0.95rem; line-height: 1.6; color: #555; margin: 0 0 18px 0; }
+        .donate-buttons { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+        .donate-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 26px; border-radius: 30px; font-size: 1rem; font-weight: 700; text-decoration: none; color: white; background: #0077be; box-shadow: 0 3px 8px rgba(0,119,190,0.3); transition: transform 0.15s, background-color 0.2s; }
+        .donate-btn:hover { background: #005f98; transform: translateY(-1px); }
+        .donate-btn.paypal { background: #ffc439; color: #1a1a1a; box-shadow: 0 3px 8px rgba(255,196,57,0.4); }
+        .donate-btn.paypal:hover { background: #f0b52a; }
+        .donate-note { font-size: 0.75rem; color: #888; margin: 14px 0 0 0; }
+
         .map-container { width: 100%; height: 480px; border-radius: 12px; overflow: hidden; background: #eee; position: relative; }
         #map { width: 100%; height: 100%; z-index: 1; }
         #windyFrame { width: 100%; height: 100%; border: none; }
@@ -92,14 +108,6 @@
         .stat-val { font-size: 1.1rem; font-weight: bold; margin: 5px 0; }
         .scroll-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
         .daily-card { min-width: 100px; background: #f8f9fa; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #eee; }
-
-        .weekly-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .weekly-table th { text-align: left; padding: 10px 8px; border-bottom: 2px solid #333; background: #f8f9fa; }
-        .weekly-table td { padding: 12px 8px; border-bottom: 1px solid #eee; }
-        .day-separator td { border-bottom: 3px solid #cfd8dc !important; }
-        .lowest-low { background-color: #e3f2fd; color: #0d47a1; font-weight: bold; }
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        .tag-high { background: #e3f2fd; color: #1565c0; } .tag-low { background: #fff3e0; color: #ef6c00; }
 
         .seo-link { text-decoration: none; color: #0077be; font-weight: 500; transition: 0.2s; }
         .seo-link:hover { text-decoration: underline; color: #0d47a1; }
@@ -203,11 +211,24 @@
 
         <div class="card">
             <div class="section-title">Weekly Tides</div>
-            <table class="weekly-table">
-                <thead><tr><th>Date</th><th>Type</th><th>Time</th><th>Height</th></tr></thead>
-                <tbody id="weeklyTideBody"><tr><td colspan="4" style="text-align:center">Loading...</td></tr></tbody>
-            </table>
+            <div class="weekly-scroll">
+                <div class="weekly-inner">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
         </div>
+
+        <section class="card donate-card" id="donate">
+            <h2 class="donate-title">🌊 Support Tide Canada</h2>
+            <p class="donate-text">
+                Tide Canada를 후원해주세요. 후원 금액은 사이트 유지 및 홍보에 쓰입니다.<br>
+                <span style="color:#777; font-size:0.85rem;">Please support Tide Canada. Donations go toward site maintenance and promotion.</span>
+            </p>
+            <div class="donate-buttons">
+                <a class="donate-btn paypal" href="https://paypal.me/YonghoJI" target="_blank" rel="noopener">💙 Donate with PayPal</a>
+            </div>
+            <p class="donate-note">Donations are voluntary and non-refundable. Tide Canada is not a registered charity, so donations are not tax-deductible.</p>
+        </section>
 
         <section class="card">
             <h2 style="font-size: 1.4rem; color:#0077be; margin:0 0 15px 0;">Canada National Marine Weather & Tide Tables</h2>
@@ -344,7 +365,7 @@
 
             <h3>What you can do here</h3>
             <ul>
-                <li><strong>Tide:</strong> See the water-level curve for any day, with high and low tide times marked, plus a table for the next seven days.</li>
+                <li><strong>Tide:</strong> See the water-level curve for any day, with high and low tide times marked, plus a graph for the next seven days.</li>
                 <li><strong>Station Map:</strong> Browse hydrographic stations from the Pacific coast to the Atlantic coast and open any of them with one tap.</li>
                 <li><strong>Wind Map:</strong> Watch wind flow around your selected station.</li>
                 <li><strong>Weather:</strong> Check current conditions and a 14-day outlook for temperature, rain, sunrise, and sunset.</li>
@@ -554,7 +575,7 @@
 
         // Leaflet and Chart.js need a resize once their container becomes visible
         if (name === 'map' && map) setTimeout(() => { map.invalidateSize(); map.setView([currentLat, currentLon], map.getZoom()); }, 50);
-        if (name === 'tide' && myChart) setTimeout(() => myChart.resize(), 50);
+        if (name === 'tide') setTimeout(() => { if (myChart) myChart.resize(); if (weeklyChart) weeklyChart.resize(); }, 50);
 
         const active = document.querySelector('.nav-tab.active');
         if (active) active.scrollIntoView({ block: 'nearest', inline: 'center' });
@@ -566,6 +587,7 @@
     /* ---------- State ---------- */
     let currentDate = new Date();
     let myChart = null;
+    let weeklyChart = null;
     let allStations = [];
     let map = null;
     let currentLat = 49.12;
@@ -863,30 +885,96 @@
         } catch (e) {}
     }
 
+    /* ---------- Weekly tide graph ---------- */
     async function fetchWeekly(sid) {
         try {
-            const s = new Date(); const e = new Date(); e.setDate(e.getDate() + 6);
+            const s = new Date(); s.setHours(0, 0, 0, 0);
+            const e = new Date(s.getTime() + 7 * 24 * 3600 * 1000);
             const url = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${sid}/data?time-series-code=wlp-hilo&from=${s.toISOString()}&to=${e.toISOString()}`;
             const res = await fetch(url);
             const data = await res.json();
-            const groups = {};
-            data.forEach(d => { const k = new Date(d.eventDate).toDateString(); if (!groups[k]) groups[k] = []; groups[k].push(d); });
-            let html = "";
-            Object.keys(groups).forEach(key => {
-                const events = groups[key];
-                let minVal = 999;
-                events.forEach(ev => { if (ev.value < minVal) minVal = ev.value; });
-                events.forEach((d, index) => {
-                    const date = new Date(d.eventDate);
-                    const type = d.value > 3 ? "High" : "Low";
-                    const cls = d.value > 3 ? "tag-high" : "tag-low";
-                    const rowCls = (d.value === minVal) ? "lowest-low" : "";
-                    const borderCls = (index === events.length - 1) ? "day-separator" : "";
-                    html += `<tr class="${rowCls} ${borderCls}"><td>${date.getMonth() + 1}/${date.getDate()}</td><td><span class="tag ${cls}">${type}</span></td><td>${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td><td>${d.value.toFixed(2)}m</td></tr>`;
-                });
+
+            const pts = data
+                .map(d => ({ x: new Date(d.eventDate).getTime(), y: d.value }))
+                .sort((a, b) => a.x - b.x);
+
+            // High/Low by comparing with neighbours (instead of a fixed 3m threshold)
+            const mean = pts.reduce((a, p) => a + p.y, 0) / (pts.length || 1);
+            pts.forEach((p, i) => {
+                const prev = pts[i - 1], next = pts[i + 1];
+                if (prev && next) p.high = p.y > prev.y && p.y > next.y;
+                else if (prev) p.high = p.y > prev.y;
+                else if (next) p.high = p.y > next.y;
+                else p.high = p.y > mean;
             });
-            document.getElementById('weeklyTideBody').innerHTML = html;
-        } catch (e) { document.getElementById('weeklyTideBody').innerHTML = "<tr><td colspan='4'>Forecast unavailable</td></tr>"; }
+
+            // Lowest low of each day
+            const dayMin = {};
+            pts.forEach(p => {
+                const k = new Date(p.x).toDateString();
+                if (!(k in dayMin) || p.y < dayMin[k]) dayMin[k] = p.y;
+            });
+            pts.forEach(p => { p.lowest = (p.y === dayMin[new Date(p.x).toDateString()]); });
+
+            if (weeklyChart) weeklyChart.destroy();
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+
+            weeklyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Tide',
+                        data: pts,
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79,172,254,0.12)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        cubicInterpolationMode: 'monotone',
+                        pointBackgroundColor: pts.map(p => p.high ? '#e53935' : '#1e88e5'),
+                        pointBorderColor: pts.map(p => p.lowest ? '#ff9800' : '#fff'),
+                        pointBorderWidth: pts.map(p => p.lowest ? 3 : 1),
+                        pointRadius: pts.map(p => p.lowest ? 7 : 5),
+                        datalabels: {
+                            display: true,
+                            color: ctx => pts[ctx.dataIndex].high ? '#c62828' : '#0d47a1',
+                            backgroundColor: 'rgba(255,255,255,0.85)',
+                            borderRadius: 4,
+                            padding: 3,
+                            font: { size: 10, weight: 'bold' },
+                            align: ctx => pts[ctx.dataIndex].high ? 'top' : 'bottom',
+                            formatter: v => new Date(v.x).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + '\n' + v.y.toFixed(1) + 'm'
+                        }
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 30, bottom: 30, left: 5, right: 15 } },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            min: s.getTime(),
+                            max: e.getTime(),
+                            time: { unit: 'day', displayFormats: { day: 'M/d (EEE)' } },
+                            grid: { display: true, color: 'rgba(0,0,0,0.12)' }
+                        },
+                        y: { title: { display: true, text: 'm' }, grace: '10%' }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: items => new Date(items[0].parsed.x).toLocaleString('en-GB', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                                label: item => (pts[item.dataIndex].high ? 'High ' : 'Low ') + item.parsed.y.toFixed(2) + 'm'
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     function changeDate(off) { currentDate.setDate(currentDate.getDate() + off); updateDateDisplay(); fetchTideData(); }
