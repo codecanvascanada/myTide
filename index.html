@@ -112,7 +112,9 @@
         .seo-link { text-decoration: none; color: #0077be; font-weight: 500; transition: 0.2s; }
         .seo-link:hover { text-decoration: underline; color: #0d47a1; }
 
-        .ad-container { width: 100%; display: flex; justify-content: center; align-items: center; margin: 0 0 20px 0; min-height: 100px; }
+        .ad-container { width: 100%; display: flex; justify-content: center; align-items: center; margin: 0; min-height: 0; }
+        .ad-container ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
+        .ad-container:has(ins.adsbygoogle[data-ad-status="unfilled"]) { display: none; }
 
         .guide-section { padding: 40px; line-height: 1.8; color: #444; text-align: left; }
         .guide-section h2 { color: #0077be; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; margin-top: 0; font-size: 1.8rem; }
@@ -221,8 +223,7 @@
         <section class="card donate-card" id="donate">
             <h2 class="donate-title">🌊 Support Tide Canada</h2>
             <p class="donate-text">
-                Tide Canada를 후원해주세요. 후원 금액은 사이트 유지 및 홍보에 쓰입니다.<br>
-                <span style="color:#777; font-size:0.85rem;">Please support Tide Canada. Donations go toward site maintenance and promotion.</span>
+                Please support Tide Canada. Your donation goes toward site maintenance and promotion.
             </p>
             <div class="donate-buttons">
                 <a class="donate-btn paypal" href="https://paypal.me/YonghoJI" target="_blank" rel="noopener">💙 Donate with PayPal</a>
